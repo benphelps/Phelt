@@ -1,0 +1,5 @@
+switch ("bar") {
+    case "bar":
+    case "baz":
+        print "pass";
+}

@@ -1,0 +1,16 @@
+cmake_minimum_required(VERSION 3.10)
+
+project(lux)
+
+add_executable(lux
+    main.c
+    debug.c
+    chunk.c
+    value.c
+    memory.c
+    vm.c
+    compiler.c
+    scanner.c
+    object.c
+    table.c
+)

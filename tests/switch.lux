@@ -1,0 +1,6 @@
+switch ("bar") {
+    default:
+        print "pass";
+    case "bar":
+        print "failure";
+}
