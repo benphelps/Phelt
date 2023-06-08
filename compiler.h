@@ -3,7 +3,7 @@
 
 #include "chunk.h"
 
-#define MAX_CASES 64
+#define MAX_CASES 256
 
 bool compile(const char* source, Chunk* chunk);
 

@@ -1,6 +1,20 @@
-switch ("bar") {
+var bar = "bar";
+
+switch (bar) {
+    case "foo":
+        print "fail";
+    case "bar":
+        print "pass";
+    case "baz":
+        print "fail";
+}
+
+switch ("foo") {
     default:
         print "pass";
-    case "bar":
-        print "failure";
+}
+
+switch ("bar") {
+    case bar:
+        print "pass";
 }

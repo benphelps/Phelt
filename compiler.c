@@ -597,8 +597,9 @@ static void switchStatement()
     expression();
     consume(TOKEN_RIGHT_PAREN, "Expect ')' after switch condition.");
 
-    int exitJumps[MAX_CASES];
-    int exitJumpCount = 0;
+    int  exitJumps[MAX_CASES];
+    int  exitJumpCount = 0;
+    bool poppedFinal   = false;
 
     consume(TOKEN_LEFT_BRACE, "Expect '{' after switch condition.");
 
@@ -632,6 +633,7 @@ static void switchStatement()
         statement();
 
         if (exitJumpCount == 0) {
+            poppedFinal = true;
             emitByte(OP_POP); // pop the switch expression value, if no cases found
         }
     }
@@ -643,7 +645,7 @@ static void switchStatement()
         patchJump(exitJumps[i]);
     }
 
-    if (exitJumpCount == 0) {
+    if (exitJumpCount == 0 && !poppedFinal) {
         emitByte(OP_POP); // pop the switch expression value, if no cases found
     }
 }
