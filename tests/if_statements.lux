@@ -1,0 +1,23 @@
+var value = true;
+
+if (value == true) {
+    print "pass";
+}
+
+if (value != false) {
+    print "pass";
+}
+
+if (value == false) {
+    print "fail";
+} else {
+    print "pass";
+}
+
+if (value == false) {
+    print "fail";
+} else if (value == true) {
+    print "pass";
+} else {
+    print "fail";
+}

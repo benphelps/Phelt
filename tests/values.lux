@@ -1,0 +1,13 @@
+var one = true;
+var two = false;
+var three = 12345.678;
+var four = 0x10;
+var five = 0b10000;
+var six = 0o20;
+
+if(one == true) { print "pass"; } else { print "fail"; }
+if(two == false) { print "pass"; } else { print "fail"; }
+if(three == 12345.678) { print "pass"; } else { print "fail"; }
+if(four == 16) { print "pass"; } else { print "fail"; }
+if(five == 16) { print "pass"; } else { print "fail"; }
+if(six == 16) { print "pass"; } else { print "fail"; }
