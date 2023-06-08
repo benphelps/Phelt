@@ -311,6 +311,13 @@ static void number(bool canAssign)
         return;
     }
 
+    if (parser.previous.start[0] == '0' && parser.previous.start[1] == 'o') {
+        char* end;
+        long  value = strtol(parser.previous.start + 2, &end, 8);
+        emitConstant(NUMBER_VAL(value));
+        return;
+    }
+
     double value = strtod(parser.previous.start, NULL);
     emitConstant(NUMBER_VAL(value));
 }

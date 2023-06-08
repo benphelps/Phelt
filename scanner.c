@@ -35,6 +35,11 @@ static bool isHexDigit(char c)
     return isDigit(c) || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
 }
 
+static bool isOctalDigit(char c)
+{
+    return c >= '0' && c <= '7';
+}
+
 static bool isBinaryDigit(char c)
 {
     return c == '0' || c == '1';
@@ -210,6 +215,7 @@ static Token number(const char c)
 {
     bool couldBeHex    = c == '0' && peek() == 'x';
     bool couldBeBinary = c == '0' && peek() == 'b';
+    bool couldBeOctal  = c == '0' && peek() == 'o';
 
     if (couldBeHex) {
         advance();
@@ -218,6 +224,10 @@ static Token number(const char c)
     } else if (couldBeBinary) {
         advance();
         while (isBinaryDigit(peek()))
+            advance();
+    } else if (couldBeOctal) {
+        advance();
+        while (isOctalDigit(peek()))
             advance();
     } else {
         while (isDigit(peek()))
