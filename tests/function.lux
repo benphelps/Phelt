@@ -1,4 +1,14 @@
-var start = time();
-sleep(2);
-var end = time();
-print end - start;
+var foo = "foo";
+
+fun bar() {
+  var bar = foo;
+
+  fun baz(bar) {
+    bar = "baz";
+    return bar;
+  }
+
+  return baz(bar);
+}
+
+print bar();
