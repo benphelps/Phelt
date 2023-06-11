@@ -3,6 +3,7 @@
 
 #include "compiler.h"
 #include "debug.h"
+#include "native.h"
 #include "vm.h"
 
 VM vm;
@@ -14,7 +15,7 @@ static void resetStack()
     vm.openUpvalues = NULL;
 }
 
-static void runtimeError(const char* format, ...)
+extern void runtimeError(const char* format, ...)
 {
     va_list args;
     va_start(args, format);
@@ -38,21 +39,6 @@ static void runtimeError(const char* format, ...)
     resetStack();
 }
 
-static Value timeNative(int argCount, Value* args)
-{
-    return NUMBER_VAL((double)time(NULL));
-}
-
-static Value sleepNative(int argCount, Value* args)
-{
-    if (!IS_NUMBER(args[0])) {
-        runtimeError("Argument must be a number.");
-        return NIL_VAL;
-    }
-    sleep((unsigned int)AS_NUMBER(args[0]));
-    return NIL_VAL;
-}
-
 static void defineNative(const char* name, NativeFn function)
 {
     push(OBJ_VAL(copyString(name, (int)strlen(name))));
@@ -62,15 +48,20 @@ static void defineNative(const char* name, NativeFn function)
     pop();
 }
 
+static void initNative()
+{
+    for (NativeFnEntry* entry = nativeFns; entry->name != NULL; entry++) {
+        defineNative(entry->name, entry->function);
+    }
+}
+
 void initVM()
 {
     resetStack();
     vm.objects = NULL;
     initTable(&vm.globals);
     initTable(&vm.strings);
-
-    defineNative("time", timeNative);
-    defineNative("sleep", sleepNative);
+    initNative();
 }
 
 void freeVM()

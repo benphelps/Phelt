@@ -43,4 +43,6 @@ InterpretResult interpret(const char* source);
 void            push(Value value);
 Value           pop();
 
+void runtimeError(const char* format, ...);
+
 #endif
