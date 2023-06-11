@@ -1,14 +1,14 @@
-var foo = "foo";
+var foo = "fail";
 
 fun bar() {
   var bar = foo;
 
   fun baz(bar) {
-    bar = "baz";
+    bar = "pass";
     return bar;
   }
 
   return baz(bar);
 }
 
-print bar();
+print(bar());

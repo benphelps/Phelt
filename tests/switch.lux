@@ -2,19 +2,19 @@ var bar = "bar";
 
 switch (bar) {
     case "foo":
-        print "fail";
+        print("fail");
     case "bar":
-        print "pass";
+        print("pass");
     case "baz":
-        print "fail";
+        print("fail");
 }
 
 switch ("foo") {
     default:
-        print "pass";
+        print("pass");
 }
 
 switch ("bar") {
     case bar:
-        print "pass";
+        print("pass");
 }
