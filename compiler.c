@@ -1,6 +1,7 @@
 #include "compiler.h"
 
 #include "common.h"
+#include "memory.h"
 #include "object.h"
 #include "scanner.h"
 
@@ -485,7 +486,7 @@ ParseRule rules[] = {
     [TOKEN_DEFAULT]       = { NULL, NULL, PREC_NONE },
     [TOKEN_NIL]           = { literal, NULL, PREC_NONE },
     [TOKEN_OR]            = { NULL, or_, PREC_OR },
-    [TOKEN_DUMP]         = { NULL, NULL, PREC_NONE },
+    [TOKEN_DUMP]          = { NULL, NULL, PREC_NONE },
     [TOKEN_RETURN]        = { NULL, NULL, PREC_NONE },
     [TOKEN_SUPER]         = { NULL, NULL, PREC_NONE },
     [TOKEN_THIS]          = { NULL, NULL, PREC_NONE },
@@ -996,4 +997,13 @@ ObjFunction* compile(const char* source)
 
     ObjFunction* function = endCompiler();
     return parser.hadError ? NULL : function;
+}
+
+void markCompilerRoots()
+{
+    Compiler* compiler = current;
+    while (compiler != NULL) {
+        markObject((Obj*)compiler->function);
+        compiler = compiler->enclosing;
+    }
 }
