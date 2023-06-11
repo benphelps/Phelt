@@ -485,7 +485,7 @@ ParseRule rules[] = {
     [TOKEN_DEFAULT]       = { NULL, NULL, PREC_NONE },
     [TOKEN_NIL]           = { literal, NULL, PREC_NONE },
     [TOKEN_OR]            = { NULL, or_, PREC_OR },
-    [TOKEN_PRINT]         = { NULL, NULL, PREC_NONE },
+    [TOKEN_DUMP]         = { NULL, NULL, PREC_NONE },
     [TOKEN_RETURN]        = { NULL, NULL, PREC_NONE },
     [TOKEN_SUPER]         = { NULL, NULL, PREC_NONE },
     [TOKEN_THIS]          = { NULL, NULL, PREC_NONE },
@@ -883,7 +883,7 @@ static void printStatement()
 {
     expression();
     consume(TOKEN_SEMICOLON, "Expect ';' after value.");
-    emitByte(OP_PRINT);
+    emitByte(OP_DUMP);
 }
 
 static void returnStatement()
@@ -932,7 +932,7 @@ static void synchronize()
         case TOKEN_FOR:
         case TOKEN_IF:
         case TOKEN_WHILE:
-        case TOKEN_PRINT:
+        case TOKEN_DUMP:
         case TOKEN_RETURN:
             return;
 
@@ -959,7 +959,7 @@ static void declaration()
 
 static void statement()
 {
-    if (match(TOKEN_PRINT)) {
+    if (match(TOKEN_DUMP)) {
         printStatement();
     } else if (match(TOKEN_IF)) {
         ifStatement();

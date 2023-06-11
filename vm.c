@@ -356,7 +356,7 @@ static InterpretResult run()
             frame->ip -= offset;
             break;
         }
-        case OP_PRINT: {
+        case OP_DUMP: {
             printValue(pop());
             printf("\n");
             break;

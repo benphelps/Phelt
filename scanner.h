@@ -44,7 +44,7 @@ typedef enum {
     TOKEN_DEFAULT,
     TOKEN_NIL,
     TOKEN_OR,
-    TOKEN_PRINT,
+    TOKEN_DUMP,
     TOKEN_RETURN,
     TOKEN_SUPER,
     TOKEN_THIS,

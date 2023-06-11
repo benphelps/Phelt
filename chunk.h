@@ -38,7 +38,7 @@ typedef enum {
     OP_SET_GLOBAL,
 
     // Statements
-    OP_PRINT,
+    OP_DUMP,
     OP_JUMP,
     OP_JUMP_IF_FALSE,
     OP_LOOP,
