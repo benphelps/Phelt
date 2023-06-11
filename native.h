@@ -7,7 +7,7 @@
 
 typedef struct {
     const char* name;
-    Value (*function)(int, Value*);
+    NativeFn    function;
 } NativeFnEntry;
 
 extern NativeFnEntry nativeFns[];
