@@ -36,6 +36,8 @@ typedef enum {
     OP_SET_UPVALUE,
     OP_DEFINE_GLOBAL,
     OP_SET_GLOBAL,
+    OP_GET_PROPERTY,
+    OP_SET_PROPERTY,
 
     // Statements
     OP_DUMP,
@@ -43,9 +45,14 @@ typedef enum {
     OP_JUMP_IF_FALSE,
     OP_LOOP,
     OP_CALL,
+    OP_INVOKE,
     OP_CLOSURE,
     OP_CLOSE_UPVALUE,
     OP_RETURN,
+
+    // Types
+    OP_CLASS,
+    OP_METHOD
 } OpCode;
 
 typedef struct
