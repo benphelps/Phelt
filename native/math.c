@@ -1,7 +1,7 @@
 #include "native.h"
 #include <math.h>
 
-#define DEFINE_MATH_FUNC_SINGLE(FUNC_NAME)                                                 \
+#define DEFINE_MATH_FUNC_SINGLE(FUNC_NAME, TYPE)                                           \
     Value _##FUNC_NAME(int argCount, Value* args)                                          \
     {                                                                                      \
         if (argCount != 1) {                                                               \
@@ -14,11 +14,11 @@
             return NIL_VAL;                                                                \
         }                                                                                  \
                                                                                            \
-        double num = AS_NUMBER(args[0]);                                                   \
+        TYPE num = (TYPE)AS_NUMBER(args[0]);                                               \
         return NUMBER_VAL(FUNC_NAME(num));                                                 \
     }
 
-#define DEFINE_MATH_FUNC_DOUBLE(FUNC_NAME)                                                  \
+#define DEFINE_MATH_FUNC_DOUBLE(FUNC_NAME, TYPE)                                            \
     Value _##FUNC_NAME(int argCount, Value* args)                                           \
     {                                                                                       \
         if (argCount != 2) {                                                                \
@@ -31,21 +31,21 @@
             return NIL_VAL;                                                                 \
         }                                                                                   \
                                                                                             \
-        double num1 = AS_NUMBER(args[0]);                                                   \
-        double num2 = AS_NUMBER(args[1]);                                                   \
+        TYPE num1 = (TYPE)AS_NUMBER(args[0]);                                               \
+        TYPE num2 = (TYPE)AS_NUMBER(args[1]);                                               \
         return NUMBER_VAL(FUNC_NAME(num1, num2));                                           \
     }
 
-DEFINE_MATH_FUNC_SINGLE(ceil)
-DEFINE_MATH_FUNC_SINGLE(floor)
-DEFINE_MATH_FUNC_SINGLE(abs)
-DEFINE_MATH_FUNC_SINGLE(exp)
-DEFINE_MATH_FUNC_SINGLE(sqrt)
-DEFINE_MATH_FUNC_SINGLE(sin)
-DEFINE_MATH_FUNC_SINGLE(cos)
-DEFINE_MATH_FUNC_SINGLE(tan)
-DEFINE_MATH_FUNC_SINGLE(atan)
-DEFINE_MATH_FUNC_SINGLE(asin)
-DEFINE_MATH_FUNC_SINGLE(acos)
-DEFINE_MATH_FUNC_DOUBLE(pow)
-DEFINE_MATH_FUNC_DOUBLE(atan2)
+DEFINE_MATH_FUNC_SINGLE(ceil, double)
+DEFINE_MATH_FUNC_SINGLE(floor, double)
+DEFINE_MATH_FUNC_SINGLE(abs, int)
+DEFINE_MATH_FUNC_SINGLE(exp, double)
+DEFINE_MATH_FUNC_SINGLE(sqrt, double)
+DEFINE_MATH_FUNC_SINGLE(sin, double)
+DEFINE_MATH_FUNC_SINGLE(cos, double)
+DEFINE_MATH_FUNC_SINGLE(tan, double)
+DEFINE_MATH_FUNC_SINGLE(atan, double)
+DEFINE_MATH_FUNC_SINGLE(asin, double)
+DEFINE_MATH_FUNC_SINGLE(acos, double)
+DEFINE_MATH_FUNC_DOUBLE(pow, double)
+DEFINE_MATH_FUNC_DOUBLE(atan2, double)
