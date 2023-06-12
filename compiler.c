@@ -342,6 +342,13 @@ static void call(bool canAssign)
     emitBytes(OP_CALL, argCount);
 }
 
+static void index_(bool canAssign)
+{
+    expression();
+    consume(TOKEN_RIGHT_BRACKET, "Expect ']' after index.");
+    emitByte(OP_INDEX);
+}
+
 static void dot(bool canAssign)
 {
     consume(TOKEN_IDENTIFIER, "Expect property name after '.'.");
@@ -532,6 +539,8 @@ ParseRule rules[] = {
     [TOKEN_RIGHT_PAREN]   = { NULL, NULL, PREC_NONE },
     [TOKEN_LEFT_BRACE]    = { NULL, NULL, PREC_NONE },
     [TOKEN_RIGHT_BRACE]   = { NULL, NULL, PREC_NONE },
+    [TOKEN_LEFT_BRACKET]  = { NULL, index_, PREC_CALL },
+    [TOKEN_RIGHT_BRACKET] = { NULL, NULL, PREC_NONE },
     [TOKEN_COMMA]         = { NULL, NULL, PREC_NONE },
     [TOKEN_DOT]           = { NULL, dot, PREC_CALL },
     [TOKEN_MINUS]         = { unary, binary, PREC_TERM },

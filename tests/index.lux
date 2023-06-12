@@ -1,0 +1,12 @@
+let string = "Hello World";
+print(string[0]);
+
+class Test {
+    init() {
+        this.foo = "bar";
+    }
+}
+
+let test = Test();
+
+print(test.foo[0]);

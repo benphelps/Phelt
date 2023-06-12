@@ -204,6 +204,36 @@ static bool bindMethod(ObjClass* klass, ObjString* name)
     return true;
 }
 
+// push the indexed value of the object on the stack
+bool indexValue(Value value, Value index)
+{
+    if (IS_OBJ(value)) {
+        switch (OBJ_TYPE(value)) {
+        case OBJ_STRING: {
+            ObjString* string = AS_STRING(value);
+            if (IS_NUMBER(index)) {
+                int i = (int)AS_NUMBER(index);
+                if (i < 0 || i >= string->length) {
+                    runtimeError("String index out of bounds.");
+                    return false;
+                }
+                // create a new string with the character at the index
+                char* chars = ALLOCATE(char, 2);
+                chars[0]    = string->chars[i];
+                chars[1]    = '\0';
+                push(OBJ_VAL(copyString(chars, 1)));
+                return true;
+            }
+            break;
+        }
+        default:
+            break;
+        }
+    }
+    runtimeError("Only strings can be indexed.");
+    return false;
+}
+
 static ObjUpvalue* captureUpvalue(Value* local)
 {
     ObjUpvalue* prevUpvalue = NULL;
@@ -487,6 +517,14 @@ static InterpretResult run()
                 return INTERPRET_RUNTIME_ERROR;
             }
             frame = &vm.frames[vm.frameCount - 1];
+            break;
+        }
+        case OP_INDEX: {
+            Value index = pop();
+            Value value = pop();
+            if (!indexValue(value, index)) {
+                return INTERPRET_RUNTIME_ERROR;
+            }
             break;
         }
         case OP_INVOKE: {
