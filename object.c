@@ -145,6 +145,17 @@ static void printFunction(ObjFunction* function)
     printf("<fn %s>", function->name->chars);
 }
 
+char* functionString(ObjFunction* function)
+{
+    if (function->name == NULL) {
+        return "<script>";
+    }
+    char* name = ALLOCATE(char, function->name->length + 1);
+    memcpy(name, function->name->chars, function->name->length);
+    name[function->name->length] = '\0';
+    return name;
+}
+
 void printObject(Value value)
 {
     switch (OBJ_TYPE(value)) {
@@ -173,5 +184,27 @@ void printObject(Value value)
     case OBJ_UPVALUE:
         printf("upvalue");
         break;
+    }
+}
+
+char* objectString(Value value)
+{
+    switch (OBJ_TYPE(value)) {
+    case OBJ_BOUND_METHOD:
+        return functionString(AS_BOUND_METHOD(value)->method->function);
+    case OBJ_CLASS:
+        return AS_CLASS(value)->name->chars;
+    case OBJ_INSTANCE:
+        return AS_INSTANCE(value)->klass->name->chars;
+    case OBJ_CLOSURE:
+        return functionString(AS_CLOSURE(value)->function);
+    case OBJ_FUNCTION:
+        return functionString(AS_FUNCTION(value));
+    case OBJ_NATIVE:
+        return "<native fn>";
+    case OBJ_STRING:
+        return AS_CSTRING(value);
+    case OBJ_UPVALUE:
+        return "upvalue";
     }
 }

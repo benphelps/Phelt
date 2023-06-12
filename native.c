@@ -30,85 +30,41 @@ static Value _sleep(int argCount, Value* args)
     return NIL_VAL;
 }
 
-static Value _print(int argCount, Value* args)
+#define TEMPLATE_BUFFER 1024
+
+// This is your placeholder replacement function
+char* replace_placeholder(char* template, char* value)
 {
-    for (int i = 0; i < argCount; i++) {
-        printValue(args[i]);
-        printf(" ");
+    char* ptr = strstr(template, "{}");
+    if (ptr != NULL) {
+        char   buffer[TEMPLATE_BUFFER];
+        size_t len = ptr - template;
+        strncpy(buffer, template, len);
+        buffer[len] = '\0';
+        strcat(buffer, value);
+        strcat(buffer, ptr + 2);
+        strcpy(template, buffer);
     }
-    printf("\n");
-    return NIL_VAL;
+    return template;
 }
 
-static Value _printf(int argCount, Value* args)
+// This is your main printing function
+static Value _print(int argCount, Value* args)
 {
     if (argCount < 1) {
-        runtimeError("Expected at least 1 argument but got %d.", argCount);
+        printf("Error: No template provided.\n");
         return NIL_VAL;
     }
 
-    if (!IS_STRING(args[0])) {
-        runtimeError("First argument must be a string.");
-        return NIL_VAL;
+    char* template = stringValue(args[0]);
+
+    for (int i = 1; i < argCount; i++) {
+        char* value = stringValue(args[i]);
+        replace_placeholder(template, value);
     }
 
-    ObjString* format = AS_STRING(args[0]);
-    int        i      = 1;
-    int        j      = 0;
-    while (format->chars[j] != '\0') {
-        if (format->chars[j] == '%') {
-            j++;
-            switch (format->chars[j]) {
-            case 'd':
-            case 'i':
-                if (i >= argCount) {
-                    runtimeError("Not enough arguments to printf.");
-                    return NIL_VAL;
-                }
-                if (!IS_NUMBER(args[i])) {
-                    runtimeError("Argument %i must be a number.", i);
-                    return NIL_VAL;
-                }
-                printf("%i", (int)AS_NUMBER(args[i]));
-                i++;
-                break;
-            case 'f':
-                if (i >= argCount) {
-                    runtimeError("Not enough arguments to printf.");
-                    return NIL_VAL;
-                }
-                if (!IS_NUMBER(args[i])) {
-                    runtimeError("Argument %d must be a number.", i);
-                    return NIL_VAL;
-                }
-                printf("%f", AS_NUMBER(args[i]));
-                i++;
-                break;
-            case 's':
-                if (i >= argCount) {
-                    runtimeError("Not enough arguments to printf.");
-                    return NIL_VAL;
-                }
-                if (!IS_STRING(args[i])) {
-                    runtimeError("Argument %d must be a string.", i);
-                    return NIL_VAL;
-                }
-                printf("%s", AS_CSTRING(args[i]));
-                i++;
-                break;
-            case '%':
-                printf("%%");
-                break;
-            default:
-                runtimeError("Invalid format specifier.");
-                return NIL_VAL;
-            }
-        } else {
-            printf("%c", format->chars[j]);
-        }
-        j++;
-    }
-    printf("\n");
+    printf("%s\n", template);
+
     return NIL_VAL;
 }
 
@@ -116,6 +72,5 @@ NativeFnEntry nativeFns[] = {
     { "time", _time },
     { "sleep", _sleep },
     { "print", _print },
-    { "printf", _printf },
     { NULL, NULL }, // End of array sentinel
 };

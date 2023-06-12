@@ -45,6 +45,23 @@ void printValue(Value value)
     }
 }
 
+char* stringValue(Value value)
+{
+    switch (value.type) {
+    case VAL_BOOL:
+        return AS_BOOL(value) ? "true" : "false";
+    case VAL_NIL:
+        return "nil";
+    case VAL_NUMBER: {
+        char* str = malloc(sizeof(char) * 50);
+        sprintf(str, "%g", AS_NUMBER(value));
+        return str;
+    }
+    case VAL_OBJ:
+        return objectString(value);
+    }
+}
+
 bool valuesEqual(Value a, Value b)
 {
     if (a.type != b.type)

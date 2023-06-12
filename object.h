@@ -109,7 +109,9 @@ ObjString* copyString(const char* chars, int length);
 
 ObjUpvalue* newUpvalue(Value* slot);
 
-void printObject(Value value);
+void  printObject(Value value);
+char* functionString(ObjFunction* function);
+char* objectString(Value value);
 
 static inline bool isObjType(Value value, ObjType type)
 {
