@@ -1,9 +1,9 @@
-var one = true;
-var two = false;
-var three = 12345.678;
-var four = 0x10;
-var five = 0b10000;
-var six = 0o20;
+let one = true;
+let two = false;
+let three = 12345.678;
+let four = 0x10;
+let five = 0b10000;
+let six = 0o20;
 
 if (one == true) { print("pass"); } else { print("fail"); }
 if (two == false) { print("pass"); } else { print("fail"); }

@@ -1,7 +1,7 @@
-var foo = "fail";
+let foo = "fail";
 
 fun bar() {
-  var bar = foo;
+  let bar = foo;
 
   fun baz(bar) {
     bar = "pass";

@@ -1,13 +1,20 @@
-class Box {
-    init(width, height) {
-        this.width = width;
-        this.height = height;
+class Vector {
+    init(x, y) {
+        this.x = x;
+        this.y = y;
     }
 
-    area() {
-        return this.width * this.height;
+    distance(other) {
+        return sqrt(pow(this.x - other.x, 2) + pow(this.y - other.y, 2));
+    }
+
+    angle(other) {
+        return atan2(other.y - this.y, other.x - this.x);
     }
 }
 
-var box = Box(10, 20);
-print("Box area: {}", box.area());
+let a = Vector(1, 2);
+let b = Vector(3, 4);
+
+print("Distance: {}", a.distance(b));
+print("Angle: {}", a.angle(b));
