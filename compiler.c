@@ -568,7 +568,7 @@ ParseRule rules[] = {
     [TOKEN_SUPER]         = { super_, NULL, PREC_NONE },
     [TOKEN_THIS]          = { this, NULL, PREC_NONE },
     [TOKEN_TRUE]          = { literal, NULL, PREC_NONE },
-    [TOKEN_VAR]           = { NULL, NULL, PREC_NONE },
+    [TOKEN_LET]           = { NULL, NULL, PREC_NONE },
     [TOKEN_WHILE]         = { NULL, NULL, PREC_NONE },
     [TOKEN_ERROR]         = { NULL, NULL, PREC_NONE },
     [TOKEN_EOF]           = { NULL, NULL, PREC_NONE },
@@ -961,7 +961,7 @@ static void forStatement()
     consume(TOKEN_LEFT_PAREN, "Expect '(' after 'for'.");
     if (match(TOKEN_SEMICOLON)) {
         // No initializer.
-    } else if (match(TOKEN_VAR)) {
+    } else if (match(TOKEN_LET)) {
         varDeclaration();
     } else {
         expressionStatement();
@@ -1073,7 +1073,7 @@ static void synchronize()
         switch (parser.current.type) {
         case TOKEN_CLASS:
         case TOKEN_FUN:
-        case TOKEN_VAR:
+        case TOKEN_LET:
         case TOKEN_FOR:
         case TOKEN_IF:
         case TOKEN_WHILE:
@@ -1094,7 +1094,7 @@ static void declaration()
         classDeclaration();
     } else if (match(TOKEN_FUN)) {
         funDeclaration();
-    } else if (match(TOKEN_VAR)) {
+    } else if (match(TOKEN_LET)) {
         varDeclaration();
     } else {
         statement();

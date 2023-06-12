@@ -49,7 +49,7 @@ typedef enum {
     TOKEN_SUPER,
     TOKEN_THIS,
     TOKEN_TRUE,
-    TOKEN_VAR,
+    TOKEN_LET,
     TOKEN_WHILE,
 
     // Control flow
