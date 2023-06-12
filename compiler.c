@@ -486,7 +486,6 @@ static void super_(bool canAssign)
     uint8_t name = identifierConstant(&parser.previous);
 
     namedVariable(syntheticToken("this"), false);
-    namedVariable(syntheticToken("super"), false);
     if (match(TOKEN_LEFT_PAREN)) {
         uint8_t argCount = argumentList();
         namedVariable(syntheticToken("super"), false);
