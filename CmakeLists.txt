@@ -13,5 +13,7 @@ add_executable(lux
     scanner.c
     object.c
     table.c
-    native.c
+    native/system.c
+    native/math.c
+    native/native.c
 )

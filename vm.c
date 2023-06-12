@@ -3,7 +3,7 @@
 
 #include "compiler.h"
 #include "debug.h"
-#include "native.h"
+#include "native/native.h"
 #include "vm.h"
 
 VM vm;

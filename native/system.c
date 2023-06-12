@@ -1,10 +1,8 @@
+#include "native.h"
 #include <time.h>
 #include <unistd.h>
 
-#include "native.h"
-#include "vm.h"
-
-static Value _time(int argCount, Value* args)
+Value _time(int argCount, Value* args)
 {
     if (argCount != 0) {
         runtimeError("Expected 0 arguments but got %d.", argCount);
@@ -14,7 +12,7 @@ static Value _time(int argCount, Value* args)
     return NUMBER_VAL((double)time(NULL));
 }
 
-static Value _sleep(int argCount, Value* args)
+Value _sleep(int argCount, Value* args)
 {
     if (argCount != 1) {
         runtimeError("Expected 1 argument but got %d.", argCount);
@@ -49,7 +47,7 @@ char* replace_placeholder(char* template, char* value)
 }
 
 // This is your main printing function
-static Value _print(int argCount, Value* args)
+Value _print(int argCount, Value* args)
 {
     if (argCount < 1) {
         printf("Error: No template provided.\n");
@@ -69,10 +67,3 @@ static Value _print(int argCount, Value* args)
 
     return NIL_VAL;
 }
-
-NativeFnEntry nativeFns[] = {
-    { "time", _time },
-    { "sleep", _sleep },
-    { "print", _print },
-    { NULL, NULL }, // End of array sentinel
-};
