@@ -1,0 +1,13 @@
+class Box {
+    init(width, height) {
+        this.width = width;
+        this.height = height;
+    }
+
+    area() {
+        return this.width * this.height;
+    }
+}
+
+var box = Box(10, 20);
+print("Box area: {}", box.area());
