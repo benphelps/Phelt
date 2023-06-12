@@ -1,1 +1,5 @@
-// todo
+class GC { }
+
+for(var i = 0; i < 1000; i = i + 1) {
+    GC();
+}
