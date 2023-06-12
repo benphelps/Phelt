@@ -56,7 +56,9 @@ static Value _print(int argCount, Value* args)
         return NIL_VAL;
     }
 
-    char* template = stringValue(args[0]);
+    // copy the string template, Values are interned
+    char template[TEMPLATE_BUFFER];
+    strcpy(template, stringValue(args[0]));
 
     for (int i = 1; i < argCount; i++) {
         char* value = stringValue(args[i]);
