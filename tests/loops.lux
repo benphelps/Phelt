@@ -1,3 +1,5 @@
-for(let i = 1; i <= 10; i = i + 1){
-    print(i);
+let value = false;
+
+while(value) {
+    if(value) { break; } else { value = true; }
 }
