@@ -407,9 +407,7 @@ static InterpretResult run()
             pop();
             break;
         case OP_DUP: {
-            Value top = pop();
-            push(top);
-            push(top);
+            push(peek(0));
             break;
         }
         case OP_GET_LOCAL: {
