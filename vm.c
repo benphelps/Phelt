@@ -329,7 +329,7 @@ static InterpretResult run()
             printf(" ]");
         }
         printf("\n");
-        disassembleInstruction(&frame->closure->function->chunk, (int)(frame->ip - frame->closure->function->chunk.code));
+        disassembleInstruction(&frame->closure->function->chunk, (int)(frame->ip - frame->closure->function->chunk.code), false);
 #endif
         uint8_t instruction;
         switch (instruction = READ_BYTE()) {
