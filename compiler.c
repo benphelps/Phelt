@@ -67,6 +67,8 @@ typedef struct Compiler {
     int     localCount;
     Upvalue upvalues[UINT8_COUNT];
     int     scopeDepth;
+    int     exitJump;
+    int     loopStart;
 } Compiler;
 
 typedef struct ClassCompiler {
@@ -210,15 +212,23 @@ static void emitConstant(Value value)
 
 static void patchJump(int offset)
 {
-    // -2 to adjust for the bytecode for the jump offset itself.
-    int jump = currentChunk()->count - offset - 2;
+    // Walk the list and patch all the jumps:
+    while (true) {
+        int jump = currentChunk()->count - offset - 2;
+        if (jump > UINT16_MAX) {
+            error("Too much code to jump over.");
+        }
 
-    if (jump > UINT16_MAX) {
-        error("Too much code to jump over.");
+        int next = (currentChunk()->code[offset] << 8) | currentChunk()->code[offset + 1];
+
+        currentChunk()->code[offset]     = (jump >> 8) & 0xff;
+        currentChunk()->code[offset + 1] = jump & 0xff;
+
+        if (next == UINT16_MAX)
+            break;
+
+        offset += next;
     }
-
-    currentChunk()->code[offset]     = (jump >> 8) & 0xff;
-    currentChunk()->code[offset + 1] = jump & 0xff;
 }
 
 static void initCompiler(Compiler* compiler, FunctionType type)
@@ -963,11 +973,47 @@ static void switchStatement()
     }
 }
 
+static void addToInPlaceJumpOffsetList(int offset, int jumpAddress)
+{
+    // Skip to end of list. Could be optimized away by directly storing the end of the list in the compiler struct:
+    while (true) {
+        int next = (currentChunk()->code[offset] << 8) | currentChunk()->code[offset + 1];
+        if (next == UINT16_MAX || offset >= currentChunk()->count)
+            break;
+        offset += next;
+    }
+
+    int jump = jumpAddress - offset;
+    if (jump >= UINT16_MAX) {
+        error("Too much code for offset.");
+    }
+
+    if (offset >= currentChunk()->count || offset + 1 >= currentChunk()->count) {
+        error("Offset out of bounds.");
+    }
+
+    // Append new offset from previous jump to current jump to the list:
+    currentChunk()->code[offset]     = (jump >> 8) & 0xff;
+    currentChunk()->code[offset + 1] = jump & 0xff;
+}
+
+static void breakStatement()
+{
+    consume(TOKEN_SEMICOLON, "Expect ';' after break.");
+    int breakAddress = emitJump(OP_JUMP);
+    addToInPlaceJumpOffsetList(current->exitJump, breakAddress);
+}
+
+static void continueStatement()
+{
+    consume(TOKEN_SEMICOLON, "Expect ';' after continue.");
+    emitLoop(current->loopStart);
+}
+
 static void forStatement()
 {
-    beginScope();
-
     consume(TOKEN_LEFT_PAREN, "Expect '(' after 'for'.");
+
     if (match(TOKEN_SEMICOLON)) {
         // No initializer.
     } else if (match(TOKEN_LET)) {
@@ -976,38 +1022,67 @@ static void forStatement()
         expressionStatement();
     }
 
-    int loopStart = currentChunk()->count;
-    int exitJump  = -1;
-    if (!match(TOKEN_SEMICOLON)) {
-        expression();
-        consume(TOKEN_SEMICOLON, "Expect ';' after loop condition.");
+    int loopStartBackup = current->loopStart;
+    current->loopStart  = currentChunk()->count;
 
-        // Jump out of the loop if the condition is false.
-        exitJump = emitJump(OP_JUMP_IF_FALSE);
-        emitByte(OP_POP); // Condition.
+    int exitJumpBackup;
+    if (!check(TOKEN_SEMICOLON)) {
+        // Condition part of the for loop:
+        expression();
+        consume(TOKEN_SEMICOLON, "Expect ';' after condition.");
+
+        exitJumpBackup    = current->exitJump;
+        current->exitJump = emitJump(OP_JUMP_IF_FALSE);
+        emitByte(OP_POP);
     }
 
-    if (!match(TOKEN_RIGHT_PAREN)) {
-        int bodyJump       = emitJump(OP_JUMP);
+    if (!check(TOKEN_RIGHT_PAREN)) {
+        // Increment part of the for loop:
+        int bodyJump = emitJump(OP_JUMP);
+
         int incrementStart = currentChunk()->count;
         expression();
         emitByte(OP_POP);
         consume(TOKEN_RIGHT_PAREN, "Expect ')' after for clauses.");
 
-        emitLoop(loopStart);
-        loopStart = incrementStart;
+        emitLoop(current->loopStart);
+        current->loopStart = incrementStart;
+
         patchJump(bodyJump);
     }
 
     statement();
-    emitLoop(loopStart);
+    emitLoop(current->loopStart);
 
-    if (exitJump != -1) {
-        patchJump(exitJump);
-        emitByte(OP_POP); // Condition.
+    if (!check(TOKEN_SEMICOLON)) {
+        patchJump(current->exitJump);
+        emitByte(OP_POP);
+        current->exitJump = exitJumpBackup;
     }
 
-    endScope();
+    current->loopStart = loopStartBackup;
+}
+
+static void whileStatement()
+{
+    int loopStartBackup = current->loopStart; // Stores backup from enclosing loop
+    current->loopStart  = currentChunk()->count;
+    consume(TOKEN_LEFT_PAREN, "Expect '(' after 'while'.");
+    expression();
+    consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
+
+    int exitJumpBackup = current->exitJump; // Stores backup from enclosing loop
+    current->exitJump  = emitJump(OP_JUMP_IF_FALSE);
+    emitByte(OP_POP);
+    statement();
+    emitLoop(current->loopStart);
+
+    patchJump(current->exitJump);
+    // emitByte(OP_POP);
+
+    // Back to the enclosing loop:
+    current->loopStart = loopStartBackup;
+    current->exitJump  = exitJumpBackup;
 }
 
 static void ifStatement()
@@ -1053,23 +1128,6 @@ static void returnStatement()
         consume(TOKEN_SEMICOLON, "Expect ';' after return value.");
         emitByte(OP_RETURN);
     }
-}
-
-static void whileStatement()
-{
-    int loopStart = currentChunk()->count;
-
-    consume(TOKEN_LEFT_PAREN, "Expect '(' after 'while'.");
-    expression();
-    consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
-
-    int exitJump = emitJump(OP_JUMP_IF_FALSE);
-    emitByte(OP_POP);
-    statement();
-    emitLoop(loopStart);
-
-    patchJump(exitJump);
-    emitByte(OP_POP);
 }
 
 static void synchronize()
@@ -1125,6 +1183,10 @@ static void statement()
         whileStatement();
     } else if (match(TOKEN_FOR)) {
         forStatement();
+    } else if (match(TOKEN_CONTINUE)) {
+        continueStatement();
+    } else if (match(TOKEN_BREAK)) {
+        breakStatement();
     } else if (match(TOKEN_SWITCH)) {
         switchStatement();
     } else if (match(TOKEN_LEFT_BRACE)) {

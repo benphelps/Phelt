@@ -53,6 +53,8 @@ typedef enum {
     TOKEN_TRUE,
     TOKEN_LET,
     TOKEN_WHILE,
+    TOKEN_CONTINUE,
+    TOKEN_BREAK,
 
     // Control flow
     TOKEN_ERROR,
