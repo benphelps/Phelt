@@ -5,6 +5,7 @@ NativeFnEntry nativeFns[] = {
     { "time", _time },
     { "sleep", _sleep },
     { "print", _print },
+    { "println", _println },
 
     // math
     { "ceil", _ceil },

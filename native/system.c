@@ -63,7 +63,14 @@ Value _print(int argCount, Value* args)
         replace_placeholder(template, value);
     }
 
-    printf("%s\n", template);
+    printf("%s", template);
 
+    return NIL_VAL;
+}
+
+Value _println(int argCount, Value* args)
+{
+    _print(argCount, args);
+    printf("\n");
     return NIL_VAL;
 }

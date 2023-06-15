@@ -16,6 +16,7 @@ extern NativeFnEntry nativeFns[];
 extern Value _time(int argCount, Value* args);
 extern Value _sleep(int argCount, Value* args);
 extern Value _print(int argCount, Value* args);
+extern Value _println(int argCount, Value* args);
 
 extern Value _ceil(int argCount, Value* args);
 extern Value _floor(int argCount, Value* args);
