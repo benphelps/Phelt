@@ -316,6 +316,14 @@ Token scanToken()
         return makeToken(TOKEN_SLASH);
     case '*':
         return makeToken(TOKEN_STAR);
+    case '%':
+        return makeToken(TOKEN_PERCENT);
+    case '&':
+        return makeToken(TOKEN_AMPERSAND);
+    case '|':
+        return makeToken(TOKEN_PIPE);
+    case '^':
+        return makeToken(TOKEN_CARET);
     case '!':
         return makeToken(match('=') ? TOKEN_BANG_EQUAL : TOKEN_BANG);
     case '=':

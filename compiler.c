@@ -336,6 +336,18 @@ static void binary(bool canAssign)
     case TOKEN_STAR:
         emitByte(OP_MULTIPLY);
         break;
+    case TOKEN_PERCENT:
+        emitByte(OP_MODULO);
+        break;
+    case TOKEN_AMPERSAND:
+        emitByte(OP_BITWISE_AND);
+        break;
+    case TOKEN_PIPE:
+        emitByte(OP_BITWISE_OR);
+        break;
+    case TOKEN_CARET:
+        emitByte(OP_BITWISE_XOR);
+        break;
     case TOKEN_SLASH:
         emitByte(OP_DIVIDE);
         break;
@@ -557,6 +569,10 @@ ParseRule rules[] = {
     [TOKEN_COLON]         = { NULL, NULL, PREC_NONE },
     [TOKEN_SLASH]         = { NULL, binary, PREC_FACTOR },
     [TOKEN_STAR]          = { NULL, binary, PREC_FACTOR },
+    [TOKEN_PERCENT]       = { NULL, binary, PREC_FACTOR },
+    [TOKEN_AMPERSAND]     = { NULL, binary, PREC_FACTOR },
+    [TOKEN_PIPE]          = { NULL, binary, PREC_FACTOR },
+    [TOKEN_CARET]         = { NULL, binary, PREC_FACTOR },
     [TOKEN_BANG]          = { unary, NULL, PREC_NONE },
     [TOKEN_BANG_EQUAL]    = { NULL, binary, PREC_EQUALITY },
     [TOKEN_EQUAL]         = { NULL, NULL, PREC_NONE },

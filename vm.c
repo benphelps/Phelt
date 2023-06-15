@@ -318,6 +318,17 @@ static InterpretResult run()
         push(valueType(a op b));                          \
     } while (false)
 
+#define BINARY_OP_INT(valueType, op)                      \
+    do {                                                  \
+        if (!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1))) { \
+            runtimeError("Operands must be numbers.");    \
+            return INTERPRET_RUNTIME_ERROR;               \
+        }                                                 \
+        int b = (int)AS_NUMBER(pop());                    \
+        int a = (int)AS_NUMBER(pop());                    \
+        push(valueType(a op b));                          \
+    } while (false)
+
     for (;;) {
 #ifdef DEBUG_TRACE_EXECUTION
         if (vm.stackTop != vm.stack) {
@@ -391,6 +402,18 @@ static InterpretResult run()
             break;
         case OP_DIVIDE:
             BINARY_OP(NUMBER_VAL, /);
+            break;
+        case OP_MODULO:
+            BINARY_OP_INT(NUMBER_VAL, %);
+            break;
+        case OP_BITWISE_AND:
+            BINARY_OP_INT(NUMBER_VAL, &);
+            break;
+        case OP_BITWISE_OR:
+            BINARY_OP_INT(NUMBER_VAL, |);
+            break;
+        case OP_BITWISE_XOR:
+            BINARY_OP_INT(NUMBER_VAL, ^);
             break;
         case OP_NOT:
             push(BOOL_VAL(isFalsey(pop())));

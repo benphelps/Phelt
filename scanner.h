@@ -17,6 +17,10 @@ typedef enum {
     TOKEN_COLON,
     TOKEN_SLASH,
     TOKEN_STAR,
+    TOKEN_AMPERSAND,
+    TOKEN_PIPE,
+    TOKEN_CARET,
+    TOKEN_PERCENT,
 
     // One or two character tokens.
     TOKEN_BANG,
