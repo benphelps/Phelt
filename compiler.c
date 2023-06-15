@@ -999,6 +999,7 @@ static void breakStatement()
 {
     consume(TOKEN_SEMICOLON, "Expect ';' after break.");
     int breakAddress = emitJump(OP_JUMP);
+    emitByte(OP_POP);
     addToInPlaceJumpOffsetList(current->exitJump, breakAddress);
 }
 
@@ -1076,7 +1077,7 @@ static void whileStatement()
     emitLoop(current->loopStart);
 
     patchJump(current->exitJump);
-    // emitByte(OP_POP);
+    emitByte(OP_POP);
 
     // Back to the enclosing loop:
     current->loopStart = loopStartBackup;
