@@ -309,9 +309,19 @@ Token scanToken()
     case '.':
         return makeToken(TOKEN_DOT);
     case '-':
-        return makeToken(match('=') ? TOKEN_MINUS_EQUAL : TOKEN_MINUS);
+        if (match('-'))
+            return makeToken(TOKEN_MINUS_MINUS);
+        else if (match('='))
+            return makeToken(TOKEN_MINUS_EQUAL);
+        else
+            return makeToken(TOKEN_MINUS);
     case '+':
-        return makeToken(match('=') ? TOKEN_PLUS_EQUAL : TOKEN_PLUS);
+        if (match('+'))
+            return makeToken(TOKEN_PLUS_PLUS);
+        else if (match('='))
+            return makeToken(TOKEN_PLUS_EQUAL);
+        else
+            return makeToken(TOKEN_PLUS);
     case '/':
         return makeToken(match('=') ? TOKEN_SLASH_EQUAL : TOKEN_SLASH);
     case '*':

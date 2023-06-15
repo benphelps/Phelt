@@ -286,6 +286,10 @@ int disassembleInstruction(Chunk* chunk, int offset, bool flow)
         return simpleInstruction("OP_NOT", offset);
     case OP_NEGATE:
         return simpleInstruction("OP_NEGATE", offset);
+    case OP_INCREMENT:
+        return simpleInstruction("OP_INCREMENT", offset);
+    case OP_DECREMENT:
+        return simpleInstruction("OP_DECREMENT", offset);
     case OP_POP:
         return simpleInstruction("OP_POP", offset);
     case OP_DUP:

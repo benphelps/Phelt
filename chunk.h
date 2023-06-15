@@ -29,6 +29,8 @@ typedef enum {
     // Unary
     OP_NOT,
     OP_NEGATE,
+    OP_INCREMENT,
+    OP_DECREMENT,
 
     // Expressions
     OP_POP,

@@ -384,7 +384,53 @@ static void dot(bool canAssign)
         emitBytes(OP_INVOKE, name);
         emitByte(argCount);
     } else {
-        emitBytes(OP_GET_PROPERTY, name);
+        TokenType type = parser.current.type;
+
+        switch (type) {
+        case TOKEN_PLUS_EQUAL:
+        case TOKEN_MINUS_EQUAL:
+        case TOKEN_SLASH_EQUAL:
+        case TOKEN_STAR_EQUAL: {
+            advance();
+            emitByte(OP_DUP);
+            emitBytes(OP_GET_PROPERTY, name);
+            expression();
+
+            switch (type) {
+            case TOKEN_PLUS_EQUAL:
+                emitByte(OP_ADD);
+                break;
+            case TOKEN_MINUS_EQUAL:
+                emitByte(OP_SUBTRACT);
+                break;
+            case TOKEN_SLASH_EQUAL:
+                emitByte(OP_DIVIDE);
+                break;
+            case TOKEN_STAR_EQUAL:
+                emitByte(OP_MULTIPLY);
+                break;
+            default:
+                // Unreachable.
+                break;
+            }
+
+            emitBytes(OP_SET_PROPERTY, name);
+            break;
+        }
+
+        case TOKEN_PLUS_PLUS:
+        case TOKEN_MINUS_MINUS: {
+            advance();
+            emitByte(OP_DUP);
+            emitBytes(OP_GET_PROPERTY, name);
+            emitByte(type == TOKEN_PLUS_PLUS ? OP_INCREMENT : OP_DECREMENT);
+            emitBytes(OP_SET_PROPERTY, name);
+            break;
+        }
+
+        default:
+            emitBytes(OP_GET_PROPERTY, name);
+        }
     }
 }
 
@@ -509,6 +555,14 @@ static void namedVariable(Token name, bool canAssign)
         emitByte(OP_DIVIDE);
         emitBytes(setOp, (uint8_t)arg);
         return;
+    } else if (match(TOKEN_PLUS_PLUS)) {
+        namedVariable(name, false);
+        emitByte(OP_INCREMENT);
+        emitBytes(setOp, (uint8_t)arg);
+    } else if (match(TOKEN_MINUS_MINUS)) {
+        namedVariable(name, false);
+        emitByte(OP_DECREMENT);
+        emitBytes(setOp, (uint8_t)arg);
     } else {
         emitBytes(getOp, (uint8_t)arg);
     }
@@ -591,9 +645,10 @@ ParseRule rules[] = {
     [TOKEN_COMMA]         = { NULL, NULL, PREC_NONE },
     [TOKEN_DOT]           = { NULL, dot, PREC_CALL },
     [TOKEN_MINUS]         = { unary, binary, PREC_TERM },
+    [TOKEN_MINUS_MINUS]   = { NULL, NULL, PREC_NONE },
     [TOKEN_MINUS_EQUAL]   = { NULL, NULL, PREC_NONE },
     [TOKEN_PLUS]          = { NULL, binary, PREC_TERM },
-    // [TOKEN_PLUS_PLUS]     = { NULL, NULL, PREC_NONE },
+    [TOKEN_PLUS_PLUS]     = { NULL, NULL, PREC_NONE },
     [TOKEN_PLUS_EQUAL]    = { NULL, NULL, PREC_NONE },
     [TOKEN_SEMICOLON]     = { NULL, NULL, PREC_NONE },
     [TOKEN_COLON]         = { NULL, NULL, PREC_NONE },
