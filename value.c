@@ -29,6 +29,17 @@ void freeValueArray(ValueArray* array)
 
 void printValue(Value value)
 {
+#ifdef NAN_BOXING
+    if (IS_BOOL(value)) {
+        printf(AS_BOOL(value) ? "true" : "false");
+    } else if (IS_NIL(value)) {
+        printf("nil");
+    } else if (IS_NUMBER(value)) {
+        printf("%g", AS_NUMBER(value));
+    } else if (IS_OBJ(value)) {
+        printObject(value);
+    }
+#else
     switch (value.type) {
     case VAL_BOOL:
         printf(AS_BOOL(value) ? "true" : "false");
@@ -43,10 +54,24 @@ void printValue(Value value)
         printObject(value);
         break;
     }
+#endif
 }
 
 char* stringValue(Value value)
 {
+#ifdef NAN_BOXING
+    if (IS_BOOL(value)) {
+        return AS_BOOL(value) ? "true" : "false";
+    } else if (IS_NIL(value)) {
+        return "nil";
+    } else if (IS_NUMBER(value)) {
+        char* str = malloc(sizeof(char) * 50);
+        sprintf(str, "%g", AS_NUMBER(value));
+        return str;
+    } else if (IS_OBJ(value)) {
+        return objectString(value);
+    }
+#else
     switch (value.type) {
     case VAL_BOOL:
         return AS_BOOL(value) ? "true" : "false";
@@ -60,10 +85,15 @@ char* stringValue(Value value)
     case VAL_OBJ:
         return objectString(value);
     }
+#endif
+    return NULL;
 }
 
 bool valuesEqual(Value a, Value b)
 {
+#ifdef NAN_BOXING
+    return a == b;
+#else
     if (a.type != b.type)
         return false;
     switch (a.type) {
@@ -78,4 +108,5 @@ bool valuesEqual(Value a, Value b)
     default:
         return false; // Unreachable.
     }
+#endif
 }
