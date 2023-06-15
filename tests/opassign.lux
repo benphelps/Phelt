@@ -1,0 +1,13 @@
+let a = 1;
+
+a += 1;
+println(a == 2);
+
+a *= 2;
+println(a == 4);
+
+a -= 2;
+println(a == 2);
+
+a /= 2;
+println(a == 1);

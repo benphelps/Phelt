@@ -1,3 +1,3 @@
-print(time());
+println(time());
 sleep(1);
-print(time());
+println(time());

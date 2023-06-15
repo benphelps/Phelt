@@ -11,4 +11,4 @@ fun bar() {
   return baz(bar);
 }
 
-print(bar());
+println(bar());

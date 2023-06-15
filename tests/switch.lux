@@ -2,19 +2,19 @@ let bar = "bar";
 
 switch (bar) {
     case "foo":
-        print("fail");
+        println("fail");
     case "bar":
-        print("pass");
+        println("pass");
     case "baz":
-        print("fail");
+        println("fail");
 }
 
 switch ("foo") {
     default:
-        print("pass");
+        println("pass");
 }
 
 switch ("bar") {
     case bar:
-        print("pass");
+        println("pass");
 }

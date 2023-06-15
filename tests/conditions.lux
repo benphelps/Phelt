@@ -1,23 +1,23 @@
 let value = true;
 
 if (value == true) {
-    print("pass");
+    println("pass");
 }
 
 if (value != false) {
-    print("pass");
+    println("pass");
 }
 
 if (value == false) {
-    print("fail");
+    println("fail");
 } else {
-    print("pass");
+    println("pass");
 }
 
 if (value == false) {
-    print("fail");
+    println("fail");
 } else if (value == true) {
-    print("pass");
+    println("pass");
 } else {
-    print("fail");
+    println("fail");
 }

@@ -5,9 +5,9 @@ let four = 0x10;
 let five = 0b10000;
 let six = 0o20;
 
-if (one == true) { print("pass"); } else { print("fail"); }
-if (two == false) { print("pass"); } else { print("fail"); }
-if (three == 12345.678) { print("pass"); } else { print("fail"); }
-if (four == 16) { print("pass"); } else { print("fail"); }
-if (five == 16) { print("pass"); } else { print("fail"); }
-if (six == 16) { print("pass"); } else { print("fail"); }
+if (one == true) { println("pass"); } else { println("fail"); }
+if (two == false) { println("pass"); } else { println("fail"); }
+if (three == 12345.678) { println("pass"); } else { println("fail"); }
+if (four == 16) { println("pass"); } else { println("fail"); }
+if (five == 16) { println("pass"); } else { println("fail"); }
+if (six == 16) { println("pass"); } else { println("fail"); }

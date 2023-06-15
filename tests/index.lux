@@ -1,5 +1,5 @@
 let string = "Hello World";
-print(string[0]);
+println(string[0]);
 
 class Test {
     init() {
@@ -9,4 +9,4 @@ class Test {
 
 let test = Test();
 
-print(test.foo[0]);
+println(test.foo[0]);

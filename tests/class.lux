@@ -16,5 +16,5 @@ class Vector {
 let a = Vector(1, 2);
 let b = Vector(3, 4);
 
-print("Distance: {}", a.distance(b));
-print("Angle: {}", a.angle(b));
+println("Distance: {}", a.distance(b));
+println("Angle: {}", a.angle(b));
