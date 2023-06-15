@@ -58,17 +58,23 @@ typedef enum {
     TYPE_SCRIPT
 } FunctionType;
 
+typedef struct JumpNode {
+    struct JumpNode* next;
+    int              jumpPatch;
+} JumpNode;
+
 typedef struct Compiler {
     struct Compiler* enclosing;
     ObjFunction*     function;
     FunctionType     type;
 
-    Local   locals[UINT8_COUNT];
-    int     localCount;
-    Upvalue upvalues[UINT8_COUNT];
-    int     scopeDepth;
-    int     exitJump;
-    int     loopStart;
+    Local     locals[UINT8_COUNT];
+    int       localCount;
+    Upvalue   upvalues[UINT8_COUNT];
+    int       scopeDepth;
+    bool      isInLoop;
+    JumpNode* breakNodes;
+    int       loopStart;
 } Compiler;
 
 typedef struct ClassCompiler {
@@ -212,23 +218,15 @@ static void emitConstant(Value value)
 
 static void patchJump(int offset)
 {
-    // Walk the list and patch all the jumps:
-    while (true) {
-        int jump = currentChunk()->count - offset - 2;
-        if (jump > UINT16_MAX) {
-            error("Too much code to jump over.");
-        }
+    // -2 to adjust for the bytecode for the jump offset itself.
+    int jump = currentChunk()->count - offset - 2;
 
-        int next = (currentChunk()->code[offset] << 8) | currentChunk()->code[offset + 1];
-
-        currentChunk()->code[offset]     = (jump >> 8) & 0xff;
-        currentChunk()->code[offset + 1] = jump & 0xff;
-
-        if (next == UINT16_MAX)
-            break;
-
-        offset += next;
+    if (jump > UINT16_MAX) {
+        error("Too much code to jump over.");
     }
+
+    currentChunk()->code[offset]     = (jump >> 8) & 0xff;
+    currentChunk()->code[offset + 1] = jump & 0xff;
 }
 
 static void initCompiler(Compiler* compiler, FunctionType type)
@@ -243,7 +241,11 @@ static void initCompiler(Compiler* compiler, FunctionType type)
     compiler->type       = type;
     compiler->localCount = 0;
     compiler->scopeDepth = 0;
-    current              = compiler;
+    compiler->isInLoop   = false;
+    compiler->breakNodes = NULL;
+    compiler->loopStart  = 0;
+
+    current = compiler;
 
     Local* local      = &current->locals[current->localCount++];
     local->depth      = 0;
@@ -987,48 +989,62 @@ static void switchStatement()
     }
 }
 
-static void addToInPlaceJumpOffsetList(int offset, int jumpAddress)
-{
-    // Skip to end of list. Could be optimized away by directly storing the end of the list in the compiler struct:
-    while (true) {
-        int next = (currentChunk()->code[offset] << 8) | currentChunk()->code[offset + 1];
-        if (next == UINT16_MAX || offset >= currentChunk()->count)
-            break;
-        offset += next;
-    }
-
-    int jump = jumpAddress - offset;
-    if (jump >= UINT16_MAX) {
-        error("Too much code for offset.");
-    }
-
-    if (offset >= currentChunk()->count || offset + 1 >= currentChunk()->count) {
-        error("Offset out of bounds.");
-    }
-
-    // Append new offset from previous jump to current jump to the list:
-    currentChunk()->code[offset]     = (jump >> 8) & 0xff;
-    currentChunk()->code[offset + 1] = jump & 0xff;
-}
-
 static void breakStatement()
 {
-    consume(TOKEN_SEMICOLON, "Expect ';' after break.");
-    int breakAddress = emitJump(OP_JUMP);
-    emitByte(OP_POP);
-    addToInPlaceJumpOffsetList(current->exitJump, breakAddress);
+    if (!current->isInLoop)
+        error("Break must in a loop.");
+
+    JumpNode* node      = ALLOCATE(JumpNode, 1);
+    node->jumpPatch     = emitJump(OP_JUMP);
+    node->next          = current->breakNodes;
+    current->breakNodes = node;
+
+    consume(TOKEN_SEMICOLON, "Expect ';' after 'break'");
 }
 
 static void continueStatement()
 {
-    consume(TOKEN_SEMICOLON, "Expect ';' after continue.");
+    if (!current->isInLoop)
+        error("Continue must in a loop.");
+
     emitLoop(current->loopStart);
+
+    consume(TOKEN_SEMICOLON, "Expect ';' after 'continue'");
+}
+
+static void patchBreak()
+{
+    while (current->breakNodes != NULL) {
+        patchJump(current->breakNodes->jumpPatch);
+        current->breakNodes = current->breakNodes->next;
+    }
+}
+
+static void whileStatement()
+{
+    int loopStart      = currentChunk()->count;
+    current->loopStart = loopStart;
+    consume(TOKEN_LEFT_PAREN, "Expect '(' after 'while'.");
+    expression();
+    consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
+
+    int exitJump = emitJump(OP_JUMP_IF_FALSE);
+    emitByte(OP_POP);
+    current->isInLoop = true;
+    statement();
+    emitLoop(loopStart);
+
+    patchJump(exitJump);
+    emitByte(OP_POP);
+
+    // patch break jump
+    patchBreak();
 }
 
 static void forStatement()
 {
+    beginScope();
     consume(TOKEN_LEFT_PAREN, "Expect '(' after 'for'.");
-
     if (match(TOKEN_SEMICOLON)) {
         // No initializer.
     } else if (match(TOKEN_LET)) {
@@ -1037,67 +1053,44 @@ static void forStatement()
         expressionStatement();
     }
 
-    int loopStartBackup = current->loopStart;
-    current->loopStart  = currentChunk()->count;
-
-    int exitJumpBackup;
-    if (!check(TOKEN_SEMICOLON)) {
-        // Condition part of the for loop:
+    int loopStart      = currentChunk()->count;
+    current->loopStart = loopStart;
+    int exitJump       = -1;
+    if (!match(TOKEN_SEMICOLON)) {
         expression();
-        consume(TOKEN_SEMICOLON, "Expect ';' after condition.");
+        consume(TOKEN_SEMICOLON, "Expect ';' after loop condition.");
 
-        exitJumpBackup    = current->exitJump;
-        current->exitJump = emitJump(OP_JUMP_IF_FALSE);
-        emitByte(OP_POP);
+        // Jump out of the loop if the condition is false.
+        exitJump = emitJump(OP_JUMP_IF_FALSE);
+        emitByte(OP_POP); // Condition.
     }
 
-    if (!check(TOKEN_RIGHT_PAREN)) {
-        // Increment part of the for loop:
-        int bodyJump = emitJump(OP_JUMP);
-
+    if (!match(TOKEN_RIGHT_PAREN)) {
+        int bodyJump       = emitJump(OP_JUMP);
         int incrementStart = currentChunk()->count;
         expression();
         emitByte(OP_POP);
         consume(TOKEN_RIGHT_PAREN, "Expect ')' after for clauses.");
 
-        emitLoop(current->loopStart);
-        current->loopStart = incrementStart;
-
+        emitLoop(loopStart);
+        loopStart          = incrementStart;
+        current->loopStart = loopStart;
         patchJump(bodyJump);
     }
 
+    current->isInLoop = true;
     statement();
-    emitLoop(current->loopStart);
+    emitLoop(loopStart);
 
-    if (!check(TOKEN_SEMICOLON)) {
-        patchJump(current->exitJump);
-        emitByte(OP_POP);
-        current->exitJump = exitJumpBackup;
+    if (exitJump != -1) {
+        patchJump(exitJump);
+        emitByte(OP_POP); // Condition.
     }
 
-    current->loopStart = loopStartBackup;
-}
+    // patch break jump
+    patchBreak();
 
-static void whileStatement()
-{
-    int loopStartBackup = current->loopStart; // Stores backup from enclosing loop
-    current->loopStart  = currentChunk()->count;
-    consume(TOKEN_LEFT_PAREN, "Expect '(' after 'while'.");
-    expression();
-    consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
-
-    int exitJumpBackup = current->exitJump; // Stores backup from enclosing loop
-    current->exitJump  = emitJump(OP_JUMP_IF_FALSE);
-    emitByte(OP_POP);
-    statement();
-    emitLoop(current->loopStart);
-
-    patchJump(current->exitJump);
-    emitByte(OP_POP);
-
-    // Back to the enclosing loop:
-    current->loopStart = loopStartBackup;
-    current->exitJump  = exitJumpBackup;
+    endScope();
 }
 
 static void ifStatement()
