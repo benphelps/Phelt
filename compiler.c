@@ -484,6 +484,31 @@ static void namedVariable(Token name, bool canAssign)
     if (canAssign && match(TOKEN_EQUAL)) {
         expression();
         emitBytes(setOp, (uint8_t)arg);
+        return;
+    } else if (match(TOKEN_PLUS_EQUAL)) {
+        expression();
+        emitBytes(getOp, (uint8_t)arg);
+        emitByte(OP_ADD);
+        emitBytes(setOp, (uint8_t)arg);
+        return;
+    } else if (match(TOKEN_MINUS_EQUAL)) {
+        emitBytes(getOp, (uint8_t)arg);
+        expression();
+        emitByte(OP_SUBTRACT);
+        emitBytes(setOp, (uint8_t)arg);
+        return;
+    } else if (match(TOKEN_STAR_EQUAL)) {
+        expression();
+        emitBytes(getOp, (uint8_t)arg);
+        emitByte(OP_MULTIPLY);
+        emitBytes(setOp, (uint8_t)arg);
+        return;
+    } else if (match(TOKEN_SLASH_EQUAL)) {
+        expression();
+        emitBytes(getOp, (uint8_t)arg);
+        emitByte(OP_DIVIDE);
+        emitBytes(setOp, (uint8_t)arg);
+        return;
     } else {
         emitBytes(getOp, (uint8_t)arg);
     }
@@ -566,11 +591,16 @@ ParseRule rules[] = {
     [TOKEN_COMMA]         = { NULL, NULL, PREC_NONE },
     [TOKEN_DOT]           = { NULL, dot, PREC_CALL },
     [TOKEN_MINUS]         = { unary, binary, PREC_TERM },
+    [TOKEN_MINUS_EQUAL]   = { NULL, NULL, PREC_NONE },
     [TOKEN_PLUS]          = { NULL, binary, PREC_TERM },
+    // [TOKEN_PLUS_PLUS]     = { NULL, NULL, PREC_NONE },
+    [TOKEN_PLUS_EQUAL]    = { NULL, NULL, PREC_NONE },
     [TOKEN_SEMICOLON]     = { NULL, NULL, PREC_NONE },
     [TOKEN_COLON]         = { NULL, NULL, PREC_NONE },
     [TOKEN_SLASH]         = { NULL, binary, PREC_FACTOR },
+    [TOKEN_SLASH_EQUAL]   = { NULL, NULL, PREC_NONE },
     [TOKEN_STAR]          = { NULL, binary, PREC_FACTOR },
+    [TOKEN_STAR_EQUAL]    = { NULL, NULL, PREC_NONE },
     [TOKEN_PERCENT]       = { NULL, binary, PREC_FACTOR },
     [TOKEN_AMPERSAND]     = { NULL, binary, PREC_FACTOR },
     [TOKEN_PIPE]          = { NULL, binary, PREC_FACTOR },
@@ -922,13 +952,6 @@ static void expressionStatement()
     consume(TOKEN_SEMICOLON, "Expect ';' after expression.");
     emitByte(OP_POP);
 }
-
-/*
-switchStmt     → "switch" "(" expression ")"
-                 "{" switchCase* defaultCase? "}" ;
-switchCase     → "case" expression ":" statement* ;
-defaultCase    → "default" ":" statement* ;
-*/
 
 static void switchStatement()
 {
