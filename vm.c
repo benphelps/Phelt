@@ -210,18 +210,14 @@ bool indexValue(Value value, Value index)
     if (IS_OBJ(value)) {
         switch (OBJ_TYPE(value)) {
         case OBJ_STRING: {
-            ObjString* string = AS_STRING(value);
             if (IS_NUMBER(index)) {
-                int i = (int)AS_NUMBER(index);
+                int        i      = (int)AS_NUMBER(index);
+                ObjString* string = AS_STRING(value);
                 if (i < 0 || i >= string->length) {
                     runtimeError("String index out of bounds.");
                     return false;
                 }
-                // create a new string with the character at the index
-                char* chars = ALLOCATE(char, 2);
-                chars[0]    = string->chars[i];
-                chars[1]    = '\0';
-                push(OBJ_VAL(copyString(chars, 1)));
+                push(OBJ_VAL(copyString(&string->chars[i], 1)));
                 return true;
             }
             break;
