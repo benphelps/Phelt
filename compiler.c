@@ -664,12 +664,25 @@ static void table(bool canAssign)
     emitBytes(OP_SET_TABLE, numElements);
 }
 
+static void array(bool canAssign)
+{
+    uint8_t numElements = 0;
+    if (!check(TOKEN_RIGHT_BRACKET)) {
+        do {
+            numElements++;
+            expression();
+        } while (match(TOKEN_COMMA));
+    }
+    consume(TOKEN_RIGHT_BRACKET, "Expect ']' after array elements.");
+    emitBytes(OP_SET_ARRAY, numElements);
+}
+
 ParseRule rules[] = {
     [TOKEN_LEFT_PAREN]    = { grouping, call, PREC_CALL },
     [TOKEN_RIGHT_PAREN]   = { NULL, NULL, PREC_NONE },
     [TOKEN_LEFT_BRACE]    = { table, NULL, PREC_NONE },
     [TOKEN_RIGHT_BRACE]   = { NULL, NULL, PREC_NONE },
-    [TOKEN_LEFT_BRACKET]  = { NULL, index_, PREC_CALL },
+    [TOKEN_LEFT_BRACKET]  = { array, index_, PREC_CALL },
     [TOKEN_RIGHT_BRACKET] = { NULL, NULL, PREC_NONE },
     [TOKEN_COMMA]         = { NULL, NULL, PREC_NONE },
     [TOKEN_DOT]           = { NULL, dot, PREC_CALL },

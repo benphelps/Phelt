@@ -143,6 +143,13 @@ ObjTable* newTable()
     return table;
 }
 
+ObjArray* newArray()
+{
+    ObjArray* array = ALLOCATE_OBJ(ObjArray, OBJ_ARRAY);
+    initValueArray(&array->array);
+    return array;
+}
+
 static void printFunction(ObjFunction* function)
 {
     if (function->name == NULL) {
@@ -191,6 +198,9 @@ void printObject(Value value)
     case OBJ_TABLE:
         printTable(&AS_TABLE(value)->table);
         break;
+    case OBJ_ARRAY:
+        printValueArray(&AS_ARRAY(value)->array);
+        break;
     case OBJ_UPVALUE:
         printf("upvalue");
         break;
@@ -216,6 +226,8 @@ char* objectString(Value value)
         return AS_CSTRING(value);
     case OBJ_TABLE:
         return "table";
+    case OBJ_ARRAY:
+        return "array";
     case OBJ_UPVALUE:
         return "upvalue";
     }

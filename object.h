@@ -16,6 +16,7 @@
 #define IS_NATIVE(value) isObjType(value, OBJ_NATIVE)
 #define IS_STRING(value) isObjType(value, OBJ_STRING)
 #define IS_TABLE(value) isObjType(value, OBJ_TABLE)
+#define IS_ARRAY(value) isObjType(value, OBJ_ARRAY)
 
 #define AS_BOUND_METHOD(value) ((ObjBoundMethod*)AS_OBJ(value))
 #define AS_CLASS(value) ((ObjClass*)AS_OBJ(value))
@@ -26,6 +27,7 @@
 #define AS_STRING(value) ((ObjString*)AS_OBJ(value))
 #define AS_CSTRING(value) (((ObjString*)AS_OBJ(value))->chars)
 #define AS_TABLE(value) ((ObjTable*)AS_OBJ(value))
+#define AS_ARRAY(value) ((ObjArray*)AS_OBJ(value))
 
 typedef enum {
     OBJ_BOUND_METHOD,
@@ -37,6 +39,7 @@ typedef enum {
     OBJ_STRING,
     OBJ_UPVALUE,
     OBJ_TABLE,
+    OBJ_ARRAY,
 } ObjType;
 
 struct Obj {
@@ -97,6 +100,11 @@ typedef struct {
     Table table;
 } ObjTable;
 
+typedef struct {
+    Obj        obj;
+    ValueArray array;
+} ObjArray;
+
 typedef Value (*NativeFn)(int argCount, Value* args);
 
 typedef struct {
@@ -118,6 +126,7 @@ ObjString* copyString(const char* chars, int length);
 ObjUpvalue* newUpvalue(Value* slot);
 
 ObjTable* newTable();
+ObjArray* newArray();
 
 void  printObject(Value value);
 char* functionString(ObjFunction* function);

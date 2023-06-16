@@ -224,9 +224,7 @@ bool indexValue(Value value, Value index)
         }
         case OBJ_TABLE: {
             ObjTable* table = AS_TABLE(value);
-            printTable(&table->table);
-            Value entry;
-            printf("indexKey: %s\n", AS_STRING(index)->chars);
+            Value     entry;
             if (tableGet(&table->table, AS_STRING(index), &entry)) {
                 push(entry);
                 return true;
@@ -236,11 +234,25 @@ bool indexValue(Value value, Value index)
             }
             break;
         }
+        case OBJ_ARRAY: {
+            ObjArray* array = AS_ARRAY(value);
+            if (IS_NUMBER(index)) {
+                int i = (int)AS_NUMBER(index);
+                if (i < 0 || i >= array->array.count) {
+                    runtimeError("Array index out of bounds.");
+                    return false;
+                }
+                Value entry = array->array.values[i];
+                push(entry);
+                return true;
+            }
+            break;
+        }
         default:
             break;
         }
     }
-    runtimeError("Only strings can be indexed.");
+    runtimeError("Only strings, tables and arrays can be indexed.");
     return false;
 }
 
@@ -404,9 +416,16 @@ static InterpretResult run()
                 tableAddAll(&b->table, &new->table);
                 tableAddAll(&a->table, &new->table);
                 push(OBJ_VAL(new));
+            } else if (IS_ARRAY(peek(0)) && IS_ARRAY(peek(1))) {
+                ObjArray* b   = AS_ARRAY(pop());
+                ObjArray* a   = AS_ARRAY(pop());
+                ObjArray* new = newArray();
+                joinValueArray(&new->array, &a->array);
+                joinValueArray(&new->array, &b->array);
+                push(OBJ_VAL(new));
             } else {
                 runtimeError(
-                    "Operands must be two numbers or two joinable objects.");
+                    "Operands must be two joinable types.");
                 return INTERPRET_RUNTIME_ERROR;
             }
             break;
@@ -626,6 +645,23 @@ static InterpretResult run()
                 break;
             }
 
+            case OBJ_ARRAY: {
+                Value     value = pop();
+                Value     index = pop();
+                ObjArray* array = AS_ARRAY(pop());
+                if (!IS_NUMBER(index)) {
+                    runtimeError("Index must be a number.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                if (AS_NUMBER(index) < 0 || AS_NUMBER(index) >= array->array.count) {
+                    runtimeError("Index out of bounds.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                array->array.values[(int)AS_NUMBER(index)] = value;
+                push(OBJ_VAL(array));
+                break;
+            }
+
             case OBJ_STRING: {
                 Value      value  = pop();
                 Value      index  = pop();
@@ -652,7 +688,7 @@ static InterpretResult run()
             }
 
             default: {
-                runtimeError("Only tables and strings have indexes.");
+                runtimeError("Only strings, tables and arrays have indexes.");
                 return INTERPRET_RUNTIME_ERROR;
             }
             }
@@ -716,6 +752,23 @@ static InterpretResult run()
             }
 
             push(OBJ_VAL(table));
+            break;
+        }
+        case OP_SET_ARRAY: {
+            int       elemsCount = READ_BYTE();
+            ObjArray* array      = newArray();
+
+            if (elemsCount > 0) {
+                for (int i = elemsCount - 1; i >= 0; i--) {
+                    writeValueArray(&array->array, peek(i));
+                }
+
+                for (int i = elemsCount - 1; i >= 0; i--) {
+                    pop();
+                }
+            }
+
+            push(OBJ_VAL(array));
             break;
         }
         case OP_RETURN: {

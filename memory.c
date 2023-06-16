@@ -84,6 +84,9 @@ static void freeObject(Obj* object)
     case OBJ_TABLE:
         FREE(ObjTable, object);
         break;
+    case OBJ_ARRAY:
+        FREE(ObjArray, object);
+        break;
     }
 }
 
@@ -186,6 +189,11 @@ static void blackenObject(Obj* object)
     case OBJ_TABLE: {
         ObjTable* t = (ObjTable*)object;
         markTable(&t->table);
+        break;
+    }
+    case OBJ_ARRAY: {
+        ObjArray* a = (ObjArray*)object;
+        markArray(&a->array);
         break;
     }
     case OBJ_NATIVE:

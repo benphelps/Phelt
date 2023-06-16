@@ -46,6 +46,7 @@ typedef enum {
     OP_SET_PROPERTY,
     OP_GET_SUPER,
     OP_SET_TABLE,
+    OP_SET_ARRAY,
 
     // Statements
     OP_DUMP,

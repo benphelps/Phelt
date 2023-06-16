@@ -21,10 +21,27 @@ void writeValueArray(ValueArray* array, Value value)
     array->count++;
 }
 
+void joinValueArray(ValueArray* array, ValueArray* other)
+{
+    for (int i = 0; i < other->count; i++) {
+        writeValueArray(array, other->values[i]);
+    }
+}
+
 void freeValueArray(ValueArray* array)
 {
     FREE_ARRAY(Value, array->values, array->capacity);
     initValueArray(array);
+}
+
+void printValueArray(ValueArray* array)
+{
+    printf("[ ");
+    for (int i = 0; i < array->count; i++) {
+        printValue(array->values[i]);
+        printf(" ");
+    }
+    printf("]");
 }
 
 void printValue(Value value)

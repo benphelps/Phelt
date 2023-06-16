@@ -1,0 +1,10 @@
+let a = [1, 2];
+let b = [3, 4];
+let c = [1, 2];
+
+// a[0] = true;
+// b[0] = false;
+
+let d = a + b + c;
+
+dump(d);
