@@ -282,6 +282,7 @@ static void beginScope()
 
 static void endScope()
 {
+    current->isInLoop = false;
     current->scopeDepth--;
 
     while (current->localCount > 0 && current->locals[current->localCount - 1].depth > current->scopeDepth) {
@@ -1060,59 +1061,71 @@ static void switchStatement()
 {
     consume(TOKEN_LEFT_PAREN, "Expect '(' after 'switch'.");
     expression();
-    consume(TOKEN_RIGHT_PAREN, "Expect ')' after switch condition.");
+    consume(TOKEN_RIGHT_PAREN, "Expect ')' after value.");
+    consume(TOKEN_LEFT_BRACE, "Expect '{' before switch cases.");
 
-    int  exitJumps[MAX_CASES];
-    int  exitJumpCount = 0;
-    bool poppedFinal   = false;
+    int state = 0; // 0: before all cases, 1: before default, 2: after default.
+    int caseEnds[MAX_CASES];
+    int caseCount        = 0;
+    int previousCaseSkip = -1;
 
-    consume(TOKEN_LEFT_BRACE, "Expect '{' after switch condition.");
+    while (!match(TOKEN_RIGHT_BRACE) && !check(TOKEN_EOF)) {
+        if (match(TOKEN_CASE) || match(TOKEN_DEFAULT)) {
+            TokenType caseType = parser.previous.type;
 
-    while (match(TOKEN_CASE)) {
-        emitByte(OP_DUP); // duplicate the switch expression value, for comparison later
-        expression();
-        consume(TOKEN_COLON, "Expect ':' after case expression.");
+            if (state == 2) {
+                error("Can't have another case or default after the default case.");
+            }
 
-        // Emit bytecode for equality comparison
-        emitByte(OP_EQUAL); // this consumes the expression value, emits true/false
+            if (state == 1) {
+                // At the end of the previous case, jump over the others.
+                caseEnds[caseCount++] = emitJump(OP_JUMP);
 
-        // Jump to next case if the case condition is false.
-        int skipCase = emitJump(OP_JUMP_IF_FALSE);
-        emitByte(OP_POP); // pop the jump offset
-        emitByte(OP_POP); // pop the equality result on a match
+                // Patch its condition to jump to the next case (this one).
+                patchJump(previousCaseSkip);
+                emitByte(OP_POP);
+            }
 
-        // Emit the statements of the matched case
-        while (!check(TOKEN_RIGHT_BRACE) && !check(TOKEN_CASE) && !check(TOKEN_DEFAULT)) {
+            if (caseType == TOKEN_CASE) {
+                state = 1;
+
+                // See if the case is equal to the value.
+                emitByte(OP_DUP);
+                expression();
+
+                consume(TOKEN_COLON, "Expect ':' after case value.");
+
+                emitByte(OP_EQUAL);
+                previousCaseSkip = emitJump(OP_JUMP_IF_FALSE);
+
+                // Pop the comparison result.
+                emitByte(OP_POP);
+            } else {
+                state = 2;
+                consume(TOKEN_COLON, "Expect ':' after default.");
+                previousCaseSkip = -1;
+            }
+        } else {
+            // Otherwise, it's a statement inside the current case.
+            if (state == 0) {
+                error("Can't have statements before any case.");
+            }
             statement();
         }
-
-        exitJumps[exitJumpCount++] = emitJump(OP_JUMP); // store all exit jumps
-        emitByte(OP_POP);                               // pop the jump offset
-
-        patchJump(skipCase);                            // patch the jump offset
-        emitByte(OP_POP);                               // pop the equality result on a skip
     }
 
-    if (match(TOKEN_DEFAULT)) {
-        consume(TOKEN_COLON, "Expect ':' after default.");
-        statement();
-
-        if (exitJumpCount == 0) {
-            poppedFinal = true;
-            emitByte(OP_POP); // pop the switch expression value, if no cases found
-        }
+    // If we ended without a default case, patch its condition jump.
+    if (state == 1) {
+        patchJump(previousCaseSkip);
+        emitByte(OP_POP);
     }
 
-    consume(TOKEN_RIGHT_BRACE, "Expect '}' after switch cases.");
-
-    // After the switch statement, patch all exit jumps
-    for (int i = 0; i < exitJumpCount; i++) {
-        patchJump(exitJumps[i]);
+    // Patch all the case jumps to the end.
+    for (int i = 0; i < caseCount; i++) {
+        patchJump(caseEnds[i]);
     }
 
-    if (exitJumpCount == 0 && !poppedFinal) {
-        emitByte(OP_POP); // pop the switch expression value, if no cases found
-    }
+    emitByte(OP_POP); // The switch value.
 }
 
 static void breakStatement()
