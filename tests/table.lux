@@ -1,0 +1,16 @@
+let a = {
+    bang: {
+        foo: 1,
+        bar: 2
+    }
+};
+
+a.foo = 1;
+a.bang.foo = 99;
+a["bar"] = 2;
+
+let b = { wow: "ok" };
+
+let c = a + a.bang;
+
+dump(c);

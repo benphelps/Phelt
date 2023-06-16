@@ -368,7 +368,14 @@ static void index_(bool canAssign)
 {
     expression();
     consume(TOKEN_RIGHT_BRACKET, "Expect ']' after index.");
-    emitByte(OP_INDEX);
+
+    if (canAssign && match(TOKEN_EQUAL)) {
+        uint8_t name = identifierConstant(&parser.previous);
+        expression();
+        emitByte(OP_SET_INDEX);
+    } else {
+        emitByte(OP_INDEX);
+    }
 }
 
 static void dot(bool canAssign)
@@ -635,10 +642,32 @@ static void unary(bool canAssign)
     }
 }
 
+static void table(bool canAssign)
+{
+    uint8_t numElements = 0;
+    if (!check(TOKEN_RIGHT_BRACE)) {
+        do {
+            numElements++;
+            if (match(TOKEN_IDENTIFIER)) {
+                identifierConstant(&parser.previous);
+                emitConstant(OBJ_VAL(copyString(parser.previous.start, parser.previous.length)));
+                consume(TOKEN_COLON, "Expect ':' after table key.");
+                expression();
+            } else {
+                expression();
+                consume(TOKEN_COLON, "Expect ':' after table key.");
+                expression();
+            }
+        } while (match(TOKEN_COMMA));
+    }
+    consume(TOKEN_RIGHT_BRACE, "Expect '}' after table elements.");
+    emitBytes(OP_SET_TABLE, numElements);
+}
+
 ParseRule rules[] = {
     [TOKEN_LEFT_PAREN]    = { grouping, call, PREC_CALL },
     [TOKEN_RIGHT_PAREN]   = { NULL, NULL, PREC_NONE },
-    [TOKEN_LEFT_BRACE]    = { NULL, NULL, PREC_NONE },
+    [TOKEN_LEFT_BRACE]    = { table, NULL, PREC_NONE },
     [TOKEN_RIGHT_BRACE]   = { NULL, NULL, PREC_NONE },
     [TOKEN_LEFT_BRACKET]  = { NULL, index_, PREC_CALL },
     [TOKEN_RIGHT_BRACKET] = { NULL, NULL, PREC_NONE },

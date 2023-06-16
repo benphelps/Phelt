@@ -314,6 +314,8 @@ int disassembleInstruction(Chunk* chunk, int offset, bool flow)
         return constantInstruction("OP_SET_PROPERTY", chunk, offset);
     case OP_GET_SUPER:
         return constantInstruction("OP_GET_SUPER", chunk, offset);
+    case OP_SET_TABLE:
+        return byteInstruction("OP_SET_TABLE", chunk, offset);
     case OP_JUMP:
         return jumpInstruction("OP_JUMP", 1, chunk, offset);
     case OP_JUMP_IF_FALSE:
@@ -324,6 +326,10 @@ int disassembleInstruction(Chunk* chunk, int offset, bool flow)
         return simpleInstruction("OP_DUMP", offset);
     case OP_CALL:
         return byteInstruction("OP_CALL", chunk, offset);
+    case OP_INDEX:
+        return simpleInstruction("OP_INDEX", offset);
+    case OP_SET_INDEX:
+        return simpleInstruction("OP_SET_INDEX", offset);
     case OP_INVOKE:
         return invokeInstruction("OP_INVOKE", chunk, offset);
     case OP_SUPER_INVOKE:
@@ -416,6 +422,8 @@ int moveForward(Chunk* chunk, int offset)
         return offset + 2;
     case OP_GET_SUPER:
         return offset + 2;
+    case OP_SET_TABLE:
+        return offset + 2;
     case OP_JUMP:
         return offset + 3;
     case OP_JUMP_IF_FALSE:
@@ -426,6 +434,10 @@ int moveForward(Chunk* chunk, int offset)
         return offset + 1;
     case OP_CALL:
         return offset + 2;
+    case OP_INDEX:
+        return offset + 1;
+    case OP_SET_INDEX:
+        return offset + 1;
     case OP_INVOKE:
         return offset + 3;
     case OP_SUPER_INVOKE:

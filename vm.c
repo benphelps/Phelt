@@ -222,6 +222,20 @@ bool indexValue(Value value, Value index)
             }
             break;
         }
+        case OBJ_TABLE: {
+            ObjTable* table = AS_TABLE(value);
+            printTable(&table->table);
+            Value entry;
+            printf("indexKey: %s\n", AS_STRING(index)->chars);
+            if (tableGet(&table->table, AS_STRING(index), &entry)) {
+                push(entry);
+                return true;
+            } else {
+                runtimeError("Undefined table property '%s'.", AS_STRING(index)->chars);
+                return false;
+            }
+            break;
+        }
         default:
             break;
         }
@@ -383,9 +397,16 @@ static InterpretResult run()
                 double b = AS_NUMBER(pop());
                 double a = AS_NUMBER(pop());
                 push(NUMBER_VAL(a + b));
+            } else if (IS_TABLE(peek(0)) && IS_TABLE(peek(1))) {
+                ObjTable* b   = AS_TABLE(pop());
+                ObjTable* a   = AS_TABLE(pop());
+                ObjTable* new = newTable();
+                tableAddAll(&b->table, &new->table);
+                tableAddAll(&a->table, &new->table);
+                push(OBJ_VAL(new));
             } else {
                 runtimeError(
-                    "Operands must be two numbers or two strings.");
+                    "Operands must be two numbers or two joinable objects.");
                 return INTERPRET_RUNTIME_ERROR;
             }
             break;
@@ -479,37 +500,71 @@ static InterpretResult run()
             break;
         }
         case OP_GET_PROPERTY: {
-            if (!IS_INSTANCE(peek(0))) {
-                runtimeError("Only instances have properties.");
-                return INTERPRET_RUNTIME_ERROR;
+            Obj* value = AS_OBJ(peek(0)); // break
+            switch (value->type) {
+            case OBJ_INSTANCE: {
+                ObjInstance* instance = AS_INSTANCE(peek(0));
+                ObjString*   name     = READ_STRING();
+
+                Value value;
+                if (tableGet(&instance->fields, name, &value)) {
+                    pop(); // Instance.
+                    push(value);
+                    break;
+                }
+
+                if (!bindMethod(instance->klass, name)) {
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+
+                break;
             }
-
-            ObjInstance* instance = AS_INSTANCE(peek(0));
-            ObjString*   name     = READ_STRING();
-
-            Value value;
-            if (tableGet(&instance->fields, name, &value)) {
-                pop(); // Instance.
+            case OBJ_TABLE: {
+                ObjTable* table = AS_TABLE(peek(0));
+                Value     value;
+                if (!tableGet(&table->table, READ_STRING(), &value)) {
+                    runtimeError("Undefined property '%s'.", READ_STRING()->chars);
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                pop();
                 push(value);
                 break;
             }
 
-            if (!bindMethod(instance->klass, name)) {
+            default: {
+                runtimeError("Only instances and tables have properties.");
                 return INTERPRET_RUNTIME_ERROR;
+            }
             }
             break;
         }
         case OP_SET_PROPERTY: {
-            if (!IS_INSTANCE(peek(1))) {
-                runtimeError("Only instances have fields.");
+            Obj* value = AS_OBJ(peek(1));
+
+            switch (value->type) {
+            case OBJ_INSTANCE: {
+                ObjInstance* instance = AS_INSTANCE(peek(1));
+                tableSet(&instance->fields, READ_STRING(), peek(0));
+                Value value = pop();
+                pop();
+                push(value);
+                break;
+            }
+
+            case OBJ_TABLE: {
+                ObjTable* table = AS_TABLE(peek(1));
+                tableSet(&table->table, READ_STRING(), peek(0));
+                Value value = pop();
+                pop();
+                push(value);
+                break;
+            }
+
+            default:
+                runtimeError("Only instances and tables have fields.");
                 return INTERPRET_RUNTIME_ERROR;
             }
 
-            ObjInstance* instance = AS_INSTANCE(peek(1));
-            tableSet(&instance->fields, READ_STRING(), peek(0));
-            Value value = pop();
-            pop();
-            push(value);
             break;
         }
         case OP_GET_SUPER: {
@@ -558,6 +613,52 @@ static InterpretResult run()
             }
             break;
         }
+        case OP_SET_INDEX: {
+            Obj* value = AS_OBJ(peek(2));
+
+            switch (value->type) {
+            case OBJ_TABLE: {
+                Value      value = pop();
+                ObjString* index = AS_STRING(pop());
+                ObjTable*  table = AS_TABLE(pop());
+                tableSet(&table->table, index, value);
+                push(OBJ_VAL(table));
+                break;
+            }
+
+            case OBJ_STRING: {
+                Value      value  = pop();
+                Value      index  = pop();
+                ObjString* string = AS_STRING(pop());
+                if (!IS_NUMBER(index)) {
+                    runtimeError("Index must be a number.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                if (AS_NUMBER(index) < 0 || AS_NUMBER(index) >= string->length) {
+                    runtimeError("Index out of bounds.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                if (!IS_STRING(value)) {
+                    runtimeError("Value must be a character.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                if (AS_STRING(value)->length != 1) {
+                    runtimeError("Value must be a character.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                string->chars[(int)AS_NUMBER(index)] = AS_STRING(value)->chars[0];
+                push(OBJ_VAL(string));
+                break;
+            }
+
+            default: {
+                runtimeError("Only tables and strings have indexes.");
+                return INTERPRET_RUNTIME_ERROR;
+            }
+            }
+
+            break;
+        }
         case OP_INVOKE: {
             ObjString* method   = READ_STRING();
             int        argCount = READ_BYTE();
@@ -598,6 +699,25 @@ static InterpretResult run()
             closeUpvalues(vm.stackTop - 1);
             pop();
             break;
+        case OP_SET_TABLE: {
+            int       elemsCount = READ_BYTE();
+            ObjTable* table      = newTable();
+
+            if (elemsCount > 0) {
+                for (int i = elemsCount - 1; i >= 0; i--) {
+                    if (!IS_STRING(peek(1))) {
+                        runtimeError("Table key must be a string.");
+                        return INTERPRET_RUNTIME_ERROR;
+                    }
+                    tableSet(&table->table, AS_STRING(peek(1)), peek(0));
+                    pop();
+                    pop();
+                }
+            }
+
+            push(OBJ_VAL(table));
+            break;
+        }
         case OP_RETURN: {
             Value result = pop();
             closeUpvalues(frame->slots);

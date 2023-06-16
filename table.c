@@ -147,6 +147,31 @@ ObjString* tableFindString(Table* table, const char* chars,
     }
 }
 
+static void printEntry(Entry* entry)
+{
+    if (entry->key == NULL) {
+        printf("<empty>");
+        return;
+    }
+
+    printf("%s => ", entry->key->chars);
+    printValue(entry->value);
+}
+
+void printTable(Table* table)
+{
+    printf("{ ");
+    for (int i = 0; i < table->capacity; i++) {
+        Entry* entry = &table->entries[i];
+        if (entry->key != NULL) {
+            printEntry(entry);
+            if (i < table->capacity - 1)
+                printf(", ");
+        }
+    }
+    printf(" }");
+}
+
 void tableRemoveWhite(Table* table)
 {
     for (int i = 0; i < table->capacity; i++) {

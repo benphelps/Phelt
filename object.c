@@ -136,6 +136,13 @@ ObjUpvalue* newUpvalue(Value* slot)
     return upvalue;
 }
 
+ObjTable* newTable()
+{
+    ObjTable* table = ALLOCATE_OBJ(ObjTable, OBJ_TABLE);
+    initTable(&table->table);
+    return table;
+}
+
 static void printFunction(ObjFunction* function)
 {
     if (function->name == NULL) {
@@ -181,6 +188,9 @@ void printObject(Value value)
     case OBJ_STRING:
         printf("%s", AS_CSTRING(value));
         break;
+    case OBJ_TABLE:
+        printTable(&AS_TABLE(value)->table);
+        break;
     case OBJ_UPVALUE:
         printf("upvalue");
         break;
@@ -204,6 +214,8 @@ char* objectString(Value value)
         return "<native fn>";
     case OBJ_STRING:
         return AS_CSTRING(value);
+    case OBJ_TABLE:
+        return "table";
     case OBJ_UPVALUE:
         return "upvalue";
     }

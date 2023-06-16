@@ -45,6 +45,7 @@ typedef enum {
     OP_GET_PROPERTY,
     OP_SET_PROPERTY,
     OP_GET_SUPER,
+    OP_SET_TABLE,
 
     // Statements
     OP_DUMP,
@@ -53,6 +54,7 @@ typedef enum {
     OP_LOOP,
     OP_CALL,
     OP_INDEX,
+    OP_SET_INDEX,
     OP_INVOKE,
     OP_SUPER_INVOKE,
     OP_CLOSURE,
