@@ -964,19 +964,6 @@ static void function(FunctionType type)
     }
 }
 
-static void method()
-{
-    consume(TOKEN_IDENTIFIER, "Expect method name.");
-    uint8_t      constant = identifierConstant(&parser.previous);
-    FunctionType type     = TYPE_METHOD;
-    if (parser.previous.length == 4 && memcmp(parser.previous.start, "init", 4) == 0) {
-        type = TYPE_INITIALIZER;
-    }
-
-    function(type);
-    emitBytes(OP_METHOD, constant);
-}
-
 static void classDeclaration()
 {
     consume(TOKEN_IDENTIFIER, "Expect class name.");
@@ -1014,7 +1001,29 @@ static void classDeclaration()
     consume(TOKEN_LEFT_BRACE, "Expect '{' before class body.");
 
     while (!check(TOKEN_RIGHT_BRACE) && !check(TOKEN_EOF)) {
-        method();
+        if (match(TOKEN_IDENTIFIER)) {
+            uint8_t      constant = identifierConstant(&parser.previous);
+            FunctionType type     = TYPE_METHOD;
+            if (parser.previous.length == 4 && memcmp(parser.previous.start, "init", 4) == 0) {
+                type = TYPE_INITIALIZER;
+            }
+
+            function(type);
+            emitBytes(OP_METHOD, constant);
+        } else if (match(TOKEN_LET)) {
+            uint8_t property = parseVariable("Expect property name.");
+
+            if (match(TOKEN_EQUAL)) {
+                expression();
+            } else {
+                emitByte(OP_NIL);
+            }
+
+            consume(TOKEN_SEMICOLON, "Expect ';' after property declaration.");
+            emitBytes(OP_PROPERTY, property);
+        } else {
+            error("Expect method or property declarations.");
+        }
     }
 
     consume(TOKEN_RIGHT_BRACE, "Expect '}' after class body.");
