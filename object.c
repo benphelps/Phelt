@@ -182,8 +182,7 @@ void printObject(Value value)
         printf("%s", AS_CLASS(value)->name->chars);
         break;
     case OBJ_INSTANCE:
-        printf("%s instance",
-            AS_INSTANCE(value)->klass->name->chars);
+        printf("%s instance", AS_INSTANCE(value)->klass->name->chars);
         break;
     case OBJ_CLOSURE:
         printFunction(AS_CLOSURE(value)->function);

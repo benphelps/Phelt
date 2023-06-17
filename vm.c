@@ -71,6 +71,30 @@ void initVM()
 
     vm.initString = NULL;
     vm.initString = copyString("init", 4);
+    vm.addString  = NULL;
+    vm.addString  = copyString("__add", 5);
+    vm.subString  = NULL;
+    vm.subString  = copyString("__sub", 5);
+    vm.mulString  = NULL;
+    vm.mulString  = copyString("__mul", 5);
+    vm.divString  = NULL;
+    vm.divString  = copyString("__div", 5);
+    vm.gtString   = NULL;
+    vm.gtString   = copyString("__gt", 4);
+    vm.ltString   = NULL;
+    vm.ltString   = copyString("__lt", 4);
+    vm.eqString   = NULL;
+    vm.eqString   = copyString("__eq", 4);
+    vm.andString  = NULL;
+    vm.andString  = copyString("__and", 5);
+    vm.orString   = NULL;
+    vm.orString   = copyString("__or", 4);
+    vm.xorString  = NULL;
+    vm.xorString  = copyString("__xor", 5);
+    vm.modString  = NULL;
+    vm.modString  = copyString("__mod", 5);
+    vm.notString  = NULL;
+    vm.notString  = copyString("__not", 5);
 
     initNative();
 }
@@ -80,6 +104,18 @@ void freeVM()
     freeTable(&vm.globals);
     freeTable(&vm.strings);
     vm.initString = NULL;
+    vm.addString  = NULL;
+    vm.subString  = NULL;
+    vm.mulString  = NULL;
+    vm.divString  = NULL;
+    vm.gtString   = NULL;
+    vm.ltString   = NULL;
+    vm.eqString   = NULL;
+    vm.andString  = NULL;
+    vm.orString   = NULL;
+    vm.xorString  = NULL;
+    vm.modString  = NULL;
+    vm.notString  = NULL;
     freeObjects();
 }
 
@@ -299,6 +335,14 @@ static void defineMethod(ObjString* name)
     pop();
 }
 
+static void defineProperty(ObjString* name)
+{
+    Value     field = peek(0);
+    ObjClass* klass = AS_CLASS(peek(1));
+    tableSet(&klass->fields, name, field);
+    pop();
+}
+
 static bool isFalsey(Value value)
 {
     return IS_NIL(value) || (IS_BOOL(value) && !AS_BOOL(value));
@@ -351,6 +395,24 @@ static InterpretResult run()
         push(valueType(a op b));                          \
     } while (false)
 
+#define INVOKE_DUNDER(dunderMethod)                                            \
+    Obj* this  = AS_OBJ(peek(1));                                              \
+    Obj* other = AS_OBJ(peek(0));                                              \
+    if (this->type == OBJ_INSTANCE && other->type == OBJ_INSTANCE) {           \
+        ObjInstance* thisInstance  = (ObjInstance*)this;                       \
+        ObjInstance* otherInstance = (ObjInstance*)other;                      \
+        if (thisInstance->klass != otherInstance->klass) {                     \
+            runtimeError("Operands must be two instances of the same class."); \
+            return INTERPRET_RUNTIME_ERROR;                                    \
+        }                                                                      \
+        ObjString* method   = dunderMethod;                                    \
+        int        argCount = 1;                                               \
+        if (!invoke(method, argCount)) {                                       \
+            return INTERPRET_RUNTIME_ERROR;                                    \
+        }                                                                      \
+        frame = &vm.frames[vm.frameCount - 1];                                 \
+    }
+
     for (;;) {
 #ifdef DEBUG_TRACE_EXECUTION
         if (vm.stackTop != vm.stack) {
@@ -391,16 +453,28 @@ static InterpretResult run()
             break;
         }
         case OP_EQUAL: {
-            Value b = pop();
-            Value a = pop();
-            push(BOOL_VAL(valuesEqual(a, b)));
+            if (IS_INSTANCE(peek(0)) && IS_INSTANCE(peek(1))) {
+                INVOKE_DUNDER(vm.eqString);
+            } else {
+                Value b = pop();
+                Value a = pop();
+                push(BOOL_VAL(valuesEqual(a, b)));
+            }
             break;
         }
         case OP_GREATER:
-            BINARY_OP(BOOL_VAL, >);
+            if (IS_INSTANCE(peek(0)) && IS_INSTANCE(peek(1))) {
+                INVOKE_DUNDER(vm.gtString);
+            } else {
+                BINARY_OP(BOOL_VAL, >);
+            }
             break;
         case OP_LESS:
-            BINARY_OP(BOOL_VAL, <);
+            if (IS_INSTANCE(peek(0)) && IS_INSTANCE(peek(1))) {
+                INVOKE_DUNDER(vm.ltString);
+            } else {
+                BINARY_OP(BOOL_VAL, <);
+            }
             break;
         case OP_ADD: {
             if (IS_STRING(peek(0)) && IS_STRING(peek(1))) {
@@ -423,6 +497,8 @@ static InterpretResult run()
                 joinValueArray(&new->array, &a->array);
                 joinValueArray(&new->array, &b->array);
                 push(OBJ_VAL(new));
+            } else if (IS_INSTANCE(peek(0)) && IS_INSTANCE(peek(1))) {
+                INVOKE_DUNDER(vm.addString);
             } else {
                 runtimeError(
                     "Operands must be two joinable types.");
@@ -431,28 +507,60 @@ static InterpretResult run()
             break;
         }
         case OP_SUBTRACT:
-            BINARY_OP(NUMBER_VAL, -);
+            if (IS_INSTANCE(peek(0)) && IS_INSTANCE(peek(1))) {
+                INVOKE_DUNDER(vm.subString);
+            } else {
+                BINARY_OP(NUMBER_VAL, -);
+            }
             break;
         case OP_MULTIPLY:
-            BINARY_OP(NUMBER_VAL, *);
+            if (IS_INSTANCE(peek(0)) && IS_INSTANCE(peek(1))) {
+                INVOKE_DUNDER(vm.mulString);
+            } else {
+                BINARY_OP(NUMBER_VAL, *);
+            }
             break;
         case OP_DIVIDE:
-            BINARY_OP(NUMBER_VAL, /);
+            if (IS_INSTANCE(peek(0)) && IS_INSTANCE(peek(1))) {
+                INVOKE_DUNDER(vm.divString);
+            } else {
+                BINARY_OP(NUMBER_VAL, /);
+            }
             break;
         case OP_MODULO:
-            BINARY_OP_INT(NUMBER_VAL, %);
+            if (IS_INSTANCE(peek(0)) && IS_INSTANCE(peek(1))) {
+                INVOKE_DUNDER(vm.modString);
+            } else {
+                BINARY_OP_INT(NUMBER_VAL, %);
+            }
             break;
         case OP_BITWISE_AND:
-            BINARY_OP_INT(NUMBER_VAL, &);
+            if (IS_INSTANCE(peek(0)) && IS_INSTANCE(peek(1))) {
+                INVOKE_DUNDER(vm.andString);
+            } else {
+                BINARY_OP_INT(NUMBER_VAL, &);
+            }
             break;
         case OP_BITWISE_OR:
-            BINARY_OP_INT(NUMBER_VAL, |);
+            if (IS_INSTANCE(peek(0)) && IS_INSTANCE(peek(1))) {
+                INVOKE_DUNDER(vm.orString);
+            } else {
+                BINARY_OP_INT(NUMBER_VAL, |);
+            }
             break;
         case OP_BITWISE_XOR:
-            BINARY_OP_INT(NUMBER_VAL, ^);
+            if (IS_INSTANCE(peek(0)) && IS_INSTANCE(peek(1))) {
+                INVOKE_DUNDER(vm.xorString);
+            } else {
+                BINARY_OP_INT(NUMBER_VAL, ^);
+            }
             break;
         case OP_NOT:
-            push(BOOL_VAL(isFalsey(pop())));
+            if (IS_INSTANCE(peek(0)) && IS_INSTANCE(peek(1))) {
+                INVOKE_DUNDER(vm.notString);
+            } else {
+                push(BOOL_VAL(isFalsey(pop())));
+            }
             break;
         case OP_NEGATE: {
             if (!IS_NUMBER(peek(0))) {

@@ -25,8 +25,21 @@ typedef struct
     Value*      stackTop;
     Table       globals;
     Table       strings;
-    ObjString*  initString;
     ObjUpvalue* openUpvalues;
+
+    ObjString* initString;
+    ObjString* addString;
+    ObjString* subString;
+    ObjString* mulString;
+    ObjString* divString;
+    ObjString* gtString;
+    ObjString* ltString;
+    ObjString* eqString;
+    ObjString* andString;
+    ObjString* orString;
+    ObjString* xorString;
+    ObjString* modString;
+    ObjString* notString;
 
     size_t bytesAllocated;
     size_t nextGC;
