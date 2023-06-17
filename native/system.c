@@ -68,6 +68,25 @@ Value _print(int argCount, Value* args)
     return NIL_VAL;
 }
 
+Value _sprint(int argCount, Value* args)
+{
+    if (argCount < 1) {
+        printf("Error: No template provided.\n");
+        return NIL_VAL;
+    }
+
+    // copy the string template, Values are interned
+    char template[TEMPLATE_BUFFER];
+    strcpy(template, stringValue(args[0]));
+
+    for (int i = 1; i < argCount; i++) {
+        char* value = stringValue(args[i]);
+        replace_placeholder(template, value);
+    }
+
+    return OBJ_VAL(copyString(template, strlen(template)));
+}
+
 Value _println(int argCount, Value* args)
 {
     _print(argCount, args);
