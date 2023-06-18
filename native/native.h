@@ -14,7 +14,9 @@ typedef struct {
 extern NativeFnEntry nativeFns[];
 
 extern Value _time(int argCount, Value* args);
+extern Value _clock(int argCount, Value* args);
 extern Value _sleep(int argCount, Value* args);
+extern Value _usleep(int argCount, Value* args);
 extern Value _print(int argCount, Value* args);
 extern Value _println(int argCount, Value* args);
 extern Value _sprint(int argCount, Value* args);

@@ -3,7 +3,9 @@
 NativeFnEntry nativeFns[] = {
     // system
     { "time", _time },
+    { "clock", _clock },
     { "sleep", _sleep },
+    { "usleep", _usleep },
     { "print", _print },
     { "sprint", _sprint },
     { "println", _println },

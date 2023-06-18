@@ -1,3 +1,6 @@
-println(time());
-sleep(1);
-println(time());
+let start = time();
+usleep(1);
+let end = time();
+
+println("start: {}", start);
+println("time: {}", (end - start));
