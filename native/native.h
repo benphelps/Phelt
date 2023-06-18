@@ -13,24 +13,24 @@ typedef struct {
 
 extern NativeFnEntry nativeFns[];
 
-extern Value _time(int argCount, Value* args);
-extern Value _clock(int argCount, Value* args);
-extern Value _sleep(int argCount, Value* args);
-extern Value _usleep(int argCount, Value* args);
-extern Value _print(int argCount, Value* args);
-extern Value _println(int argCount, Value* args);
-extern Value _sprint(int argCount, Value* args);
+extern bool _time(int argCount, Value* args);
+extern bool _clock(int argCount, Value* args);
+extern bool _sleep(int argCount, Value* args);
+extern bool _usleep(int argCount, Value* args);
+extern bool _print(int argCount, Value* args);
+extern bool _println(int argCount, Value* args);
+extern bool _sprint(int argCount, Value* args);
 
-extern Value _ceil(int argCount, Value* args);
-extern Value _floor(int argCount, Value* args);
-extern Value _abs(int argCount, Value* args);
-extern Value _exp(int argCount, Value* args);
-extern Value _sqrt(int argCount, Value* args);
-extern Value _sin(int argCount, Value* args);
-extern Value _cos(int argCount, Value* args);
-extern Value _tan(int argCount, Value* args);
-extern Value _atan(int argCount, Value* args);
-extern Value _pow(int argCount, Value* args);
-extern Value _atan2(int argCount, Value* args);
+extern bool _ceil(int argCount, Value* args);
+extern bool _floor(int argCount, Value* args);
+extern bool _abs(int argCount, Value* args);
+extern bool _exp(int argCount, Value* args);
+extern bool _sqrt(int argCount, Value* args);
+extern bool _sin(int argCount, Value* args);
+extern bool _cos(int argCount, Value* args);
+extern bool _tan(int argCount, Value* args);
+extern bool _atan(int argCount, Value* args);
+extern bool _pow(int argCount, Value* args);
+extern bool _atan2(int argCount, Value* args);
 
 #endif

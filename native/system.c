@@ -11,56 +11,60 @@ double time_in_mill()
     return elapsed;
 }
 
-Value _time(int argCount, Value* args)
+bool _time(int argCount, Value* args)
 {
     if (argCount != 0) {
-        runtimeError("Expected 0 arguments but got %d.", argCount);
-        return NIL_VAL;
+        args[-1] = OBJ_VAL(formatString("Expected 0 arguments but got %d.", argCount));
+        return false;
     }
 
-    return NUMBER_VAL(time_in_mill());
+    args[-1] = NUMBER_VAL(time_in_mill());
+    return true;
 }
 
-Value _clock(int argCount, Value* args)
+bool _clock(int argCount, Value* args)
 {
     if (argCount != 0) {
-        runtimeError("Expected 0 arguments but got %d.", argCount);
-        return NIL_VAL;
+        args[-1] = OBJ_VAL(formatString("Expected 0 arguments but got %d.", argCount));
+        return false;
     }
 
-    return NUMBER_VAL((double)clock() / CLOCKS_PER_SEC);
+    args[-1] = NUMBER_VAL((double)clock() / CLOCKS_PER_SEC);
+    return true;
 }
 
-Value _sleep(int argCount, Value* args)
+bool _sleep(int argCount, Value* args)
 {
     if (argCount != 1) {
-        runtimeError("Expected 1 argument but got %d.", argCount);
-        return NIL_VAL;
+        args[-1] = OBJ_VAL(formatString("Expected 1 argument but got %d.", argCount));
+        return false;
     }
 
     if (!IS_NUMBER(args[0])) {
-        runtimeError("Argument must be a number.");
-        return NIL_VAL;
+        args[-1] = OBJ_VAL(formatString("Argument must be a number."));
+        return false;
     }
 
     sleep((unsigned int)AS_NUMBER(args[0]));
-    return NIL_VAL;
+    args[-1] = NIL_VAL;
+    return true;
 }
 
-Value _usleep(int argCount, Value* args)
+bool _usleep(int argCount, Value* args)
 {
     if (argCount != 1) {
-        runtimeError("Expected 1 argument but got %d.", argCount);
-        return NIL_VAL;
+        args[-1] = OBJ_VAL(formatString("Expected 1 argument but got %d.", argCount));
+        return false;
     }
 
     if (!IS_NUMBER(args[0])) {
-        runtimeError("Argument must be a number.");
-        return NIL_VAL;
+        args[-1] = OBJ_VAL(formatString("Argument must be a number."));
+        return false;
     }
 
     usleep((unsigned int)AS_NUMBER(args[0]));
-    return NIL_VAL;
+    args[-1] = NIL_VAL;
+    return true;
 }
 
 #define TEMPLATE_BUFFER 1024
@@ -82,7 +86,7 @@ char* replace_placeholder(char* template, char* value)
 }
 
 // This is your main printing function
-Value _print(int argCount, Value* args)
+bool _print(int argCount, Value* args)
 {
     if (argCount < 1) {
         printf("Error: No template provided.\n");
@@ -103,7 +107,7 @@ Value _print(int argCount, Value* args)
     return NIL_VAL;
 }
 
-Value _sprint(int argCount, Value* args)
+bool _sprint(int argCount, Value* args)
 {
     if (argCount < 1) {
         printf("Error: No template provided.\n");
@@ -122,7 +126,7 @@ Value _sprint(int argCount, Value* args)
     return OBJ_VAL(copyString(template, strlen(template)));
 }
 
-Value _println(int argCount, Value* args)
+bool _println(int argCount, Value* args)
 {
     _print(argCount, args);
     printf("\n");

@@ -106,7 +106,7 @@ typedef struct {
     ValueArray array;
 } ObjArray;
 
-typedef Value (*NativeFn)(int argCount, Value* args);
+typedef bool (*NativeFn)(int argCount, Value* args);
 
 typedef struct {
     Obj      obj;
@@ -123,6 +123,7 @@ ObjNative*   newNative(NativeFn function);
 
 ObjString* takeString(char* chars, int length);
 ObjString* copyString(const char* chars, int length);
+ObjString* formatString(const char* format, ...);
 
 ObjUpvalue* newUpvalue(Value* slot);
 

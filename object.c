@@ -129,6 +129,38 @@ ObjString* copyString(const char* chars, int length)
     return allocateString(heapChars, length, hash);
 }
 
+ObjString* formatString(const char* format, ...)
+{
+    char*   buffer = NULL;
+    va_list args;
+    va_start(args, format);
+
+    int len = vsnprintf(NULL, 0, format, args);
+    if (len < 0) {
+        return NULL;
+    }
+
+    buffer = malloc(len + 1);
+    if (!buffer) {
+        return NULL;
+    }
+
+    va_end(args);
+    va_start(args, format);
+    vsnprintf(buffer, len, format, args);
+    va_end(args);
+
+    uint32_t   hash     = hashString(buffer, len);
+    ObjString* interned = tableFindString(&vm.strings, buffer, len, hash);
+    if (interned != NULL)
+        return interned;
+
+    char* heapChars = ALLOCATE(char, len + 1);
+    memcpy(heapChars, buffer, len);
+    heapChars[len] = '\0';
+    return allocateString(heapChars, len, hash);
+}
+
 ObjUpvalue* newUpvalue(Value* slot)
 {
     ObjUpvalue* upvalue = ALLOCATE_OBJ(ObjUpvalue, OBJ_UPVALUE);
