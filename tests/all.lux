@@ -15,7 +15,11 @@ fun add(a, b) {
   return a + b;
 }
 
+// inline, single expression, implicit return
 fun sub(a, b) a - b;
+
+// anonymous
+let mul = fun(a, b) a * b;
 
 // closures
 fun make_adder(a) {

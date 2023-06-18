@@ -53,6 +53,7 @@ typedef struct {
 
 typedef enum {
     TYPE_FUNCTION,
+    TYPE_ANONYMOUS,
     TYPE_INITIALIZER,
     TYPE_METHOD,
     TYPE_SCRIPT
@@ -84,8 +85,9 @@ typedef struct ClassCompiler {
 
 Parser         parser;
 Chunk*         compilingChunk;
-Compiler*      current      = NULL;
-ClassCompiler* currentClass = NULL;
+Compiler*      current        = NULL;
+ClassCompiler* currentClass   = NULL;
+int            anonymousCount = 0;
 
 static Chunk* currentChunk()
 {
@@ -231,12 +233,7 @@ static void patchJump(int offset)
 
 static void initCompiler(Compiler* compiler, FunctionType type)
 {
-    compiler->enclosing = current;
-
-    if (type != TYPE_SCRIPT) {
-        current->function->name = copyString(parser.previous.start, parser.previous.length);
-    }
-
+    compiler->enclosing  = current;
     compiler->function   = newFunction();
     compiler->type       = type;
     compiler->localCount = 0;
@@ -246,6 +243,16 @@ static void initCompiler(Compiler* compiler, FunctionType type)
     compiler->loopStart  = 0;
 
     current = compiler;
+
+    if (type != TYPE_SCRIPT) {
+        if (type == TYPE_ANONYMOUS) {
+            char buffer[30];
+            sprintf(buffer, "<anon fn 0x%p>", (void*)compiler->function);
+            current->function->name = copyString(buffer, strlen(buffer));
+        } else {
+            current->function->name = copyString(parser.previous.start, parser.previous.length);
+        }
+    }
 
     Local* local      = &current->locals[current->localCount++];
     local->depth      = 0;
@@ -304,6 +311,8 @@ static uint8_t    identifierConstant(Token* name);
 static int        resolveLocal(Compiler* compiler, Token* name);
 static int        resolveUpvalue(Compiler* compiler, Token* name);
 static uint8_t    argumentList();
+static void       markInitialized();
+static void       function(FunctionType type);
 
 static void binary(bool canAssign)
 {
@@ -678,6 +687,12 @@ static void array(bool canAssign)
     emitBytes(OP_SET_ARRAY, numElements);
 }
 
+static void anonFunDeclaration(bool canAssign)
+{
+    markInitialized();
+    function(TYPE_ANONYMOUS);
+}
+
 ParseRule rules[] = {
     [TOKEN_LEFT_PAREN]    = { grouping, call, PREC_CALL },
     [TOKEN_RIGHT_PAREN]   = { NULL, NULL, PREC_NONE },
@@ -719,7 +734,7 @@ ParseRule rules[] = {
     [TOKEN_ELSE]          = { NULL, NULL, PREC_NONE },
     [TOKEN_FALSE]         = { literal, NULL, PREC_NONE },
     [TOKEN_FOR]           = { NULL, NULL, PREC_NONE },
-    [TOKEN_FUN]           = { NULL, NULL, PREC_NONE },
+    [TOKEN_FUN]           = { anonFunDeclaration, NULL, PREC_NONE },
     [TOKEN_IF]            = { NULL, NULL, PREC_NONE },
     [TOKEN_SWITCH]        = { NULL, NULL, PREC_NONE },
     [TOKEN_CASE]          = { NULL, binary, PREC_EQUALITY },
@@ -1053,8 +1068,10 @@ static void varDeclaration()
     } else {
         emitByte(OP_NIL);
     }
-    consume(TOKEN_SEMICOLON,
-        "Expect ';' after variable declaration.");
+
+    if (parser.previous.type != TOKEN_SEMICOLON) {
+        consume(TOKEN_SEMICOLON, "Expect ';' after variable declaration.");
+    }
 
     defineVariable(global);
 }
