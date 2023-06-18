@@ -34,6 +34,50 @@ void freeValueArray(ValueArray* array)
     initValueArray(array);
 }
 
+static uint32_t hashDouble(double value)
+{
+    union BitCast {
+        double   value;
+        uint32_t ints[2];
+    };
+
+    union BitCast cast;
+    cast.value = (value) + 1.0;
+    return cast.ints[0] + cast.ints[1];
+}
+
+uint32_t hashValue(Value value)
+{
+#ifdef NAN_BOXING
+    if (IS_BOOL(value)) {
+        return AS_BOOL(value) ? 3 : 5;
+    } else if (IS_NIL(value)) {
+        return 7;
+    } else if (IS_NUMBER(value)) {
+        return hashDouble(AS_NUMBER(value));
+    } else if (IS_OBJ(value)) {
+        return AS_STRING(value)->hash;
+    } else if (IS_EMPTY(value)) {
+        return 0;
+    }
+#else
+    switch (value.type) {
+    case VAL_BOOL:
+        return AS_BOOL(value) ? 3 : 5;
+    case VAL_NIL:
+        return 7;
+    case VAL_NUMBER:
+        return hashDouble(AS_NUMBER(value));
+    case VAL_OBJ:
+        return AS_STRING(value)->hash;
+    case VAL_EMPTY:
+        return 0;
+    }
+#endif
+
+    return 0;
+}
+
 void printValueArray(ValueArray* array)
 {
     printf("[ ");
@@ -55,6 +99,8 @@ void printValue(Value value)
         printf("%g", AS_NUMBER(value));
     } else if (IS_OBJ(value)) {
         printObject(value);
+    } else if (IS_EMPTY(value)) {
+        printf("empty");
     }
 #else
     switch (value.type) {
@@ -69,6 +115,9 @@ void printValue(Value value)
         break;
     case VAL_OBJ:
         printObject(value);
+        break;
+    case VAL_EMPTY:
+        printf("empty");
         break;
     }
 #endif
@@ -87,6 +136,8 @@ char* stringValue(Value value)
         return str;
     } else if (IS_OBJ(value)) {
         return objectString(value);
+    } else if (IS_EMPTY(value)) {
+        return "empty";
     }
 #else
     switch (value.type) {
@@ -101,6 +152,8 @@ char* stringValue(Value value)
     }
     case VAL_OBJ:
         return objectString(value);
+    case VAL_EMPTY:
+        return "empty";
     }
 #endif
     return NULL;
@@ -122,6 +175,8 @@ bool valuesEqual(Value a, Value b)
         return AS_NUMBER(a) == AS_NUMBER(b);
     case VAL_OBJ:
         return AS_OBJ(a) == AS_OBJ(b);
+    case VAL_EMPTY:
+        return true;
     default:
         return false; // Unreachable.
     }

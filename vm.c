@@ -43,7 +43,7 @@ static void defineNative(const char* name, NativeFn function)
 {
     push(OBJ_VAL(copyString(name, (int)strlen(name))));
     push(OBJ_VAL(newNative(function)));
-    tableSet(&vm.globals, AS_STRING(vm.stack[0]), vm.stack[1]);
+    tableSet(&vm.globals, vm.stack[0], vm.stack[1]);
     pop();
     pop();
 }
@@ -169,8 +169,7 @@ static bool callValue(Value callee, int argCount)
             vm.stackTop[-argCount - 1] = OBJ_VAL(newInstance(klass));
 
             Value initializer;
-            if (tableGet(&klass->methods, vm.initString,
-                    &initializer)) {
+            if (tableGet(&klass->methods, OBJ_VAL(vm.initString), &initializer)) {
                 return call(AS_CLOSURE(initializer), argCount);
             } else if (argCount != 0) {
                 runtimeError("Expected 0 arguments but got %d.", argCount);
@@ -196,17 +195,17 @@ static bool callValue(Value callee, int argCount)
     return false;
 }
 
-static bool invokeFromClass(ObjClass* klass, ObjString* name, int argCount)
+static bool invokeFromClass(ObjClass* klass, Value name, int argCount)
 {
     Value method;
     if (!tableGet(&klass->methods, name, &method)) {
-        runtimeError("Undefined property '%s'.", name->chars);
+        runtimeError("1Undefined property '%s'.", stringValue(name));
         return false;
     }
     return call(AS_CLOSURE(method), argCount);
 }
 
-static bool invoke(ObjString* name, int argCount)
+static bool invoke(Value name, int argCount)
 {
     Value receiver = peek(argCount);
 
@@ -226,11 +225,11 @@ static bool invoke(ObjString* name, int argCount)
     return invokeFromClass(instance->klass, name, argCount);
 }
 
-static bool bindMethod(ObjClass* klass, ObjString* name)
+static bool bindMethod(ObjClass* klass, Value name)
 {
     Value method;
     if (!tableGet(&klass->methods, name, &method)) {
-        runtimeError("Undefined property '%s'.", name->chars);
+        runtimeError("Undefined property '%s'.", stringValue(name));
         return false;
     }
 
@@ -261,11 +260,11 @@ bool indexValue(Value value, Value index)
         case OBJ_TABLE: {
             ObjTable* table = AS_TABLE(value);
             Value     entry;
-            if (tableGet(&table->table, AS_STRING(index), &entry)) {
+            if (tableGet(&table->table, index, &entry)) {
                 push(entry);
                 return true;
             } else {
-                runtimeError("Undefined table property '%s'.", AS_STRING(index)->chars);
+                runtimeError("Undefined table property '%s'.", stringValue(index));
                 return false;
             }
             break;
@@ -331,7 +330,7 @@ static void defineMethod(ObjString* name)
 {
     Value     method = peek(0);
     ObjClass* klass  = AS_CLASS(peek(1));
-    tableSet(&klass->methods, name, method);
+    tableSet(&klass->methods, OBJ_VAL(name), method);
     pop();
 }
 
@@ -339,7 +338,7 @@ static void defineProperty(ObjString* name)
 {
     Value     field = peek(0);
     ObjClass* klass = AS_CLASS(peek(1));
-    tableSet(&klass->fields, name, field);
+    tableSet(&klass->fields, OBJ_VAL(name), field);
     pop();
 }
 
@@ -405,8 +404,8 @@ static InterpretResult run()
             runtimeError("Operands must be two instances of the same class."); \
             return INTERPRET_RUNTIME_ERROR;                                    \
         }                                                                      \
-        ObjString* method   = dunderMethod;                                    \
-        int        argCount = 1;                                               \
+        Value method   = OBJ_VAL(dunderMethod);                                \
+        int   argCount = 1;                                                    \
         if (!invoke(method, argCount)) {                                       \
             return INTERPRET_RUNTIME_ERROR;                                    \
         }                                                                      \
@@ -608,26 +607,26 @@ static InterpretResult run()
             break;
         }
         case OP_GET_GLOBAL: {
-            ObjString* name = READ_STRING();
-            Value      value;
+            Value name = READ_CONSTANT();
+            Value value;
             if (!tableGet(&vm.globals, name, &value)) {
-                runtimeError("Undefined variable '%s'.", name->chars);
+                runtimeError("Undefined variable '%s'.", stringValue(name));
                 return INTERPRET_RUNTIME_ERROR;
             }
             push(value);
             break;
         }
         case OP_DEFINE_GLOBAL: {
-            ObjString* name = READ_STRING();
+            Value name = READ_CONSTANT();
             tableSet(&vm.globals, name, peek(0));
             pop();
             break;
         }
         case OP_SET_GLOBAL: {
-            ObjString* name = READ_STRING();
+            Value name = READ_CONSTANT();
             if (tableSet(&vm.globals, name, peek(0))) {
                 tableDelete(&vm.globals, name);
-                runtimeError("Undefined variable '%s'.", name->chars);
+                runtimeError("Undefined variable '%s'.", stringValue(name));
                 return INTERPRET_RUNTIME_ERROR;
             }
             break;
@@ -637,7 +636,7 @@ static InterpretResult run()
             switch (value->type) {
             case OBJ_INSTANCE: {
                 ObjInstance* instance = AS_INSTANCE(peek(0));
-                ObjString*   name     = READ_STRING();
+                Value        name     = READ_CONSTANT();
 
                 Value value;
                 if (tableGet(&instance->fields, name, &value)) {
@@ -654,9 +653,10 @@ static InterpretResult run()
             }
             case OBJ_TABLE: {
                 ObjTable* table = AS_TABLE(peek(0));
+                Value     index = READ_CONSTANT();
                 Value     value;
-                if (!tableGet(&table->table, READ_STRING(), &value)) {
-                    runtimeError("Undefined property '%s'.", READ_STRING()->chars);
+                if (!tableGet(&table->table, index, &value)) {
+                    runtimeError("3Undefined property '%s'.", AS_STRING(index)->chars);
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 pop();
@@ -677,7 +677,7 @@ static InterpretResult run()
             switch (value->type) {
             case OBJ_INSTANCE: {
                 ObjInstance* instance = AS_INSTANCE(peek(1));
-                tableSet(&instance->fields, READ_STRING(), peek(0));
+                tableSet(&instance->fields, READ_CONSTANT(), peek(0));
                 Value value = pop();
                 pop();
                 push(value);
@@ -686,7 +686,7 @@ static InterpretResult run()
 
             case OBJ_TABLE: {
                 ObjTable* table = AS_TABLE(peek(1));
-                tableSet(&table->table, READ_STRING(), peek(0));
+                tableSet(&table->table, READ_CONSTANT(), peek(0));
                 Value value = pop();
                 pop();
                 push(value);
@@ -701,8 +701,8 @@ static InterpretResult run()
             break;
         }
         case OP_GET_SUPER: {
-            ObjString* name       = READ_STRING();
-            ObjClass*  superclass = AS_CLASS(pop());
+            Value     name       = READ_CONSTANT();
+            ObjClass* superclass = AS_CLASS(pop());
 
             if (!bindMethod(superclass, name)) {
                 return INTERPRET_RUNTIME_ERROR;
@@ -751,9 +751,9 @@ static InterpretResult run()
 
             switch (value->type) {
             case OBJ_TABLE: {
-                Value      value = pop();
-                ObjString* index = AS_STRING(pop());
-                ObjTable*  table = AS_TABLE(pop());
+                Value     value = pop();
+                Value     index = pop();
+                ObjTable* table = AS_TABLE(pop());
                 tableSet(&table->table, index, value);
                 push(OBJ_VAL(table));
                 break;
@@ -810,8 +810,8 @@ static InterpretResult run()
             break;
         }
         case OP_INVOKE: {
-            ObjString* method   = READ_STRING();
-            int        argCount = READ_BYTE();
+            Value method   = READ_CONSTANT();
+            int   argCount = READ_BYTE();
             if (!invoke(method, argCount)) {
                 return INTERPRET_RUNTIME_ERROR;
             }
@@ -819,9 +819,9 @@ static InterpretResult run()
             break;
         }
         case OP_SUPER_INVOKE: {
-            ObjString* method     = READ_STRING();
-            int        argCount   = READ_BYTE();
-            ObjClass*  superclass = AS_CLASS(pop());
+            Value     method     = READ_CONSTANT();
+            int       argCount   = READ_BYTE();
+            ObjClass* superclass = AS_CLASS(pop());
             if (!invokeFromClass(superclass, method, argCount)) {
                 return INTERPRET_RUNTIME_ERROR;
             }
@@ -855,11 +855,11 @@ static InterpretResult run()
 
             if (elemsCount > 0) {
                 for (int i = elemsCount - 1; i >= 0; i--) {
-                    if (!IS_STRING(peek(1))) {
-                        runtimeError("Table key must be a string.");
-                        return INTERPRET_RUNTIME_ERROR;
-                    }
-                    tableSet(&table->table, AS_STRING(peek(1)), peek(0));
+                    // if (!IS_STRING(peek(1))) {
+                    //     runtimeError("Table key must be a string.");
+                    //     return INTERPRET_RUNTIME_ERROR;
+                    // }
+                    tableSet(&table->table, peek(1), peek(0));
                     pop();
                     pop();
                 }

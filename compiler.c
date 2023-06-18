@@ -676,7 +676,12 @@ static void table(bool canAssign)
     if (!check(TOKEN_RIGHT_BRACE)) {
         do {
             numElements++;
-            if (match(TOKEN_IDENTIFIER)) {
+            if (match(TOKEN_LEFT_BRACKET)) {
+                expression();
+                consume(TOKEN_RIGHT_BRACKET, "Expect ']' after table key literal.");
+                consume(TOKEN_COLON, "Expect ':' after table key.");
+                expression();
+            } else if (match(TOKEN_IDENTIFIER)) {
                 identifierConstant(&parser.previous);
                 emitConstant(OBJ_VAL(copyString(parser.previous.start, parser.previous.length)));
                 consume(TOKEN_COLON, "Expect ':' after table key.");
