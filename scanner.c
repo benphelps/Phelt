@@ -339,9 +339,20 @@ Token scanToken()
     case '=':
         return makeToken(match('=') ? TOKEN_EQUAL_EQUAL : TOKEN_EQUAL);
     case '<':
+        if (match('<'))
+            return makeToken(match('=') ? TOKEN_SHIFT_LEFT_EQUAL : TOKEN_SHIFT_LEFT);
+        else if (match('='))
+            return makeToken(TOKEN_LESS_EQUAL);
+        else
+            return makeToken(TOKEN_LESS);
         return makeToken(match('=') ? TOKEN_LESS_EQUAL : TOKEN_LESS);
     case '>':
-        return makeToken(match('=') ? TOKEN_GREATER_EQUAL : TOKEN_GREATER);
+        if (match('>'))
+            return makeToken(match('=') ? TOKEN_SHIFT_RIGHT_EQUAL : TOKEN_SHIFT_RIGHT);
+        else if (match('='))
+            return makeToken(TOKEN_GREATER_EQUAL);
+        else
+            return makeToken(TOKEN_GREATER);
     case '"':
         return string();
     }

@@ -25,6 +25,8 @@ typedef enum {
     OP_BITWISE_AND,
     OP_BITWISE_OR,
     OP_BITWISE_XOR,
+    OP_SHIFT_LEFT,
+    OP_SHIFT_RIGHT,
 
     // Unary
     OP_NOT,

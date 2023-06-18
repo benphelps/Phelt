@@ -555,6 +555,12 @@ static InterpretResult run()
                 BINARY_OP_INT(NUMBER_VAL, ^);
             }
             break;
+        case OP_SHIFT_LEFT:
+            BINARY_OP_INT(NUMBER_VAL, <<);
+            break;
+        case OP_SHIFT_RIGHT:
+            BINARY_OP_INT(NUMBER_VAL, >>);
+            break;
         case OP_NOT:
             if (IS_INSTANCE(peek(0)) && IS_INSTANCE(peek(1))) {
                 INVOKE_DUNDER(vm.notString);

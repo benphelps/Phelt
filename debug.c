@@ -81,9 +81,9 @@ int loop_depth = 0;
 
 int disassembleInstruction(Chunk* chunk, int offset, bool flow)
 {
-    uint8_t instruction   = chunk->code[offset];
-    bool    is_false_jump = false;
-    bool    is_op_jump    = false;
+    OpCode instruction   = chunk->code[offset];
+    bool   is_false_jump = false;
+    bool   is_op_jump    = false;
 
     if (flow) {
         if (instruction == OP_JUMP_IF_FALSE) {
@@ -282,6 +282,18 @@ int disassembleInstruction(Chunk* chunk, int offset, bool flow)
         return simpleInstruction("OP_MULTIPLY", offset);
     case OP_DIVIDE:
         return simpleInstruction("OP_DIVIDE", offset);
+    case OP_MODULO:
+        return simpleInstruction("OP_MODULO", offset);
+    case OP_BITWISE_AND:
+        return simpleInstruction("OP_BITWISE_AND", offset);
+    case OP_BITWISE_OR:
+        return simpleInstruction("OP_BITWISE_OR", offset);
+    case OP_BITWISE_XOR:
+        return simpleInstruction("OP_BITWISE_XOR", offset);
+    case OP_SHIFT_LEFT:
+        return simpleInstruction("OP_SHIFT_LEFT", offset);
+    case OP_SHIFT_RIGHT:
+        return simpleInstruction("OP_SHIFT_RIGHT", offset);
     case OP_NOT:
         return simpleInstruction("OP_NOT", offset);
     case OP_NEGATE:
@@ -373,7 +385,7 @@ int disassembleInstruction(Chunk* chunk, int offset, bool flow)
 
 int moveForward(Chunk* chunk, int offset)
 {
-    uint8_t instruction = chunk->code[offset];
+    OpCode instruction = chunk->code[offset];
 
     switch (instruction) {
     case OP_CONSTANT:
@@ -397,6 +409,22 @@ int moveForward(Chunk* chunk, int offset)
     case OP_MULTIPLY:
         return offset + 1;
     case OP_DIVIDE:
+        return offset + 1;
+    case OP_MODULO:
+        return offset + 1;
+    case OP_BITWISE_AND:
+        return offset + 1;
+    case OP_BITWISE_OR:
+        return offset + 1;
+    case OP_BITWISE_XOR:
+        return offset + 1;
+    case OP_SHIFT_LEFT:
+        return offset + 1;
+    case OP_SHIFT_RIGHT:
+        return offset + 1;
+    case OP_INCREMENT:
+        return offset + 1;
+    case OP_DECREMENT:
         return offset + 1;
     case OP_NOT:
         return offset + 1;
