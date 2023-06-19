@@ -6,23 +6,23 @@
 
 typedef struct
 {
-    const char* start;
-    const char* current;
-    int         line;
+    utf8_int8_t* start;
+    utf8_int8_t* current;
+    int          line;
 } Scanner;
 
 Scanner scanner;
 
-void initScanner(const char* source)
+void initScanner(utf8_int8_t* source)
 {
-    scanner.start   = source;
-    scanner.current = source;
+    scanner.start   = (utf8_int8_t*)source;
+    scanner.current = (utf8_int8_t*)source;
     scanner.line    = 1;
 }
 
-static bool isAlpha(char c)
+static bool isAlpha(utf8_int32_t c)
 {
-    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
+    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_' || c > 0x7F;
 }
 
 static bool isDigit(char c)
@@ -50,31 +50,39 @@ static bool isAtEnd()
     return *scanner.current == '\0';
 }
 
-static char peek()
+utf8_int32_t peek()
 {
-    return *scanner.current;
+    utf8_int32_t codepoint = 0;
+    utf8codepoint(scanner.current, &codepoint);
+    return codepoint;
 }
 
-static char peekNext()
+utf8_int32_t peekNext()
 {
     if (isAtEnd())
         return '\0';
-    return scanner.current[1];
+
+    utf8_int32_t peek      = 0;
+    utf8_int32_t codepoint = 0;
+    utf8codepoint(utf8codepoint(scanner.current, &peek), &codepoint);
+    return codepoint;
 }
 
-static char advance()
+utf8_int32_t advance()
 {
-    scanner.current++;
-    return scanner.current[-1];
+    utf8_int32_t codepoint = 0;
+    utf8_int8_t* end       = utf8codepoint(scanner.current, &codepoint);
+    scanner.current        = end;
+    return codepoint;
 }
 
-static bool match(char expected)
+static bool match(utf8_int32_t expected)
 {
     if (isAtEnd())
         return false;
-    if (*scanner.current != expected)
+    if (peek() != expected)
         return false;
-    scanner.current++;
+    scanner.current += utf8codepointsize(expected);
     return true;
 }
 
@@ -101,7 +109,7 @@ static Token errorToken(const char* message)
 static void skipWhitespace()
 {
     for (;;) {
-        char c = peek();
+        utf8_int32_t c = peek();
         switch (c) {
         case ' ':
         case '\r':
@@ -289,7 +297,7 @@ Token scanToken()
     if (isAtEnd())
         return makeToken(TOKEN_EOF);
 
-    char c = advance();
+    utf8_int32_t c = advance();
 
     if (isAlpha(c))
         return identifier();

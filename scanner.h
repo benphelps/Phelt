@@ -1,6 +1,8 @@
 #ifndef lux_scanner_h
 #define lux_scanner_h
 
+#include "utf8.h"
+
 typedef enum {
     // Single-character tokens.
     TOKEN_LEFT_PAREN,
@@ -77,13 +79,13 @@ typedef enum {
 
 typedef struct
 {
-    TokenType   type;
-    const char* start;
-    int         length;
-    int         line;
+    TokenType    type;
+    utf8_int8_t* start;
+    int          length;
+    int          line;
 } Token;
 
-void  initScanner(const char* source);
+void  initScanner(utf8_int8_t* source);
 Token scanToken();
 
 #endif

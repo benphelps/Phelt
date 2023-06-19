@@ -934,7 +934,7 @@ static InterpretResult run()
 #undef BINARY_OP
 }
 
-InterpretResult interpret(const char* source)
+InterpretResult interpret(utf8_int8_t* source)
 {
     ObjFunction* function = compile(source);
     if (function == NULL)

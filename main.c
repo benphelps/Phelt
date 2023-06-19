@@ -5,7 +5,7 @@
 
 static void repl()
 {
-    char line[1024];
+    utf8_int8_t line[1024];
     for (;;) {
         printf("> ");
 
@@ -18,7 +18,7 @@ static void repl()
     }
 }
 
-static char* readFile(const char* path)
+utf8_int8_t* readFile(const char* path)
 {
     FILE* file = fopen(path, "rb");
     if (file == NULL) {
@@ -30,7 +30,7 @@ static char* readFile(const char* path)
     size_t fileSize = ftell(file);
     rewind(file);
 
-    char* buffer = (char*)malloc(fileSize + 1);
+    utf8_int8_t* buffer = (char*)malloc(fileSize + 1);
     if (buffer == NULL) {
         fprintf(stderr, "Not enough memory to read \"%s\".\n", path);
         exit(74);
@@ -50,7 +50,7 @@ static char* readFile(const char* path)
 
 static void runFile(const char* path)
 {
-    char*           source = readFile(path);
+    utf8_int8_t*    source = readFile(path);
     InterpretResult result = interpret(source);
     free(source);
 

@@ -608,7 +608,7 @@ static void variable(bool canAssign)
     namedVariable(parser.previous, canAssign);
 }
 
-static Token syntheticToken(const char* text)
+static Token syntheticToken(utf8_int8_t* text)
 {
     Token token;
     token.start  = text;
@@ -1398,7 +1398,7 @@ static void statement()
     }
 }
 
-ObjFunction* compile(const char* source)
+ObjFunction* compile(utf8_int8_t* source)
 {
     initScanner(source);
     Compiler compiler;

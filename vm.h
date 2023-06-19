@@ -6,6 +6,7 @@
 #include "memory.h"
 #include "object.h"
 #include "table.h"
+#include "utf8.h"
 #include "value.h"
 
 #define FRAMES_MAX 64
@@ -61,7 +62,7 @@ extern VM vm;
 
 void            initVM();
 void            freeVM();
-InterpretResult interpret(const char* source);
+InterpretResult interpret(utf8_int8_t* source);
 void            push(Value value);
 Value           pop();
 
