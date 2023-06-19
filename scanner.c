@@ -117,6 +117,17 @@ static void skipWhitespace()
                 // A comment goes until the end of the line.
                 while (peek() != '\n' && !isAtEnd())
                     advance();
+            } else if (peekNext() == '*') {
+                // A comment goes until the end of the block.
+                while (!(peek() == '*' && peekNext() == '/') && !isAtEnd()) {
+                    if (peek() == '\n')
+                        scanner.line++;
+                    advance();
+                }
+                if (isAtEnd())
+                    return;
+                advance();
+                advance();
             } else {
                 return;
             }
@@ -177,7 +188,6 @@ static TokenType identifierType()
             }
         }
         break;
-
     case 'i':
         return checkKeyword(1, 1, "f", TOKEN_IF);
     case 'l':

@@ -1,3 +1,9 @@
+/*
+block comments
+*/
+
+// single line comments
+
 // values
 let string = "Hello World";
 let float = 12.35;
