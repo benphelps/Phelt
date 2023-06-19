@@ -355,7 +355,6 @@ Token scanToken()
             return makeToken(TOKEN_LESS_EQUAL);
         else
             return makeToken(TOKEN_LESS);
-        return makeToken(match('=') ? TOKEN_LESS_EQUAL : TOKEN_LESS);
     case '>':
         if (match('>'))
             return makeToken(match('=') ? TOKEN_SHIFT_RIGHT_EQUAL : TOKEN_SHIFT_RIGHT);
