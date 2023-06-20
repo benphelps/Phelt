@@ -11,7 +11,13 @@ typedef struct {
     NativeFn    function;
 } NativeFnEntry;
 
-extern NativeFnEntry nativeFns[];
+typedef struct {
+    const char*    name;
+    NativeFnEntry* fns;
+} NativeModuleEntry;
+
+extern NativeFnEntry     globalFns[];
+extern NativeModuleEntry nativeModules[];
 
 extern bool _time(int argCount, Value* args);
 extern bool _clock(int argCount, Value* args);

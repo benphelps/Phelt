@@ -1,16 +1,21 @@
 #include "native.h"
 
-NativeFnEntry nativeFns[] = {
-    // system
+NativeFnEntry globalFns[] = {
+    { "print", _print },
+    { "sprint", _sprint },
+    { "println", _println },
+    { NULL, NULL },
+};
+
+NativeFnEntry systemFns[] = {
     { "time", _time },
     { "clock", _clock },
     { "sleep", _sleep },
     { "usleep", _usleep },
-    { "print", _print },
-    { "sprint", _sprint },
-    { "println", _println },
+    { NULL, NULL },
+};
 
-    // math
+NativeFnEntry mathFns[] = {
     { "ceil", _ceil },
     { "floor", _floor },
     { "abs", _abs },
@@ -22,5 +27,12 @@ NativeFnEntry nativeFns[] = {
     { "atan", _atan },
     { "pow", _pow },
     { "atan2", _atan2 },
-    { NULL, NULL }, // End of array sentinel
+    { NULL, NULL },
+};
+
+// modules
+NativeModuleEntry nativeModules[] = {
+    { "System", systemFns },
+    { "Math", mathFns },
+    { NULL, NULL },
 };

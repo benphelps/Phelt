@@ -69,11 +69,11 @@ class Vector {
     __mul(other) Vector(this.x * other.x, this.y * other.y);
     __div(other) Vector(this.x / other.x, this.y / other.y);
 
-    magnitude() sqrt(this.x * this.x + this.y * this.y);
+    magnitude() Math.sqrt(this.x * this.x + this.y * this.y);
     dot(other) this.x * other.x + this.y * other.y;
     cross(other) this.x * other.y - this.y * other.x;
 
-    angle(other) atan2(this.cross(other), this.dot(other));
+    angle(other) Math.atan2(this.cross(other), this.dot(other));
     scale(s) Vector(this.x * s, this.y * s);
 
     distance(other) (this - other).magnitude();
