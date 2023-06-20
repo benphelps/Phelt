@@ -212,20 +212,34 @@ static bool invoke(Value name, int argCount)
 {
     Value receiver = peek(argCount);
 
-    if (!IS_INSTANCE(receiver)) {
-        runtimeError("Only instances have methods.");
+    switch (OBJ_TYPE(receiver)) {
+    case OBJ_INSTANCE: {
+        ObjInstance* instance = AS_INSTANCE(receiver);
+
+        Value value;
+        if (tableGet(&instance->fields, name, &value)) {
+            vm.stackTop[-argCount - 1] = value;
+            return callValue(value, argCount);
+        }
+
+        return invokeFromClass(instance->klass, name, argCount);
+    }
+    case OBJ_TABLE: {
+        ObjTable* table = AS_TABLE(receiver);
+        Value     value;
+        if (tableGet(&table->table, name, &value)) {
+            vm.stackTop[-argCount - 1] = value;
+            return callValue(value, argCount);
+        }
+        runtimeError("Undefined property '%s'.", stringValue(name));
         return false;
     }
+    default:
+        break; // Non-callable object type.
+    };
 
-    ObjInstance* instance = AS_INSTANCE(receiver);
-
-    Value value;
-    if (tableGet(&instance->fields, name, &value)) {
-        vm.stackTop[-argCount - 1] = value;
-        return callValue(value, argCount);
-    }
-
-    return invokeFromClass(instance->klass, name, argCount);
+    runtimeError("Only instances have methods.");
+    return false;
 }
 
 static bool bindMethod(ObjClass* klass, Value name)
