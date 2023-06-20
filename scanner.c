@@ -96,7 +96,7 @@ static Token makeToken(TokenType type)
     return token;
 }
 
-static Token errorToken(const char* message)
+static Token errorToken(utf8_int8_t* message)
 {
     Token token;
     token.type   = TOKEN_ERROR;
