@@ -195,6 +195,27 @@ employee.greet(); // Hello, my name is John
                   // My employee id is 123
 ```
 
+## Dunder Methods
+
+```js
+class Vector {
+    init(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    __add(other) Vector(this.x + other.x, this.y + other.y);
+    __sub(other) Vector(this.x - other.x, this.y - other.y);
+
+    dot(other) this.x * other.x + this.y * other.y;
+    scale(s) Vector(this.x * s, this.y * s);
+
+    reflect(other) {
+        return this - other.scale(2 * this.dot(other) / other.dot(other));
+    }
+}
+```
+
 ## Standard Library
 
 The standard library is a work in progress. The following modules / functions are available:
