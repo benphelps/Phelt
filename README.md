@@ -1,6 +1,6 @@
 # Lux
 
-Lux is a small scripting language, based on Lox, as described in the Crafting Interpreters book.
+Lux is a small scripting language, based on Lox, as described in the [Crafting Interpreters](https://craftinginterpreters.com/) book.
 
 # Features
 
