@@ -4,6 +4,7 @@
 #include "table.h"
 #include "value.h"
 #include "vm.h"
+#include <libgen.h>
 
 #define ALLOCATE_OBJ(type, objectType) \
     (type*)allocateObject(sizeof(type), objectType)
@@ -187,7 +188,7 @@ ObjArray* newArray()
 static void printFunction(ObjFunction* function)
 {
     if (function->name == NULL) {
-        printf("<script>");
+        printf("<%s>", basename((char*)function->source));
         return;
     }
     printf("<fn %s>", function->name->chars);
@@ -196,7 +197,7 @@ static void printFunction(ObjFunction* function)
 char* functionString(ObjFunction* function)
 {
     if (function->name == NULL) {
-        return "<script>";
+        return basename((char*)function->source);
     }
     char* name = ALLOCATE(char, function->name->length + 1);
     memcpy(name, function->name->chars, function->name->length);

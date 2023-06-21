@@ -947,6 +947,23 @@ static InterpretResult run()
         case OP_PROPERTY:
             defineProperty(READ_STRING());
             break;
+        case OP_IMPORT: {
+            ObjString*   fileName   = AS_STRING(pop());
+            ObjFunction* parentFunc = frame->closure->function;
+            const char*  sourcePath = resolveRelativePath(fileName->chars, parentFunc->source);
+            char*        source     = readFile(sourcePath);
+            ObjFunction* function   = compile(sourcePath, source);
+            if (function == NULL)
+                return INTERPRET_COMPILE_ERROR;
+            push(OBJ_VAL(function));
+            ObjClosure* closure = newClosure(function);
+            pop();
+
+            call(closure, 0);
+            frame = &vm.frames[vm.frameCount - 1];
+            free(source);
+            break;
+        }
         }
     }
 
@@ -957,9 +974,9 @@ static InterpretResult run()
 #undef BINARY_OP
 }
 
-InterpretResult interpret(utf8_int8_t* source)
+InterpretResult interpret(const char* sourcePath, utf8_int8_t* source)
 {
-    ObjFunction* function = compile(source);
+    ObjFunction* function = compile(sourcePath, source);
     if (function == NULL)
         return INTERPRET_COMPILE_ERROR;
 

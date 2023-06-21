@@ -197,7 +197,14 @@ static TokenType identifierType()
         }
         break;
     case 'i':
-        return checkKeyword(1, 1, "f", TOKEN_IF);
+        if (scanner.current - scanner.start > 1) {
+            switch (scanner.start[1]) {
+            case 'm':
+                return checkKeyword(2, 4, "port", TOKEN_IMPORT);
+            case 'f':
+                return checkKeyword(2, 0, "", TOKEN_IF);
+            }
+        }
     case 'l':
         return checkKeyword(1, 2, "et", TOKEN_LET);
     case 'n':

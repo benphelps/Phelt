@@ -71,6 +71,7 @@ typedef enum {
     TOKEN_WHILE,
     TOKEN_CONTINUE,
     TOKEN_BREAK,
+    TOKEN_IMPORT,
 
     // Control flow
     TOKEN_ERROR,

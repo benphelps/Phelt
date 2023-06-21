@@ -377,6 +377,8 @@ int disassembleInstruction(Chunk* chunk, int offset, bool flow)
         return constantInstruction("OP_METHOD", chunk, offset);
     case OP_PROPERTY:
         return constantInstruction("OP_PROPERTY", chunk, offset);
+    case OP_IMPORT:
+        return simpleInstruction("OP_IMPORT", offset);
     default:
         printf("Unknown opcode %d\n", instruction);
         return offset + 1;
@@ -498,6 +500,8 @@ int moveForward(Chunk* chunk, int offset)
         return offset + 2;
     case OP_PROPERTY:
         return offset + 2;
+    case OP_IMPORT:
+        return offset + 1;
     default:
         return offset + 1;
     }

@@ -63,11 +63,12 @@ typedef struct ObjUpvalue {
 } ObjUpvalue;
 
 typedef struct {
-    Obj        obj;
-    int        arity;
-    int        upvalueCount;
-    Chunk      chunk;
-    ObjString* name;
+    Obj         obj;
+    int         arity;
+    int         upvalueCount;
+    Chunk       chunk;
+    ObjString*  name;
+    const char* source;
 } ObjFunction;
 
 typedef struct {

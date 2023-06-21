@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.10)
 project(lux)
 
 add_executable(lux
+    common.c
     main.c
     debug.c
     chunk.c

@@ -62,7 +62,7 @@ extern VM vm;
 
 void            initVM();
 void            freeVM();
-InterpretResult interpret(utf8_int8_t* source);
+InterpretResult interpret(const char* sourcePath, utf8_int8_t* source);
 void            push(Value value);
 Value           pop();
 

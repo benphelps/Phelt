@@ -775,6 +775,7 @@ ParseRule rules[] = {
     [TOKEN_TRUE]              = { literal, NULL, PREC_NONE },
     [TOKEN_LET]               = { NULL, NULL, PREC_NONE },
     [TOKEN_WHILE]             = { NULL, NULL, PREC_NONE },
+    [TOKEN_IMPORT]            = { NULL, NULL, PREC_NONE },
     [TOKEN_ERROR]             = { NULL, NULL, PREC_NONE },
     [TOKEN_EOF]               = { NULL, NULL, PREC_NONE },
 };
@@ -1311,6 +1312,13 @@ static void printStatement()
     emitByte(OP_DUMP);
 }
 
+static void importStatement()
+{
+    expression();
+    consume(TOKEN_SEMICOLON, "Expect ';' after value.");
+    emitByte(OP_IMPORT);
+}
+
 static void returnStatement()
 {
     if (current->type == TYPE_SCRIPT) {
@@ -1373,7 +1381,9 @@ static void declaration()
 
 static void statement()
 {
-    if (match(TOKEN_DUMP)) {
+    if (match(TOKEN_IMPORT)) {
+        importStatement();
+    } else if (match(TOKEN_DUMP)) {
         printStatement();
     } else if (match(TOKEN_IF)) {
         ifStatement();
@@ -1398,7 +1408,7 @@ static void statement()
     }
 }
 
-ObjFunction* compile(utf8_int8_t* source)
+ObjFunction* compile(const char* sourcePath, utf8_int8_t* source)
 {
     initScanner(source);
     Compiler compiler;
@@ -1413,6 +1423,7 @@ ObjFunction* compile(utf8_int8_t* source)
     }
 
     ObjFunction* function = endCompiler();
+    function->source      = sourcePath;
     return parser.hadError ? NULL : function;
 }
 

@@ -51,6 +51,7 @@ typedef enum {
     OP_SET_ARRAY,
 
     // Statements
+    OP_IMPORT,
     OP_DUMP,
     OP_JUMP,
     OP_JUMP_IF_FALSE,
