@@ -133,6 +133,7 @@ ObjArray* newArray();
 void  printObject(Value value);
 char* functionString(ObjFunction* function);
 char* objectString(Value value);
+int   objectLength(Value value);
 
 static inline bool isObjType(Value value, ObjType type)
 {

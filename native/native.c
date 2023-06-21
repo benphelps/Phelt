@@ -4,6 +4,7 @@ NativeFnEntry globalFns[] = {
     { "print", _print },
     { "sprint", _sprint },
     { "println", _println },
+    { "len", _len },
     { NULL, NULL },
 };
 
@@ -27,12 +28,27 @@ NativeFnEntry mathFns[] = {
     { "atan", _atan },
     { "pow", _pow },
     { "atan2", _atan2 },
+    { "deg", _deg },
+    { "rad", _rad },
+    { "clamp", _clamp },
+    { "lerp", _lerp },
+    { "map", _map },
+    { "norm", _norm },
+    { NULL, NULL },
+};
+
+NativeFnEntry fileFns[] = {
+    { "fopen", _fopen },
+    { "fclose", _fclose },
+    { "fwrite", _fwrite },
+    { "fread", _fread },
     { NULL, NULL },
 };
 
 // modules
 NativeModuleEntry nativeModules[] = {
-    { "System", systemFns },
-    { "Math", mathFns },
+    { "system", systemFns },
+    { "math", mathFns },
+    { "file", fileFns },
     { NULL, NULL },
 };

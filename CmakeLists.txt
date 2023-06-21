@@ -15,5 +15,6 @@ add_executable(lux
     table.c
     native/system.c
     native/math.c
+    native/file.c
     native/native.c
 )

@@ -1,6 +1,6 @@
-let start = System.time();
-System.usleep(100);
-let end = System.time();
+let start = system.time();
+system.usleep(100);
+let end = system.time();
 
 println("start: {}", start);
 println("time: {}", (end - start));

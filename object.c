@@ -265,3 +265,23 @@ char* objectString(Value value)
         return "upvalue";
     }
 }
+
+int objectLength(Value value)
+{
+    switch (OBJ_TYPE(value)) {
+    case OBJ_BOUND_METHOD:
+    case OBJ_CLASS:
+    case OBJ_INSTANCE:
+    case OBJ_CLOSURE:
+    case OBJ_FUNCTION:
+    case OBJ_NATIVE:
+    case OBJ_UPVALUE:
+        return -1;
+    case OBJ_STRING:
+        return AS_STRING(value)->length + 1;
+    case OBJ_TABLE:
+        return AS_TABLE(value)->table.count;
+    case OBJ_ARRAY:
+        return AS_ARRAY(value)->array.count;
+    }
+}

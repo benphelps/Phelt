@@ -1,7 +1,17 @@
-#include "native.h"
+#include "system.h"
+#include "../value.h"
 #include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
+
+Value getEnv(const char* name)
+{
+    char* env = getenv(name);
+    if (env == NULL) {
+        return NIL_VAL;
+    }
+    return OBJ_VAL(copyString(env, strlen(env)));
+}
 
 double time_in_mill()
 {
@@ -14,62 +24,61 @@ double time_in_mill()
 bool _time(int argCount, Value* args)
 {
     if (argCount != 0) {
-        args[-1] = OBJ_VAL(formatString("Expected 0 arguments but got %d.", argCount));
+        lux_pushObject(-1, formatString("Expected 0 arguments but got %d.", argCount));
         return false;
     }
 
-    args[-1] = NUMBER_VAL(time_in_mill());
+    lux_pushNumber(-1, time_in_mill());
     return true;
 }
 
 bool _clock(int argCount, Value* args)
 {
     if (argCount != 0) {
-        args[-1] = OBJ_VAL(formatString("Expected 0 arguments but got %d.", argCount));
+        lux_pushObject(-1, formatString("Expected 0 arguments but got %d.", argCount));
         return false;
     }
 
-    args[-1] = NUMBER_VAL((double)clock() / CLOCKS_PER_SEC);
+    lux_pushNumber(-1, (double)clock() / CLOCKS_PER_SEC);
     return true;
 }
 
 bool _sleep(int argCount, Value* args)
 {
     if (argCount != 1) {
-        args[-1] = OBJ_VAL(formatString("Expected 1 argument but got %d.", argCount));
+        lux_pushObject(-1, formatString("Expected 1 argument but got %d.", argCount));
         return false;
     }
 
-    if (!IS_NUMBER(args[0])) {
-        args[-1] = OBJ_VAL(formatString("Argument must be a number."));
+    if (!lux_isNumber(0)) {
+        lux_pushObject(-1, formatString("Argument must be a number."));
         return false;
     }
 
-    sleep((unsigned int)AS_NUMBER(args[0]));
-    args[-1] = NIL_VAL;
+    sleep((unsigned int)lux_toNumber(0));
+    lux_pushNil(-1);
     return true;
 }
 
 bool _usleep(int argCount, Value* args)
 {
     if (argCount != 1) {
-        args[-1] = OBJ_VAL(formatString("Expected 1 argument but got %d.", argCount));
+        lux_pushObject(-1, formatString("Expected 1 argument but got %d.", argCount));
         return false;
     }
 
-    if (!IS_NUMBER(args[0])) {
-        args[-1] = OBJ_VAL(formatString("Argument must be a number."));
+    if (!lux_isNumber(0)) {
+        lux_pushObject(-1, formatString("Argument must be a number."));
         return false;
     }
 
-    usleep((unsigned int)AS_NUMBER(args[0]));
-    args[-1] = NIL_VAL;
+    usleep((unsigned int)lux_toNumber(0));
+    lux_pushNil(-1);
     return true;
 }
 
 #define TEMPLATE_BUFFER 1024
 
-// This is your placeholder replacement function
 char* replace_placeholder(char* template, char* value)
 {
     char* ptr = strstr(template, "{}");
@@ -85,7 +94,6 @@ char* replace_placeholder(char* template, char* value)
     return template;
 }
 
-// This is your main printing function
 bool _print(int argCount, Value* args)
 {
     if (argCount < 1) {
@@ -93,7 +101,6 @@ bool _print(int argCount, Value* args)
         return NIL_VAL;
     }
 
-    // copy the string template, Values are interned
     char template[TEMPLATE_BUFFER];
     strcpy(template, stringValue(args[0]));
 
@@ -114,7 +121,6 @@ bool _sprint(int argCount, Value* args)
         return NIL_VAL;
     }
 
-    // copy the string template, Values are interned
     char template[TEMPLATE_BUFFER];
     strcpy(template, stringValue(args[0]));
 
@@ -131,4 +137,27 @@ bool _println(int argCount, Value* args)
     _print(argCount, args);
     printf("\n");
     return NIL_VAL;
+}
+
+bool _len(int argCount, Value* args)
+{
+    if (argCount != 1) {
+        lux_pushObject(-1, formatString("Expected 1 argument but got %d.", argCount));
+        return false;
+    }
+
+    if (!lux_isObject(0)) {
+        lux_pushObject(-1, formatString("Argument must be an object."));
+        return false;
+    }
+
+    int length = objectLength(OBJ_VAL(0));
+
+    if (length == -1) {
+        lux_pushObject(-1, formatString("Argument must be an object with a length."));
+        return false;
+    }
+
+    lux_pushNumber(-1, length);
+    return true;
 }

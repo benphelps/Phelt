@@ -1,0 +1,3 @@
+let fp = file.fopen("test.txt", "w");
+file.fwrite(fp, "Hello World");
+file.fclose(fp);

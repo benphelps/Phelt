@@ -22,6 +22,7 @@ typedef uint64_t Value;
 #define IS_BOOL(value) (((value) | 1) == TRUE_VAL)
 #define IS_NIL(value) ((value) == NIL_VAL)
 #define IS_EMPTY(value) ((value) == EMPTY_VAL)
+#define IS_POINTER(value) (((value) & (QNAN | SIGN_BIT)) == (QNAN | SIGN_BIT))
 #define IS_NUMBER(value) (((value)&QNAN) != QNAN)
 #define IS_OBJ(value) \
     (((value) & (QNAN | SIGN_BIT)) == (QNAN | SIGN_BIT))
@@ -30,6 +31,8 @@ typedef uint64_t Value;
 #define AS_NUMBER(value) valueToNum(value)
 #define AS_OBJ(value) \
     ((Obj*)(uintptr_t)((value) & ~(SIGN_BIT | QNAN)))
+#define AS_POINTER(value) \
+    ((void*)(uintptr_t)((value) & ~(SIGN_BIT | QNAN)))
 
 static inline double valueToNum(Value value)
 {
@@ -43,6 +46,8 @@ static inline double valueToNum(Value value)
 #define TRUE_VAL ((Value)(uint64_t)(QNAN | TAG_TRUE))
 #define NIL_VAL ((Value)(uint64_t)(QNAN | TAG_NIL))
 #define EMPTY_VAL ((Value)(uint64_t)(QNAN | TAG_EMPTY))
+#define POINTER_VAL(obj) \
+    (Value)(SIGN_BIT | QNAN | (uint64_t)(uintptr_t)(obj))
 #define NUMBER_VAL(num) numToValue(num)
 #define OBJ_VAL(obj) \
     (Value)(SIGN_BIT | QNAN | (uint64_t)(uintptr_t)(obj))
@@ -54,6 +59,13 @@ static inline Value numToValue(double num)
     return value;
 }
 
+static inline Value pointerToValue(uintptr_t* pointer)
+{
+    Value value;
+    memcpy(&value, pointer, sizeof(uintptr_t));
+    return value;
+}
+
 #else
 
 typedef enum {
@@ -61,16 +73,18 @@ typedef enum {
     VAL_NIL,
     VAL_NUMBER,
     VAL_OBJ,
-    VAL_EMPTY
+    VAL_EMPTY,
+    VAL_POINTER
 } ValueType;
 
 typedef struct
 {
     ValueType type;
     union {
-        bool   boolean;
-        double number;
-        Obj*   obj;
+        bool      boolean;
+        double    number;
+        Obj*      obj;
+        uintptr_t pointer;
     } as;
 } Value;
 
@@ -79,16 +93,19 @@ typedef struct
 #define IS_EMPTY(value) ((value).type == VAL_EMPTY)
 #define IS_NUMBER(value) ((value).type == VAL_NUMBER)
 #define IS_OBJ(value) ((value).type == VAL_OBJ)
+#define IS_POINTER(value) ((value).type == VAL_POINTER)
 
 #define AS_BOOL(value) ((value).as.boolean)
 #define AS_NUMBER(value) ((value).as.number)
 #define AS_OBJ(value) ((value).as.obj)
+#define AS_POINTER(value) ((value).as.pointer)
 
 #define BOOL_VAL(value) ((Value) { VAL_BOOL, { .boolean = value } })
 #define NIL_VAL ((Value) { VAL_NIL, { .number = 0 } })
 #define EMPTY_VAL ((Value) { VAL_EMPTY, { .number = 0 } })
 #define NUMBER_VAL(value) ((Value) { VAL_NUMBER, { .number = value } })
 #define OBJ_VAL(object) ((Value) { VAL_OBJ, { .obj = (Obj*)object } })
+#define POINTER_VAL(pointer) ((Value) { VAL_POINTER, { .pointer = pointer } })
 
 #endif
 
