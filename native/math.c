@@ -65,7 +65,7 @@ double norm(double value, double start, double stop)
                                                                                                    \
         if (!lux_isNumber(0) || !lux_isNumber(1)) {                                                \
             lux_pushObject(-1, formatString(#FUNC_NAME "() arguments must be numbers"));           \
-            return NIL_VAL;                                                                        \
+            return false;                                                                          \
         }                                                                                          \
                                                                                                    \
         TYPE num1 = (TYPE)lux_toNumber(0);                                                         \

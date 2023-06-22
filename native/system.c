@@ -98,7 +98,7 @@ bool _print(int argCount, Value* args)
 {
     if (argCount < 1) {
         printf("Error: No template provided.\n");
-        return NIL_VAL;
+        return false;
     }
 
     char template[TEMPLATE_BUFFER];
@@ -111,14 +111,14 @@ bool _print(int argCount, Value* args)
 
     printf("%s", template);
 
-    return NIL_VAL;
+    return true;
 }
 
 bool _sprint(int argCount, Value* args)
 {
     if (argCount < 1) {
         printf("Error: No template provided.\n");
-        return NIL_VAL;
+        return false;
     }
 
     char template[TEMPLATE_BUFFER];
@@ -129,14 +129,15 @@ bool _sprint(int argCount, Value* args)
         replace_placeholder(template, value);
     }
 
-    return OBJ_VAL(copyString(template, strlen(template)));
+    lux_pushObject(-1, copyString(template, strlen(template)));
+    return true;
 }
 
 bool _println(int argCount, Value* args)
 {
     _print(argCount, args);
     printf("\n");
-    return NIL_VAL;
+    return true;
 }
 
 bool _len(int argCount, Value* args)
