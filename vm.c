@@ -438,46 +438,105 @@ static InterpretResult run()
         frame = &vm.frames[vm.frameCount - 1];                                 \
     }
 
-    for (;;) {
 #ifdef DEBUG_TRACE_EXECUTION
-        if (vm.stackTop != vm.stack) {
-            printf("           ");
-        }
-        for (Value* slot = vm.stack; slot < vm.stackTop; slot++) {
-            printf("[ ");
-            printValue(*slot);
-            printf(" ]");
-        }
-        printf("\n");
-        disassembleInstruction(&frame->closure->function->chunk, (int)(frame->ip - frame->closure->function->chunk.code), false);
+#define TRACE_EXECUTION()                                            \
+    do {                                                             \
+        if (vm.stackTop != vm.stack) {                               \
+            printf("           ");                                   \
+        }                                                            \
+        for (Value* slot = vm.stack; slot < vm.stackTop; slot++) {   \
+            printf("[ ");                                            \
+            printValue(*slot);                                       \
+            printf(" ]");                                            \
+        }                                                            \
+        printf("\n");                                                \
+        disassembleInstruction(                                      \
+            &frame->closure->function->chunk,                        \
+            (int)(frame->ip - frame->closure->function->chunk.code), \
+            false);                                                  \
+    } while (false)
+#else
+#define TRACE_EXECUTION() \
+    do {                  \
+    } while (false)
 #endif
-        uint8_t instruction;
-        switch (instruction = READ_BYTE()) {
-        case OP_CONSTANT: {
+
+#ifdef COMPUTED_GOTO
+    static void* dispatchTable[] = {
+#define OPCODE(op) &&code_##op,
+#include "opcodes.h"
+#undef OPCODE
+    };
+
+#define INTERPRET_LOOP DISPATCH();
+#define CASE_CODE(name) code_##name
+#define DISPATCH()                                              \
+    do {                                                        \
+        TRACE_EXECUTION();                                      \
+        goto* dispatchTable[instruction = (OpCode)READ_BYTE()]; \
+    } while (false)
+
+#else
+#define INTERPRET_LOOP \
+    loop:              \
+    TRACE_EXECUTION(); \
+    switch (instruction = (OpCode)READ_BYTE())
+
+#define CASE_CODE(name) case OP_##name
+#define DISPATCH() goto loop
+#endif
+
+    OpCode instruction;
+    INTERPRET_LOOP
+    {
+        CASE_CODE(CONSTANT)
+            :
+        {
             Value constant = READ_CONSTANT();
             push(constant);
-            break;
+            DISPATCH();
         }
-        case OP_NIL:
+
+        CASE_CODE(NIL)
+            :
+        {
             push(NIL_VAL);
-            break;
-        case OP_TRUE:
+            DISPATCH();
+        }
+
+        CASE_CODE(TRUE)
+            :
+        {
             push(BOOL_VAL(true));
-            break;
-        case OP_FALSE:
+            DISPATCH();
+        }
+
+        CASE_CODE(FALSE)
+            :
+        {
             push(BOOL_VAL(false));
-            break;
-        case OP_GET_UPVALUE: {
+            DISPATCH();
+        }
+
+        CASE_CODE(GET_UPVALUE)
+            :
+        {
             uint8_t slot = READ_BYTE();
             push(*frame->closure->upvalues[slot]->location);
-            break;
+            DISPATCH();
         }
-        case OP_SET_UPVALUE: {
+
+        CASE_CODE(SET_UPVALUE)
+            :
+        {
             uint8_t slot                              = READ_BYTE();
             *frame->closure->upvalues[slot]->location = peek(0);
-            break;
+            DISPATCH();
         }
-        case OP_EQUAL: {
+
+        CASE_CODE(EQUAL)
+            :
+        {
             if (IS_INSTANCE(peek(0)) && IS_INSTANCE(peek(1))) {
                 INVOKE_DUNDER(vm.eqString);
             } else {
@@ -485,23 +544,34 @@ static InterpretResult run()
                 Value a = pop();
                 push(BOOL_VAL(valuesEqual(a, b)));
             }
-            break;
+            DISPATCH();
         }
-        case OP_GREATER:
+
+        CASE_CODE(GREATER)
+            :
+        {
             if (IS_INSTANCE(peek(0)) && IS_INSTANCE(peek(1))) {
                 INVOKE_DUNDER(vm.gtString);
             } else {
                 BINARY_OP(BOOL_VAL, >);
             }
-            break;
-        case OP_LESS:
+            DISPATCH();
+        }
+
+        CASE_CODE(LESS)
+            :
+        {
             if (IS_INSTANCE(peek(0)) && IS_INSTANCE(peek(1))) {
                 INVOKE_DUNDER(vm.ltString);
             } else {
                 BINARY_OP(BOOL_VAL, <);
             }
-            break;
-        case OP_ADD: {
+            DISPATCH();
+        }
+
+        CASE_CODE(ADD)
+            :
+        {
             if (IS_STRING(peek(0)) && IS_STRING(peek(1))) {
                 concatenate();
             } else if (IS_NUMBER(peek(0)) && IS_NUMBER(peek(1))) {
@@ -529,110 +599,177 @@ static InterpretResult run()
                     "Operands must be two joinable types.");
                 return INTERPRET_RUNTIME_ERROR;
             }
-            break;
+            DISPATCH();
         }
-        case OP_SUBTRACT:
+
+        CASE_CODE(SUBTRACT)
+            :
+        {
             if (IS_INSTANCE(peek(0)) && IS_INSTANCE(peek(1))) {
                 INVOKE_DUNDER(vm.subString);
             } else {
                 BINARY_OP(NUMBER_VAL, -);
             }
-            break;
-        case OP_MULTIPLY:
+            DISPATCH();
+        }
+
+        CASE_CODE(MULTIPLY)
+            :
+        {
             if (IS_INSTANCE(peek(0)) && IS_INSTANCE(peek(1))) {
                 INVOKE_DUNDER(vm.mulString);
             } else {
                 BINARY_OP(NUMBER_VAL, *);
             }
-            break;
-        case OP_DIVIDE:
+            DISPATCH();
+        }
+
+        CASE_CODE(DIVIDE)
+            :
+        {
             if (IS_INSTANCE(peek(0)) && IS_INSTANCE(peek(1))) {
                 INVOKE_DUNDER(vm.divString);
             } else {
                 BINARY_OP(NUMBER_VAL, /);
             }
-            break;
-        case OP_MODULO:
+            DISPATCH();
+        }
+
+        CASE_CODE(MODULO)
+            :
+        {
             if (IS_INSTANCE(peek(0)) && IS_INSTANCE(peek(1))) {
                 INVOKE_DUNDER(vm.modString);
             } else {
                 BINARY_OP_INT(NUMBER_VAL, %);
             }
-            break;
-        case OP_BITWISE_AND:
+            DISPATCH();
+        }
+
+        CASE_CODE(BITWISE_AND)
+            :
+        {
             if (IS_INSTANCE(peek(0)) && IS_INSTANCE(peek(1))) {
                 INVOKE_DUNDER(vm.andString);
             } else {
                 BINARY_OP_INT(NUMBER_VAL, &);
             }
-            break;
-        case OP_BITWISE_OR:
+            DISPATCH();
+        }
+
+        CASE_CODE(BITWISE_OR)
+            :
+        {
             if (IS_INSTANCE(peek(0)) && IS_INSTANCE(peek(1))) {
                 INVOKE_DUNDER(vm.orString);
             } else {
                 BINARY_OP_INT(NUMBER_VAL, |);
             }
-            break;
-        case OP_BITWISE_XOR:
+            DISPATCH();
+        }
+
+        CASE_CODE(BITWISE_XOR)
+            :
+        {
             if (IS_INSTANCE(peek(0)) && IS_INSTANCE(peek(1))) {
                 INVOKE_DUNDER(vm.xorString);
             } else {
                 BINARY_OP_INT(NUMBER_VAL, ^);
             }
-            break;
-        case OP_SHIFT_LEFT:
+            DISPATCH();
+        }
+
+        CASE_CODE(SHIFT_LEFT)
+            :
+        {
             BINARY_OP_INT(NUMBER_VAL, <<);
-            break;
-        case OP_SHIFT_RIGHT:
+            DISPATCH();
+        }
+
+        CASE_CODE(SHIFT_RIGHT)
+            :
+        {
             BINARY_OP_INT(NUMBER_VAL, >>);
-            break;
-        case OP_NOT:
+            DISPATCH();
+        }
+
+        CASE_CODE(NOT)
+            :
+        {
             if (IS_INSTANCE(peek(0)) && IS_INSTANCE(peek(1))) {
                 INVOKE_DUNDER(vm.notString);
             } else {
                 push(BOOL_VAL(isFalsey(pop())));
             }
-            break;
-        case OP_NEGATE: {
+            DISPATCH();
+        }
+
+        CASE_CODE(NEGATE)
+            :
+        {
             if (!IS_NUMBER(peek(0))) {
                 runtimeError("Operand must be a number.");
                 return INTERPRET_RUNTIME_ERROR;
             }
             push(NUMBER_VAL(-AS_NUMBER(pop())));
-            break;
+            DISPATCH();
         }
-        case OP_INCREMENT:
+
+        CASE_CODE(INCREMENT)
+            :
+        {
             if (!IS_NUMBER(peek(0))) {
                 runtimeError("Operand must be a number.");
                 return INTERPRET_RUNTIME_ERROR;
             }
             push(NUMBER_VAL(AS_NUMBER(pop()) + 1));
-            break;
-        case OP_DECREMENT:
+            DISPATCH();
+        }
+
+        CASE_CODE(DECREMENT)
+            :
+        {
             if (!IS_NUMBER(peek(0))) {
                 runtimeError("Operand must be a number.");
                 return INTERPRET_RUNTIME_ERROR;
             }
             push(NUMBER_VAL(AS_NUMBER(pop()) - 1));
-            break;
-        case OP_POP:
-            pop();
-            break;
-        case OP_DUP: {
-            push(peek(0));
-            break;
+            DISPATCH();
         }
-        case OP_GET_LOCAL: {
+
+        CASE_CODE(POP)
+            :
+        {
+            pop();
+            DISPATCH();
+        }
+
+        CASE_CODE(DUP)
+            :
+        {
+            push(peek(0));
+            DISPATCH();
+        }
+
+        CASE_CODE(GET_LOCAL)
+            :
+        {
             uint8_t slot = READ_BYTE();
             push(frame->slots[slot]);
-            break;
+            DISPATCH();
         }
-        case OP_SET_LOCAL: {
+
+        CASE_CODE(SET_LOCAL)
+            :
+        {
             uint8_t slot       = READ_BYTE();
             frame->slots[slot] = peek(0);
-            break;
+            DISPATCH();
         }
-        case OP_GET_GLOBAL: {
+
+        CASE_CODE(GET_GLOBAL)
+            :
+        {
             Value name = READ_CONSTANT();
             Value value;
             if (!tableGet(&vm.globals, name, &value)) {
@@ -640,24 +777,33 @@ static InterpretResult run()
                 return INTERPRET_RUNTIME_ERROR;
             }
             push(value);
-            break;
+            DISPATCH();
         }
-        case OP_DEFINE_GLOBAL: {
+
+        CASE_CODE(DEFINE_GLOBAL)
+            :
+        {
             Value name = READ_CONSTANT();
             tableSet(&vm.globals, name, peek(0));
             pop();
-            break;
+            DISPATCH();
         }
-        case OP_SET_GLOBAL: {
+
+        CASE_CODE(SET_GLOBAL)
+            :
+        {
             Value name = READ_CONSTANT();
             if (tableSet(&vm.globals, name, peek(0))) {
                 tableDelete(&vm.globals, name);
                 runtimeError("Undefined variable '%s'.", stringValue(name));
                 return INTERPRET_RUNTIME_ERROR;
             }
-            break;
+            DISPATCH();
         }
-        case OP_GET_PROPERTY: {
+
+        CASE_CODE(GET_PROPERTY)
+            :
+        {
             Obj* value = AS_OBJ(peek(0)); // break
             switch (value->type) {
             case OBJ_INSTANCE: {
@@ -695,9 +841,12 @@ static InterpretResult run()
                 return INTERPRET_RUNTIME_ERROR;
             }
             }
-            break;
+            DISPATCH();
         }
-        case OP_SET_PROPERTY: {
+
+        CASE_CODE(SET_PROPERTY)
+            :
+        {
             Obj* value = AS_OBJ(peek(1));
 
             switch (value->type) {
@@ -724,55 +873,79 @@ static InterpretResult run()
                 return INTERPRET_RUNTIME_ERROR;
             }
 
-            break;
+            DISPATCH();
         }
-        case OP_GET_SUPER: {
+
+        CASE_CODE(GET_SUPER)
+            :
+        {
             Value     name       = READ_CONSTANT();
             ObjClass* superclass = AS_CLASS(pop());
 
             if (!bindMethod(superclass, name)) {
                 return INTERPRET_RUNTIME_ERROR;
             }
-            break;
+            DISPATCH();
         }
-        case OP_JUMP: {
+
+        CASE_CODE(JUMP)
+            :
+        {
             uint16_t offset = READ_SHORT();
             frame->ip += offset;
-            break;
+            DISPATCH();
         }
-        case OP_JUMP_IF_FALSE: {
+
+        CASE_CODE(JUMP_IF_FALSE)
+            :
+        {
             uint16_t offset = READ_SHORT();
             if (isFalsey(peek(0)))
                 frame->ip += offset;
-            break;
+            DISPATCH();
         }
-        case OP_LOOP: {
+
+        CASE_CODE(LOOP)
+            :
+        {
             uint16_t offset = READ_SHORT();
             frame->ip -= offset;
-            break;
+            DISPATCH();
         }
-        case OP_DUMP: {
+
+        CASE_CODE(DUMP)
+            :
+        {
             printValue(pop());
             printf("\n");
-            break;
+            DISPATCH();
         }
-        case OP_CALL: {
+
+        CASE_CODE(CALL)
+            :
+        {
             int argCount = READ_BYTE();
             if (!callValue(peek(argCount), argCount)) {
                 return INTERPRET_RUNTIME_ERROR;
             }
             frame = &vm.frames[vm.frameCount - 1];
-            break;
+            DISPATCH();
         }
-        case OP_INDEX: {
+
+        CASE_CODE(INDEX)
+            :
+        {
             Value index = pop();
             Value value = pop();
             if (!indexValue(value, index)) {
                 return INTERPRET_RUNTIME_ERROR;
             }
-            break;
+            DISPATCH();
         }
-        case OP_SET_INDEX: {
+
+        CASE_CODE(SET_INDEX)
+            :
+        {
             Obj* value = AS_OBJ(peek(2));
 
             switch (value->type) {
@@ -833,18 +1006,24 @@ static InterpretResult run()
             }
             }
 
-            break;
+            DISPATCH();
         }
-        case OP_INVOKE: {
+
+        CASE_CODE(INVOKE)
+            :
+        {
             Value method   = READ_CONSTANT();
             int   argCount = READ_BYTE();
             if (!invoke(method, argCount)) {
                 return INTERPRET_RUNTIME_ERROR;
             }
             frame = &vm.frames[vm.frameCount - 1];
-            break;
+            DISPATCH();
         }
-        case OP_SUPER_INVOKE: {
+
+        CASE_CODE(SUPER_INVOKE)
+            :
+        {
             Value     method     = READ_CONSTANT();
             int       argCount   = READ_BYTE();
             ObjClass* superclass = AS_CLASS(pop());
@@ -852,9 +1031,12 @@ static InterpretResult run()
                 return INTERPRET_RUNTIME_ERROR;
             }
             frame = &vm.frames[vm.frameCount - 1];
-            break;
+            DISPATCH();
         }
-        case OP_CLOSURE: {
+
+        CASE_CODE(CLOSURE)
+            :
+        {
             ObjFunction* function = AS_FUNCTION(READ_CONSTANT());
             ObjClosure*  closure  = newClosure(function);
 
@@ -869,13 +1051,20 @@ static InterpretResult run()
                     closure->upvalues[i] = frame->closure->upvalues[index];
                 }
             }
-            break;
+            DISPATCH();
         }
-        case OP_CLOSE_UPVALUE:
+
+        CASE_CODE(CLOSE_UPVALUE)
+            :
+        {
             closeUpvalues(vm.stackTop - 1);
             pop();
-            break;
-        case OP_SET_TABLE: {
+            DISPATCH();
+        }
+
+        CASE_CODE(SET_TABLE)
+            :
+        {
             int       elemsCount = READ_BYTE();
             ObjTable* table      = newTable();
 
@@ -892,9 +1081,12 @@ static InterpretResult run()
             }
 
             push(OBJ_VAL(table));
-            break;
+            DISPATCH();
         }
-        case OP_SET_ARRAY: {
+
+        CASE_CODE(SET_ARRAY)
+            :
+        {
             int       elemsCount = READ_BYTE();
             ObjArray* array      = newArray();
 
@@ -909,9 +1101,12 @@ static InterpretResult run()
             }
 
             push(OBJ_VAL(array));
-            break;
+            DISPATCH();
         }
-        case OP_RETURN: {
+
+        CASE_CODE(RETURN)
+            :
+        {
             Value result = pop();
             closeUpvalues(frame->slots);
             vm.frameCount--;
@@ -923,12 +1118,19 @@ static InterpretResult run()
             vm.stackTop = frame->slots;
             push(result);
             frame = &vm.frames[vm.frameCount - 1];
-            break;
+            DISPATCH();
         }
-        case OP_CLASS:
+
+        CASE_CODE(CLASS)
+            :
+        {
             push(OBJ_VAL(newClass(READ_STRING())));
-            break;
-        case OP_INHERIT: {
+            DISPATCH();
+        }
+
+        CASE_CODE(INHERIT)
+            :
+        {
             Value superclass = peek(1);
 
             if (!IS_CLASS(superclass)) {
@@ -939,15 +1141,26 @@ static InterpretResult run()
             ObjClass* subclass = AS_CLASS(peek(0));
             tableAddAll(&AS_CLASS(superclass)->methods, &subclass->methods);
             pop(); // Subclass.
-            break;
+            DISPATCH();
         }
-        case OP_METHOD:
+
+        CASE_CODE(METHOD)
+            :
+        {
             defineMethod(READ_STRING());
-            break;
-        case OP_PROPERTY:
+            DISPATCH();
+        }
+
+        CASE_CODE(PROPERTY)
+            :
+        {
             defineProperty(READ_STRING());
-            break;
-        case OP_IMPORT: {
+            DISPATCH();
+        }
+
+        CASE_CODE(IMPORT)
+            :
+        {
             ObjString*   fileName   = AS_STRING(pop());
             ObjFunction* parentFunc = frame->closure->function;
             const char*  sourcePath = resolveRelativePath(fileName->chars, parentFunc->source);
@@ -962,11 +1175,12 @@ static InterpretResult run()
             call(closure, 0);
             frame = &vm.frames[vm.frameCount - 1];
             free(source);
-            break;
-        }
+            DISPATCH();
         }
     }
-
+#undef INTERPRET_LOOP
+#undef CASE_CODE
+#undef DISPATCH
 #undef READ_BYTE
 #undef READ_SHORT
 #undef READ_CONSTANT
