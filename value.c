@@ -72,6 +72,8 @@ uint32_t hashValue(Value value)
         return AS_STRING(value)->hash;
     case VAL_EMPTY:
         return 0;
+    case VAL_POINTER:
+        return AS_POINTER(value);
     }
 #endif
 
@@ -101,6 +103,8 @@ void printValue(Value value)
         printObject(value);
     } else if (IS_EMPTY(value)) {
         printf("empty");
+    } else if (IS_POINTER(value)) {
+        printf("*%p", AS_POINTER(value));
     }
 #else
     switch (value.type) {
@@ -118,6 +122,9 @@ void printValue(Value value)
         break;
     case VAL_EMPTY:
         printf("empty");
+        break;
+    case VAL_POINTER:
+        printf("*%p", (void*)AS_POINTER(value));
         break;
     }
 #endif
@@ -138,6 +145,10 @@ char* stringValue(Value value)
         return objectString(value);
     } else if (IS_EMPTY(value)) {
         return "empty";
+    } else if (IS_POINTER(value)) {
+        char* str = malloc(sizeof(char) * 50);
+        sprintf(str, "*%p", AS_POINTER(value));
+        return str;
     }
 #else
     switch (value.type) {
@@ -154,6 +165,11 @@ char* stringValue(Value value)
         return objectString(value);
     case VAL_EMPTY:
         return "empty";
+    case VAL_POINTER: {
+        char* str = malloc(sizeof(char) * 50);
+        sprintf(str, "*%p", (void*)AS_POINTER(value));
+        return str;
+    }
     }
 #endif
     return NULL;

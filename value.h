@@ -105,7 +105,7 @@ typedef struct
 #define EMPTY_VAL ((Value) { VAL_EMPTY, { .number = 0 } })
 #define NUMBER_VAL(value) ((Value) { VAL_NUMBER, { .number = value } })
 #define OBJ_VAL(object) ((Value) { VAL_OBJ, { .obj = (Obj*)object } })
-#define POINTER_VAL(pointer) ((Value) { VAL_POINTER, { .pointer = pointer } })
+#define POINTER_VAL(value) ((Value) { VAL_POINTER, { .pointer = value } })
 
 #endif
 
