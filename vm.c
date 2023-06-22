@@ -76,6 +76,21 @@ static void initNative()
     for (NativeModuleEntry* entry = nativeModules; entry->name != NULL; entry++) {
         defineNativeModule(entry);
     }
+
+    for (NativeModuleCallback* entry = nativeModuleCallbacks; entry->name != NULL; entry++) {
+        Value table;
+        if (!tableGet(&vm.globals, OBJ_VAL(copyString(entry->name, strlen(entry->name))), &table)) {
+            fprintf(stderr, "Error: module '%s' not found\n", entry->name);
+            exit(1);
+        }
+
+        if (!IS_TABLE(table)) {
+            fprintf(stderr, "Error: module '%s' is not a table\n", entry->name);
+            exit(1);
+        }
+
+        entry->callback(&AS_TABLE(table)->table);
+    }
 }
 
 void initVM()

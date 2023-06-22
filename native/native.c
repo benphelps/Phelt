@@ -52,3 +52,8 @@ NativeModuleEntry nativeModules[] = {
     { "file", fileFns },
     { NULL, NULL },
 };
+
+NativeModuleCallback nativeModuleCallbacks[] = {
+    { "math", mathCallback },
+    { NULL, NULL },
+};

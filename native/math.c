@@ -199,3 +199,28 @@ bool _norm(int argCount, Value* args)
     lux_pushNumber(-1, norm(value, start, stop));
     return true;
 }
+
+void mathCallback(Table* table)
+{
+#define SET_CONST(name, value)                     \
+    push(OBJ_VAL(copyString(name, strlen(name)))); \
+    push(NUMBER_VAL(value));                       \
+    tableSet(table, vm.stack[0], vm.stack[1]);     \
+    pop();                                         \
+    pop();
+
+    SET_CONST("E", M_E);
+    SET_CONST("LOG2E", M_LOG2E);
+    SET_CONST("LOG10E", M_LOG10E);
+    SET_CONST("LN2", M_LN2);
+    SET_CONST("LN10", M_LN10);
+    SET_CONST("PI", M_PI);
+    SET_CONST("PI_2", M_PI_2);
+    SET_CONST("PI_4", M_PI_4);
+    SET_CONST("1_PI", M_1_PI);
+    SET_CONST("2_PI", M_2_PI);
+    SET_CONST("2_SQRTPI", M_2_SQRTPI);
+    SET_CONST("SQRT2", M_SQRT2);
+    SET_CONST("SQRT1_2", M_SQRT1_2);
+#undef SET_CONST
+}

@@ -20,8 +20,14 @@ typedef struct {
     NativeFnEntry* fns;
 } NativeModuleEntry;
 
-extern NativeFnEntry     globalFns[];
-extern NativeModuleEntry nativeModules[];
+typedef struct {
+    const char* name;
+    void (*callback)(Table*);
+} NativeModuleCallback;
+
+extern NativeFnEntry        globalFns[];
+extern NativeModuleEntry    nativeModules[];
+extern NativeModuleCallback nativeModuleCallbacks[];
 
 #define lux_push(pos, val) (args[pos] = val)
 #define lux_pushObject(pos, val) (args[pos] = OBJ_VAL(val))
