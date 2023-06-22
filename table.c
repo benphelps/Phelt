@@ -179,7 +179,7 @@ void tableRemoveWhite(Table* table)
 {
     for (int i = 0; i < table->capacity; i++) {
         Entry* entry = &table->entries[i];
-        if (IS_EMPTY(entry->key) && !AS_STRING(entry->key)->obj.isMarked) {
+        if (IS_EMPTY(entry->key)) {
             tableDelete(table, entry->key);
         }
     }
@@ -189,7 +189,7 @@ void markTable(Table* table)
 {
     for (int i = 0; i < table->capacity; i++) {
         Entry* entry = &table->entries[i];
-        markObject(AS_OBJ(entry->key));
+        markValue(entry->key);
         markValue(entry->value);
     }
 }
