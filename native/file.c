@@ -24,7 +24,7 @@ bool _fopen(int argCount, Value* args)
         return false;
     }
 
-    lux_pushPointer(-1, file);
+    lux_pushPointer(-1, (uintptr_t)file);
     return true;
 }
 
