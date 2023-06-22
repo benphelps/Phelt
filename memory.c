@@ -223,6 +223,18 @@ static void markRoots()
     markTable(&vm.globals);
     markCompilerRoots();
     markObject((Obj*)vm.initString);
+    markObject((Obj*)vm.addString);
+    markObject((Obj*)vm.subString);
+    markObject((Obj*)vm.mulString);
+    markObject((Obj*)vm.divString);
+    markObject((Obj*)vm.gtString);
+    markObject((Obj*)vm.ltString);
+    markObject((Obj*)vm.eqString);
+    markObject((Obj*)vm.andString);
+    markObject((Obj*)vm.orString);
+    markObject((Obj*)vm.xorString);
+    markObject((Obj*)vm.modString);
+    markObject((Obj*)vm.notString);
 }
 
 static void traceReferences()
