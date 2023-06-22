@@ -41,16 +41,30 @@ void runtimeError(const char* format, ...)
 
 static void defineNative(const char* name, NativeFn function)
 {
-    tableSet(&vm.globals, OBJ_VAL(copyString(name, (int)strlen(name))), OBJ_VAL(newNative(function)));
+    push(OBJ_VAL(copyString(name, (int)strlen(name))));
+    push(OBJ_VAL(newNative(function)));
+    tableSet(&vm.globals, vm.stack[0], vm.stack[1]);
+    pop();
+    pop();
 }
 
 static void defineNativeModule(NativeModuleEntry* module)
 {
     ObjTable* table = newTable();
+    push(OBJ_VAL(table));
+
     for (NativeFnEntry* entry = module->fns; entry->name != NULL; entry++) {
-        tableSet(&table->table, OBJ_VAL(copyString(entry->name, (int)strlen(entry->name))), OBJ_VAL(newNative(entry->function)));
+        push(OBJ_VAL(copyString(entry->name, (int)strlen(entry->name))));
+        push(OBJ_VAL(newNative(entry->function)));
+        tableSet(&AS_TABLE(vm.stack[0])->table, vm.stack[1], vm.stack[2]);
+        pop();
+        pop();
     }
-    tableSet(&vm.globals, OBJ_VAL(copyString(module->name, strlen(module->name))), OBJ_VAL(table));
+
+    push(OBJ_VAL(copyString(module->name, strlen(module->name))));
+    tableSet(&vm.globals, vm.stack[1], vm.stack[0]);
+    pop();
+    pop();
 }
 
 static void initNative()
