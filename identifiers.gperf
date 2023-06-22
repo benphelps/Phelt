@@ -1,0 +1,37 @@
+%{
+#include "utf8.h"
+#include "scanner.h"
+%}
+
+%language=ANSI-C
+%compare-strncmp
+%readonly-tables
+%struct-type
+%define lookup-function-name checkIdentifier
+
+struct Identifier { utf8_int8_t* name; TokenType token; }
+
+%%
+and,      TOKEN_AND
+break,    TOKEN_BREAK
+case,     TOKEN_CASE
+class,    TOKEN_CLASS
+continue, TOKEN_CONTINUE
+default,  TOKEN_DEFAULT
+dump,     TOKEN_DUMP
+else,     TOKEN_ELSE
+false,    TOKEN_FALSE
+for,      TOKEN_FOR
+fun,      TOKEN_FUN
+if,       TOKEN_IF
+import,   TOKEN_IMPORT
+let,      TOKEN_LET
+nil,      TOKEN_NIL
+or,       TOKEN_OR
+return,   TOKEN_RETURN
+super,    TOKEN_SUPER
+switch,   TOKEN_SWITCH
+this,     TOKEN_THIS
+true,     TOKEN_TRUE
+while,    TOKEN_WHILE
+%%

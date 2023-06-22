@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "common.h"
+#include "identifiers.def"
 #include "scanner.h"
 
 typedef struct
@@ -157,86 +158,10 @@ static TokenType checkKeyword(int start, int length, const char* rest, TokenType
 
 static TokenType identifierType()
 {
-    switch (scanner.start[0]) {
-    case 'a':
-        return checkKeyword(1, 2, "nd", TOKEN_AND);
-    case 'b':
-        return checkKeyword(1, 4, "reak", TOKEN_BREAK);
-    case 'c':
-        switch (scanner.start[1]) {
-        case 'a':
-            return checkKeyword(2, 2, "se", TOKEN_CASE);
-        case 'l':
-            return checkKeyword(2, 3, "ass", TOKEN_CLASS);
-        case 'o':
-            return checkKeyword(2, 6, "ntinue", TOKEN_CONTINUE);
-        }
-        break;
-    case 'd':
-        if (scanner.current - scanner.start > 1) {
-            switch (scanner.start[1]) {
-            case 'e':
-                return checkKeyword(2, 5, "fault", TOKEN_DEFAULT);
-            case 'u':
-                return checkKeyword(2, 2, "mp", TOKEN_DUMP);
-            }
-        }
-        break;
-    case 'e':
-        return checkKeyword(1, 3, "lse", TOKEN_ELSE);
-    case 'f':
-        if (scanner.current - scanner.start > 1) {
-            switch (scanner.start[1]) {
-            case 'a':
-                return checkKeyword(2, 3, "lse", TOKEN_FALSE);
-            case 'o':
-                return checkKeyword(2, 1, "r", TOKEN_FOR);
-            case 'u':
-                return checkKeyword(2, 1, "n", TOKEN_FUN);
-            }
-        }
-        break;
-    case 'i':
-        if (scanner.current - scanner.start > 1) {
-            switch (scanner.start[1]) {
-            case 'm':
-                return checkKeyword(2, 4, "port", TOKEN_IMPORT);
-            case 'f':
-                return checkKeyword(2, 0, "", TOKEN_IF);
-            }
-        }
-    case 'l':
-        return checkKeyword(1, 2, "et", TOKEN_LET);
-    case 'n':
-        return checkKeyword(1, 2, "il", TOKEN_NIL);
-    case 'o':
-        return checkKeyword(1, 1, "r", TOKEN_OR);
-    case 'r':
-        return checkKeyword(1, 5, "eturn", TOKEN_RETURN);
-    case 's':
-        if (scanner.current - scanner.start > 1) {
-            switch (scanner.start[1]) {
-            case 'u':
-                return checkKeyword(2, 3, "per", TOKEN_SUPER);
-            case 'w':
-                return checkKeyword(2, 4, "itch", TOKEN_SWITCH);
-            }
-        }
-        break;
-    case 't':
-        if (scanner.current - scanner.start > 1) {
-            switch (scanner.start[1]) {
-            case 'h':
-                return checkKeyword(2, 2, "is", TOKEN_THIS);
-            case 'r':
-                return checkKeyword(2, 2, "ue", TOKEN_TRUE);
-            }
-        }
-        break;
-    case 'w':
-        return checkKeyword(1, 4, "hile", TOKEN_WHILE);
-    }
-
+    int                      length = scanner.current - scanner.start;
+    const struct Identifier* ident  = checkIdentifier(scanner.start, length);
+    if (ident != NULL)
+        return ident->token;
     return TOKEN_IDENTIFIER;
 }
 

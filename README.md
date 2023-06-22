@@ -43,6 +43,12 @@ cmake .. -DCMAKE_BUILD_TYPE=Release
 cmake --build .
 ```
 
+If modifications are made to the `identifiers.gperf` file, the following command must be run to regenerate the `identifiers.def` file:
+
+```bash
+gperf identifiers.gperf > identifiers.def
+```
+
 # Usage
 
 To run a Lux script, use the `lux` command:
