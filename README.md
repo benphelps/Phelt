@@ -4,33 +4,33 @@ Lux is a small scripting language, based on Lox, as described in the [Crafting I
 
 # Features
 
--   [x] UTF-8 support
-    -   [x] Strings & identifiers
--   [x] Variables
-    -   [x] Strings
-    -   [x] Numbers (floats, integers, hex, binary, octal)
-    -   [x] Booleans
-    -   [x] Nil
-    -   [x] Arrays
-    -   [x] Tables (dictionaries, maps, etc., whatever you want to call them)
-        -   [x] Keys can be any type
-        -   [x] Values can be any type
--   [x] Control flow
-    -   [x] if / else if / else
-    -   [x] while
-    -   [x] for
-    -   [x] switch
--   [x] Functions
-    -   [x] Named functions
-    -   [x] Anonymous functions
-    -   [x] Inline implicit return, single expression functions
-    -   [x] Closures
--   [x] Classes
-    -   [x] Constructors
-    -   [x] Inheritance
-    -   [x] Defined properties
-    -   [x] Dunder methods (e.g. `__add`, `__sub`, `__eq`, etc.)
--   [x] Standard library
+-   UTF-8 support
+    -   Strings & identifiers
+-   Variables
+    -   Strings
+    -   Numbers (floats, integers, hex, binary, octal)
+    -   Booleans
+    -   Nil
+    -   Arrays
+    -   Tables (dictionaries, maps, etc., whatever you want to call them)
+        -   Keys can be any type
+        -   Values can be any type
+-   Control flow
+    -   if / else if / else
+    -   while
+    -   for
+    -   switch
+-   Functions
+    -   Named functions
+    -   Anonymous functions
+    -   Inline implicit return, single expression functions
+    -   Closures
+-   Classes
+    -   Constructors
+    -   Inheritance
+    -   Defined properties
+    -   Dunder methods (e.g. `__add`, `__sub`, `__eq`, etc.)
+-   Standard library
 
 # Compiling
 
