@@ -21,6 +21,8 @@ double time_in_mill()
     return elapsed;
 }
 
+// double time_in_mill(void);
+// let time = system.time()
 bool _time(int argCount, Value* args)
 {
     if (argCount != 0) {
@@ -32,6 +34,8 @@ bool _time(int argCount, Value* args)
     return true;
 }
 
+// clock_t clock(void);
+// let clock = system.clock()
 bool _clock(int argCount, Value* args)
 {
     if (argCount != 0) {
@@ -43,6 +47,8 @@ bool _clock(int argCount, Value* args)
     return true;
 }
 
+// int sleep(unsigned int seconds);
+// let sleep = system.sleep(1)
 bool _sleep(int argCount, Value* args)
 {
     if (argCount != 1) {
@@ -60,6 +66,8 @@ bool _sleep(int argCount, Value* args)
     return true;
 }
 
+// int usleep(useconds_t usec);
+// let usleep = system.usleep(1000)
 bool _usleep(int argCount, Value* args)
 {
     if (argCount != 1) {

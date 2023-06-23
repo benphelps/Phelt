@@ -39,9 +39,20 @@ NativeFnEntry mathFns[] = {
 
 NativeFnEntry fileFns[] = {
     { "fopen", _fopen },
+    { "tmpfile", _tmpfile },
+    { "mkstemps", _mkstemps },
     { "fclose", _fclose },
     { "fwrite", _fwrite },
     { "fread", _fread },
+    { "fseek", _fseek },
+    { "ftell", _ftell },
+    { "fflush", _fflush },
+    { "fgetc", _fgetc },
+    { "fgets", _fgets },
+    { "fputs", _fputs },
+    { "fputc", _fputc },
+    { "remove", _remove },
+    { "rename", _rename },
     { NULL, NULL },
 };
 
@@ -55,5 +66,6 @@ NativeModuleEntry nativeModules[] = {
 
 NativeModuleCallback nativeModuleCallbacks[] = {
     { "math", mathCallback },
+    { "file", fileCallback },
     { NULL, NULL },
 };
