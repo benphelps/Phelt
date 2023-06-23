@@ -383,6 +383,14 @@ static void call(bool canAssign)
 static void index_(bool canAssign)
 {
     expression();
+
+    if (match(TOKEN_DOT_DOT)) {
+        expression();
+        consume(TOKEN_RIGHT_BRACKET, "Expect ']' after index.");
+        emitByte(OP_SLICE);
+        return;
+    }
+
     consume(TOKEN_RIGHT_BRACKET, "Expect ']' after index.");
 
     if (canAssign && match(TOKEN_EQUAL)) {
@@ -725,6 +733,7 @@ ParseRule rules[] = {
     [TOKEN_RIGHT_BRACKET]     = { NULL, NULL, PREC_NONE },
     [TOKEN_COMMA]             = { NULL, NULL, PREC_NONE },
     [TOKEN_DOT]               = { NULL, dot, PREC_CALL },
+    [TOKEN_DOT_DOT]           = { NULL, NULL, PREC_NONE },
     [TOKEN_MINUS]             = { unary, binary, PREC_TERM },
     [TOKEN_MINUS_MINUS]       = { NULL, NULL, PREC_NONE },
     [TOKEN_MINUS_EQUAL]       = { NULL, NULL, PREC_NONE },

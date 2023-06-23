@@ -120,6 +120,7 @@ bool     valuesEqual(Value a, Value b);
 void     initValueArray(ValueArray* array);
 void     writeValueArray(ValueArray* array, Value value);
 void     joinValueArray(ValueArray* array, ValueArray* other);
+void     copyValueArray(ValueArray* old, ValueArray* new, int start, int end);
 void     freeValueArray(ValueArray* array);
 uint32_t hashValue(Value value);
 void     printValue(Value value);

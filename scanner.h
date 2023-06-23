@@ -13,6 +13,7 @@ typedef enum {
     TOKEN_RIGHT_BRACKET,
     TOKEN_COMMA,
     TOKEN_DOT,
+    TOKEN_DOT_DOT,
     TOKEN_MINUS,
     TOKEN_MINUS_MINUS,
     TOKEN_PLUS,

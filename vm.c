@@ -328,6 +328,8 @@ bool indexValue(Value value, Value index)
             ObjArray* array = AS_ARRAY(value);
             if (IS_NUMBER(index)) {
                 int i = (int)AS_NUMBER(index);
+                if (i < 0)
+                    i = array->array.count + i;
                 if (i < 0 || i >= array->array.count) {
                     runtimeError("Array index out of bounds.");
                     return false;
@@ -343,6 +345,64 @@ bool indexValue(Value value, Value index)
         }
     }
     runtimeError("Only strings, tables and arrays can be indexed.");
+    return false;
+}
+
+bool valueSlice(Value start, Value end)
+{
+    Value value = pop();
+
+    if (IS_OBJ(value)) {
+        switch (OBJ_TYPE(value)) {
+        case OBJ_STRING: {
+            int i = (int)AS_NUMBER(start);
+            int j = (int)AS_NUMBER(end);
+
+            ObjString* string = AS_STRING(value);
+
+            if (j < 0)
+                j = (string->length + 1) + j;
+
+            if (i < 0)
+                i = (string->length + 1) + i;
+
+            if (i < 0 || i >= string->length || j < 0 || j >= string->length) {
+                runtimeError("String index out of bounds.");
+                return false;
+            }
+
+            push(OBJ_VAL(copyString(&string->chars[i], j - i)));
+
+            return true;
+            break;
+        }
+        case OBJ_ARRAY: {
+            ObjArray* array = AS_ARRAY(value);
+
+            int i = (int)AS_NUMBER(start); // 2
+            int j = (int)AS_NUMBER(end);   // 5
+
+            if (j < 0)
+                j = array->array.count + j;
+
+            if (i < 0)
+                i = array->array.count + i;
+
+            if (i < 0 || i >= array->array.count || j < 0 || j >= array->array.count) {
+                runtimeError("Array index out of bounds.");
+                return false;
+            }
+            ObjArray* new = newArray();
+            copyValueArray(&array->array, &new->array, i, j);
+            push(OBJ_VAL(new));
+            return true;
+            break;
+        }
+        default:
+            break;
+        }
+    }
+    runtimeError("Only strings and arrays can be sliced.");
     return false;
 }
 
@@ -1184,6 +1244,23 @@ static InterpretResult run()
             :
         {
             defineProperty(READ_STRING());
+            DISPATCH();
+        }
+
+        CASE_CODE(SLICE)
+            :
+        {
+            Value end   = pop();
+            Value start = pop();
+            if (!IS_NUMBER(start) || !IS_NUMBER(end)) {
+                runtimeError("Slice bounds must be numbers.");
+                return INTERPRET_RUNTIME_ERROR;
+            }
+
+            if (!valueSlice(start, end)) {
+                return INTERPRET_RUNTIME_ERROR;
+            }
+
             DISPATCH();
         }
 

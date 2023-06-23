@@ -28,6 +28,13 @@ void joinValueArray(ValueArray* array, ValueArray* other)
     }
 }
 
+void copyValueArray(ValueArray* old, ValueArray* new, int start, int end)
+{
+    for (int i = start; i <= end; i++) {
+        writeValueArray(new, old->values[i]);
+    }
+}
+
 void freeValueArray(ValueArray* array)
 {
     FREE_ARRAY(Value, array->values, array->capacity);
