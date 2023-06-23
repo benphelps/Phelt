@@ -1,3 +1,4 @@
+#include <libgen.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -30,9 +31,9 @@ void runtimeError(const char* format, ...)
         fprintf(stderr, "[line %d] in ",
             function->chunk.lines[instruction]);
         if (function->name == NULL) {
-            fprintf(stderr, "script\n");
+            fprintf(stderr, "%s\n", basename((char*)function->source));
         } else {
-            fprintf(stderr, "%s()\n", function->name->chars);
+            fprintf(stderr, "%s() in %s\n", function->name->chars, basename((char*)function->source));
         }
     }
 
