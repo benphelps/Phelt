@@ -355,6 +355,28 @@ bool indexValue(Value value, Value index)
     return false;
 }
 
+char* substring_utf8(const char* src, int start, int end)
+{
+    char* dst     = (char*)malloc(strlen(src) + 1); // Allocating maximum possible size
+    char* dst_ptr = dst;
+    int   index   = 0;
+
+    utf8_int32_t codepoint;
+    void*        next = (void*)src;
+    while (next) {
+        next = utf8codepoint(next, &codepoint);
+        if (index >= start && index < end) {
+            dst_ptr = utf8catcodepoint(dst_ptr, codepoint, strlen(src) - (dst_ptr - dst));
+        }
+        if (index >= end) {
+            break;
+        }
+        index++;
+    }
+    *dst_ptr = '\0';
+    return dst;
+}
+
 bool valueSlice(Value start, Value end)
 {
     Value value = pop();
@@ -365,21 +387,23 @@ bool valueSlice(Value start, Value end)
             int i = (int)AS_NUMBER(start);
             int j = (int)AS_NUMBER(end);
 
-            ObjString* string = AS_STRING(value);
+            ObjString* string     = AS_STRING(value);
+            uint32_t   str_length = utf8len(string->chars);
 
             if (j < 0)
-                j = (string->length + 1) + j;
+                j = (str_length + 1) + j;
 
             if (i < 0)
-                i = (string->length + 1) + i;
+                i = (str_length + 1) + i;
 
-            if (i < 0 || i >= string->length || j < 0 || j >= string->length) {
+            if (i < 0 || i >= str_length || j < 0 || j >= str_length) {
                 runtimeError("String index out of bounds.");
                 return false;
             }
 
-            push(OBJ_VAL(copyString(&string->chars[i], j - i)));
-
+            char* substring = substring_utf8(string->chars, i, j);
+            push(OBJ_VAL(copyString(substring, strlen(substring))));
+            free(substring);
             return true;
             break;
         }

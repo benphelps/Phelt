@@ -279,7 +279,7 @@ int objectLength(Value object)
     case OBJ_UPVALUE:
         return -1;
     case OBJ_STRING:
-        return AS_STRING(object)->length;
+        return utf8len(AS_CSTRING(object));
     case OBJ_TABLE:
         return AS_TABLE(object)->table.count;
     case OBJ_ARRAY:
