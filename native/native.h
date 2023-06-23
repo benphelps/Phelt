@@ -54,4 +54,6 @@ extern NativeModuleCallback nativeModuleCallbacks[];
 #define lux_toArray(val) (AS_ARRAY(args[val]))
 #define lux_toTable(val) (AS_TABLE(args[val]))
 
+#define lux_objectValue(val) (OBJ_VAL(args[val]))
+
 #endif

@@ -267,9 +267,9 @@ char* objectString(Value value)
     }
 }
 
-int objectLength(Value value)
+int objectLength(Value object)
 {
-    switch (OBJ_TYPE(value)) {
+    switch (AS_OBJ(object)->type) {
     case OBJ_BOUND_METHOD:
     case OBJ_CLASS:
     case OBJ_INSTANCE:
@@ -279,10 +279,10 @@ int objectLength(Value value)
     case OBJ_UPVALUE:
         return -1;
     case OBJ_STRING:
-        return AS_STRING(value)->length + 1;
+        return AS_STRING(object)->length;
     case OBJ_TABLE:
-        return AS_TABLE(value)->table.count;
+        return AS_TABLE(object)->table.count;
     case OBJ_ARRAY:
-        return AS_ARRAY(value)->array.count;
+        return AS_ARRAY(object)->array.count;
     }
 }
