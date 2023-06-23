@@ -235,6 +235,8 @@ static void markRoots()
     markObject((Obj*)vm.xorString);
     markObject((Obj*)vm.modString);
     markObject((Obj*)vm.notString);
+    markObject((Obj*)vm.rshiftString);
+    markObject((Obj*)vm.lshiftString);
 }
 
 static void traceReferences()

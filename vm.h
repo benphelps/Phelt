@@ -41,6 +41,8 @@ typedef struct
     ObjString* xorString;
     ObjString* modString;
     ObjString* notString;
+    ObjString* rshiftString;
+    ObjString* lshiftString;
 
     size_t bytesAllocated;
     size_t nextGC;

@@ -108,32 +108,36 @@ void initVM()
     initTable(&vm.globals);
     initTable(&vm.strings);
 
-    vm.initString = NULL;
-    vm.initString = copyString("init", 4);
-    vm.addString  = NULL;
-    vm.addString  = copyString("__add", 5);
-    vm.subString  = NULL;
-    vm.subString  = copyString("__sub", 5);
-    vm.mulString  = NULL;
-    vm.mulString  = copyString("__mul", 5);
-    vm.divString  = NULL;
-    vm.divString  = copyString("__div", 5);
-    vm.gtString   = NULL;
-    vm.gtString   = copyString("__gt", 4);
-    vm.ltString   = NULL;
-    vm.ltString   = copyString("__lt", 4);
-    vm.eqString   = NULL;
-    vm.eqString   = copyString("__eq", 4);
-    vm.andString  = NULL;
-    vm.andString  = copyString("__and", 5);
-    vm.orString   = NULL;
-    vm.orString   = copyString("__or", 4);
-    vm.xorString  = NULL;
-    vm.xorString  = copyString("__xor", 5);
-    vm.modString  = NULL;
-    vm.modString  = copyString("__mod", 5);
-    vm.notString  = NULL;
-    vm.notString  = copyString("__not", 5);
+    vm.initString   = NULL;
+    vm.initString   = copyString("init", 4);
+    vm.addString    = NULL;
+    vm.addString    = copyString("__add", 5);
+    vm.subString    = NULL;
+    vm.subString    = copyString("__sub", 5);
+    vm.mulString    = NULL;
+    vm.mulString    = copyString("__mul", 5);
+    vm.divString    = NULL;
+    vm.divString    = copyString("__div", 5);
+    vm.gtString     = NULL;
+    vm.gtString     = copyString("__gt", 4);
+    vm.ltString     = NULL;
+    vm.ltString     = copyString("__lt", 4);
+    vm.eqString     = NULL;
+    vm.eqString     = copyString("__eq", 4);
+    vm.andString    = NULL;
+    vm.andString    = copyString("__and", 5);
+    vm.orString     = NULL;
+    vm.orString     = copyString("__or", 4);
+    vm.xorString    = NULL;
+    vm.xorString    = copyString("__xor", 5);
+    vm.modString    = NULL;
+    vm.modString    = copyString("__mod", 5);
+    vm.notString    = NULL;
+    vm.notString    = copyString("__not", 5);
+    vm.rshiftString = NULL;
+    vm.rshiftString = copyString("__rshift", 8);
+    vm.lshiftString = NULL;
+    vm.lshiftString = copyString("__lshift", 8);
 
     initNative();
 }
@@ -142,19 +146,21 @@ void freeVM()
 {
     freeTable(&vm.globals);
     freeTable(&vm.strings);
-    vm.initString = NULL;
-    vm.addString  = NULL;
-    vm.subString  = NULL;
-    vm.mulString  = NULL;
-    vm.divString  = NULL;
-    vm.gtString   = NULL;
-    vm.ltString   = NULL;
-    vm.eqString   = NULL;
-    vm.andString  = NULL;
-    vm.orString   = NULL;
-    vm.xorString  = NULL;
-    vm.modString  = NULL;
-    vm.notString  = NULL;
+    vm.initString   = NULL;
+    vm.addString    = NULL;
+    vm.subString    = NULL;
+    vm.mulString    = NULL;
+    vm.divString    = NULL;
+    vm.gtString     = NULL;
+    vm.ltString     = NULL;
+    vm.eqString     = NULL;
+    vm.andString    = NULL;
+    vm.orString     = NULL;
+    vm.xorString    = NULL;
+    vm.modString    = NULL;
+    vm.notString    = NULL;
+    vm.rshiftString = NULL;
+    vm.lshiftString = NULL;
     freeObjects();
 }
 
@@ -772,14 +778,22 @@ static InterpretResult run()
         CASE_CODE(SHIFT_LEFT)
             :
         {
-            BINARY_OP_INT(NUMBER_VAL, <<);
+            if (IS_INSTANCE(peek(0)) && IS_INSTANCE(peek(1))) {
+                INVOKE_DUNDER(vm.lshiftString);
+            } else {
+                BINARY_OP_INT(NUMBER_VAL, <<);
+            }
             DISPATCH();
         }
 
         CASE_CODE(SHIFT_RIGHT)
             :
         {
-            BINARY_OP_INT(NUMBER_VAL, >>);
+            if (IS_INSTANCE(peek(0)) && IS_INSTANCE(peek(1))) {
+                INVOKE_DUNDER(vm.rshiftString);
+            } else {
+                BINARY_OP_INT(NUMBER_VAL, >>);
+            }
             DISPATCH();
         }
 
