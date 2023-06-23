@@ -1,34 +1,29 @@
-# Lux
+# Lux - Enlightened scripting
 
-Lux is a small scripting language, based on Lox, as described in the [Crafting Interpreters](https://craftinginterpreters.com/) book.
+Lux is a small and versitile scripting language, based on Lox, as described in the [Crafting Interpreters](https://craftinginterpreters.com/) book.
 
 # Features
 
 -   UTF-8 support
-    -   Strings & identifiers
+    -   Strings & identifiers, literals, function names, class names, etc
+    -   It should just work everywhere
 -   Variables
-    -   Strings
-    -   Numbers (floats, integers, hex, binary, octal)
-    -   Booleans
-    -   Nil
-    -   Arrays
-    -   Tables (dictionaries, maps, etc., whatever you want to call them)
+    -   Strings, Numbers (floats, integers, hex, binary, octal), Booleans, Nil
+    -   Arrays, Tables (dictionaries, maps, etc., whatever you want to call them)
         -   Keys can be any type
         -   Values can be any type
+    -   Slices & negative indices for types where it makes sense (eg. `[2..-2]`)
 -   Control flow
     -   if / else if / else
-    -   while
-    -   for
+    -   while, for
     -   switch
 -   Functions
-    -   Named functions
-    -   Anonymous functions
-    -   Inline implicit return, single expression functions
+    -   Named functions, Anonymous functions
+    -   Inline single expression functions
     -   Closures
 -   Classes
-    -   Constructors
-    -   Inheritance
-    -   Defined properties
+    -   Constructors, Inheritance
+    -   Defined properties (not yet constants)
     -   Dunder methods (e.g. `__add`, `__sub`, `__eq`, etc.)
 -   Standard library
 
