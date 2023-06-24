@@ -436,9 +436,9 @@ void fileCallback(Table* table)
     pop();                                         \
     pop();
 
-    SET_CONST_PTR("stdin", stdin);
-    SET_CONST_PTR("stdout", stdout);
-    SET_CONST_PTR("stderr", stderr);
+    SET_CONST_PTR("stdin", (uintptr_t)stdin);
+    SET_CONST_PTR("stdout", (uintptr_t)stdout);
+    SET_CONST_PTR("stderr", (uintptr_t)stderr);
     SET_CONST("SEEK_END", SEEK_END);
     SET_CONST("SEEK_SET", SEEK_SET);
     SET_CONST("SEEK_CUR", SEEK_CUR);
