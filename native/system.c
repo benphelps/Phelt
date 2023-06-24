@@ -160,7 +160,7 @@ bool _len(int argCount, Value* args)
         return false;
     }
 
-    int length = objectLength(lux_objectValue(0));
+    int length = objectLength(OBJ_VAL(lux_toObject(0)));
 
     if (length == -1) {
         lux_pushObject(-1, formatString("Argument must be an object with a length."));
