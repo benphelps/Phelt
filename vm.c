@@ -33,7 +33,7 @@ void runtimeError(const char* format, ...)
         if (function->name == NULL) {
             fprintf(stderr, "%s\n", basename((char*)function->source));
         } else {
-            fprintf(stderr, "%s() in %s\n", function->name->chars, basename((char*)function->source));
+            fprintf(stderr, "%s\n", function->name->chars);
         }
     }
 
