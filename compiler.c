@@ -193,6 +193,10 @@ static int emitJump(uint8_t instruction)
 
 static void emitReturn()
 {
+    // if previous instruction is OP_RETURN, don't emit another one
+    if (currentChunk()->count > 0 && currentChunk()->code[currentChunk()->count - 1] == OP_RETURN)
+        return;
+
     if (current->type == TYPE_INITIALIZER) {
         emitBytes(OP_GET_LOCAL, 0);
     } else {
