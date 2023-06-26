@@ -22,6 +22,7 @@ typedef struct
 {
     CallFrame   frames[FRAMES_MAX];
     int         frameCount;
+    bool        errorState;
     Value       stack[STACK_MAX];
     Value*      stackTop;
     Table       globals;
@@ -67,5 +68,7 @@ void            freeVM();
 InterpretResult interpret(const char* sourcePath, utf8_int8_t* source);
 void            push(Value value);
 Value           pop();
+bool            call(ObjClosure* closure, int argCount);
+InterpretResult run(bool reenter);
 
 #endif

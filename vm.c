@@ -14,6 +14,7 @@ static void resetStack()
     vm.stackTop     = vm.stack;
     vm.frameCount   = 0;
     vm.openUpvalues = NULL;
+    vm.errorState   = false;
 }
 
 void runtimeError(const char* format, ...)
@@ -38,6 +39,7 @@ void runtimeError(const char* format, ...)
     }
 
     resetStack();
+    vm.errorState = true;
 }
 
 static void defineNative(const char* name, NativeFn function)
@@ -104,6 +106,7 @@ void initVM()
     vm.grayCount      = 0;
     vm.grayCapacity   = 0;
     vm.grayStack      = NULL;
+    vm.errorState     = false;
 
     initTable(&vm.globals);
     initTable(&vm.strings);
@@ -181,7 +184,7 @@ static Value peek(int distance)
     return vm.stackTop[-1 - distance];
 }
 
-static bool call(ObjClosure* closure, int argCount)
+bool call(ObjClosure* closure, int argCount)
 {
     if (argCount != closure->function->arity) {
         runtimeError("Expected %d arguments but got %d.", closure->function->arity, argCount);
@@ -190,6 +193,10 @@ static bool call(ObjClosure* closure, int argCount)
 
     if (vm.frameCount == FRAMES_MAX) {
         runtimeError("Stack overflow.");
+        return false;
+    }
+
+    if (vm.errorState) {
         return false;
     }
 
@@ -510,11 +517,16 @@ static void concatenate()
     push(OBJ_VAL(result));
 }
 
-static InterpretResult run()
+InterpretResult run(bool reenter)
 {
+    if (vm.errorState) {
+        return INTERPRET_RUNTIME_ERROR;
+    }
+
     CallFrame* frame = &vm.frames[vm.frameCount - 1];
 
 #define READ_BYTE() (*frame->ip++)
+#define PEEK_BYTE() (*frame->ip)
 #define READ_SHORT() (frame->ip += 2, (uint16_t)((frame->ip[-2] << 8) | frame->ip[-1]))
 #define READ_CONSTANT() (frame->closure->function->chunk.constants.values[READ_BYTE()])
 #define READ_STRING() AS_STRING(READ_CONSTANT())
@@ -559,21 +571,23 @@ static InterpretResult run()
     }
 
 #ifdef DEBUG_TRACE_EXECUTION
-#define TRACE_EXECUTION()                                            \
-    do {                                                             \
-        if (vm.stackTop != vm.stack) {                               \
-            printf("           ");                                   \
-        }                                                            \
-        for (Value* slot = vm.stack; slot < vm.stackTop; slot++) {   \
-            printf("[ ");                                            \
-            printValue(*slot);                                       \
-            printf(" ]");                                            \
-        }                                                            \
-        printf("\n");                                                \
-        disassembleInstruction(                                      \
-            &frame->closure->function->chunk,                        \
-            (int)(frame->ip - frame->closure->function->chunk.code), \
-            false);                                                  \
+#define TRACE_EXECUTION()                                                \
+    do {                                                                 \
+        if (!vm.errorState) {                                            \
+            if (vm.stackTop != vm.stack) {                               \
+                printf("           ");                                   \
+            }                                                            \
+            for (Value* slot = vm.stack; slot < vm.stackTop; slot++) {   \
+                printf("[ ");                                            \
+                printValue(*slot);                                       \
+                printf(" ]");                                            \
+            }                                                            \
+            printf("\n");                                                \
+            disassembleInstruction(                                      \
+                &frame->closure->function->chunk,                        \
+                (int)(frame->ip - frame->closure->function->chunk.code), \
+                false);                                                  \
+        }                                                                \
     } while (false)
 #else
 #define TRACE_EXECUTION() \
@@ -591,10 +605,12 @@ static InterpretResult run()
 #define INTERPRET_LOOP DISPATCH();
 #define CASE_CODE(name) code_##name
 #define DISPATCH()                                              \
-    do {                                                        \
-        TRACE_EXECUTION();                                      \
+    TRACE_EXECUTION();                                          \
+    if (!vm.errorState) {                                       \
         goto* dispatchTable[instruction = (OpCode)READ_BYTE()]; \
-    } while (false)
+    } else {                                                    \
+        return INTERPRET_RUNTIME_ERROR;                         \
+    }
 
 #else
 #define INTERPRET_LOOP \
@@ -603,7 +619,13 @@ static InterpretResult run()
     switch (instruction = (OpCode)READ_BYTE())
 
 #define CASE_CODE(name) case OP_##name
-#define DISPATCH() goto loop
+#define DISPATCH()                      \
+    if (!vm.errorState) {               \
+        goto loop;                      \
+    } else {                            \
+        return INTERPRET_RUNTIME_ERROR; \
+    }
+
 #endif
 
     OpCode instruction;
@@ -1045,7 +1067,6 @@ static InterpretResult run()
             :
         {
             printValue(pop());
-            printf("\n");
             DISPATCH();
         }
 
@@ -1143,6 +1164,7 @@ static InterpretResult run()
             Value method   = READ_CONSTANT();
             int   argCount = READ_BYTE();
             if (!invoke(method, argCount)) {
+                vm.errorState = true;
                 return INTERPRET_RUNTIME_ERROR;
             }
             frame = &vm.frames[vm.frameCount - 1];
@@ -1230,6 +1252,16 @@ static InterpretResult run()
 
             push(OBJ_VAL(array));
             DISPATCH();
+        }
+
+        CASE_CODE(REENTER)
+            :
+        {
+            Value result = pop();
+            closeUpvalues(frame->slots);
+            vm.frameCount--;
+            push(result);
+            return INTERPRET_OK;
         }
 
         CASE_CODE(RETURN)
@@ -1344,7 +1376,9 @@ InterpretResult interpret(const char* sourcePath, utf8_int8_t* source)
     ObjClosure* closure = newClosure(function);
     pop();
     push(OBJ_VAL(closure));
-    call(closure, 0);
+    if (call(closure, 0) && !vm.errorState) {
+        return run(false);
+    }
 
-    return run();
+    return INTERPRET_RUNTIME_ERROR;
 }

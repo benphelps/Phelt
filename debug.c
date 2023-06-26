@@ -369,6 +369,8 @@ int disassembleInstruction(Chunk* chunk, int offset, bool flow)
         return simpleInstruction("OP_CLOSE_UPVALUE", offset);
     case OP_RETURN:
         return simpleInstruction("OP_RETURN", offset);
+    case OP_REENTER:
+        return simpleInstruction("OP_REENTER", offset);
     case OP_CLASS:
         return constantInstruction("OP_CLASS", chunk, offset);
     case OP_INHERIT:
@@ -493,6 +495,8 @@ int moveForward(Chunk* chunk, int offset)
     case OP_CLOSE_UPVALUE:
         return offset + 1;
     case OP_RETURN:
+        return offset + 1;
+    case OP_REENTER:
         return offset + 1;
     case OP_CLASS:
         return offset + 2;
