@@ -113,6 +113,8 @@ void initVM()
 
     vm.initString   = NULL;
     vm.initString   = copyString("init", 4);
+    vm.strString    = NULL;
+    vm.strString    = copyString("__str", 5);
     vm.addString    = NULL;
     vm.addString    = copyString("__add", 5);
     vm.subString    = NULL;
@@ -150,6 +152,7 @@ void freeVM()
     freeTable(&vm.globals);
     freeTable(&vm.strings);
     vm.initString   = NULL;
+    vm.strString    = NULL;
     vm.addString    = NULL;
     vm.subString    = NULL;
     vm.mulString    = NULL;

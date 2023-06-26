@@ -30,6 +30,7 @@ typedef struct
     ObjUpvalue* openUpvalues;
 
     ObjString* initString;
+    ObjString* strString;
     ObjString* addString;
     ObjString* subString;
     ObjString* mulString;

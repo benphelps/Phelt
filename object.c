@@ -248,8 +248,25 @@ char* objectString(Value value)
         return functionString(AS_BOUND_METHOD(value)->method->function);
     case OBJ_CLASS:
         return AS_CLASS(value)->name->chars;
-    case OBJ_INSTANCE:
-        return AS_INSTANCE(value)->klass->name->chars;
+    case OBJ_INSTANCE: {
+
+        ObjInstance* instance = AS_INSTANCE(value);
+        Value        method   = OBJ_VAL(vm.strString);
+
+        Value value;
+        if (!tableGet(&instance->klass->methods, method, &value)) {
+            printf("Could not find method %s on class %s\n", AS_CSTRING(method), AS_CSTRING(OBJ_VAL(instance->klass->name)));
+            return instance->klass->name->chars;
+        }
+
+        ObjBoundMethod* bound = newBoundMethod(value, AS_CLOSURE(value));
+
+        // patch the function to reenter the VM, instead of returning
+        bound->method->function->chunk.code[bound->method->function->chunk.count - 1] = OP_REENTER;
+        call(bound->method, 0);
+        run(true);
+        return AS_CSTRING(pop());
+    }
     case OBJ_CLOSURE:
         return functionString(AS_CLOSURE(value)->function);
     case OBJ_FUNCTION:
