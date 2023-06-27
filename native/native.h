@@ -7,6 +7,7 @@
 #include "../vm.h"
 
 #include "file.h"
+#include "http.h"
 #include "math.h"
 #include "system.h"
 

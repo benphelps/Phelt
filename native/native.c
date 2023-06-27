@@ -57,11 +57,23 @@ NativeFnEntry fileFns[] = {
     { NULL, NULL },
 };
 
+NativeFnEntry httpFns[] = {
+    { "get", _get },
+    { "post", _post },
+    { "put", _put },
+    { "patch", _patch },
+    { "delete", _delete },
+    { "head", _head },
+    { "options", _options },
+    { NULL, NULL },
+};
+
 // modules
 NativeModuleEntry nativeModules[] = {
     { "system", systemFns },
     { "math", mathFns },
     { "file", fileFns },
+    { "http", httpFns },
     { NULL, NULL },
 };
 

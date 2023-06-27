@@ -17,5 +17,8 @@ add_executable(lux
     native/system.c
     native/math.c
     native/file.c
+    native/http.c
     native/native.c
 )
+
+target_link_libraries(lux curl)
