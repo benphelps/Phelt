@@ -2,23 +2,27 @@ cmake_minimum_required(VERSION 3.10)
 
 project(lux)
 
+# set include directory
+include_directories(src/include/native)
+include_directories(src/include)
+
 add_executable(lux
-    common.c
-    main.c
-    debug.c
-    chunk.c
-    value.c
-    memory.c
-    vm.c
-    compiler.c
-    scanner.c
-    object.c
-    table.c
-    native/system.c
-    native/math.c
-    native/file.c
-    native/http.c
-    native/native.c
+    src/common.c
+    src/main.c
+    src/debug.c
+    src/chunk.c
+    src/value.c
+    src/memory.c
+    src/vm.c
+    src/compiler.c
+    src/scanner.c
+    src/object.c
+    src/table.c
+    src/native/system.c
+    src/native/math.c
+    src/native/file.c
+    src/native/http.c
+    src/native/native.c
 )
 
 target_link_libraries(lux curl)

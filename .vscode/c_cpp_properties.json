@@ -1,0 +1,11 @@
+{
+    "configurations": [
+        {
+            "name": "Lux",
+            "includePath": ["${workspaceFolder}/src/include/**"],
+            "cStandard": "c17",
+            "cppStandard": "c++17"
+        }
+    ],
+    "version": 4
+}

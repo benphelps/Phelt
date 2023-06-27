@@ -1,5 +1,5 @@
-#include "math.h"
-#include "../vm.h"
+#include "lux_math.h"
+#include "vm.h"
 #include <math.h>
 
 #define DEFINE_MATH_FUNC_SINGLE(FUNC_NAME, TYPE) \

@@ -1,0 +1,12 @@
+{
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Launch",
+            "program": "${workspaceRoot}/build/lux",
+            "args": ["tests/all.lux"],
+            "cwd": "${workspaceRoot}"
+        }
+    ]
+}

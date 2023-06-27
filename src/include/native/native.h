@@ -8,7 +8,7 @@
 
 #include "file.h"
 #include "http.h"
-#include "math.h"
+#include "lux_math.h"
 #include "system.h"
 
 typedef struct {
