@@ -24,7 +24,7 @@ Lux is a small and versitile scripting language, based on Lox, as described in t
 -   Classes
     -   Constructors, Inheritance
     -   Defined properties (not yet constants)
-    -   Dunder methods (e.g. `__add`, `__sub`, `__eq`, etc.)
+    -   Dunder methods (e.g. `__str`, `__add`, `__sub`, `__eq`, etc.)
 -   Mostly reentrant
     -   The VM is mostly reentrant, you can invoke Lux functions from C, this is how `__str` is implemented for example.
 -   Standard library
@@ -34,6 +34,9 @@ Lux is a small and versitile scripting language, based on Lox, as described in t
     -   Currently includes `system`, `math`, `http` and `file` modules.
     -   On-demand loading of modules, using `module(name)` function.
         -   Keeps namespace clean, allows for mapping modules to your own names.
+-   Imports
+    -   Imports are done using the `import` keyword.
+    -   Imports share the same namespace as the file they are imported into.
 
 # Compiling
 
@@ -206,6 +209,14 @@ employee.greet(); // Hello, my name is John
 
 ## Dunder Methods
 
+Currently supported dunder methods:
+
+-   `__str` — called when printed, or otherwise converted to a string
+-   `__add`, `__sub`, `__mul`, `__div` — called when using `+`, `-`, `*`, `/` operators
+-   `__gt`, `__lt`, `__eq`, `__not` — called when using `>`, `<`, `==`, `!` operators, other comparison - operators are implemented in terms of these
+-   `__and`, `__or`, `__xor`, `__mod` — called when using `&`, `|`, `^`, `%` operators
+-   `__rshift`, `__lshift` — called when using `>>`, `<<` operators
+
 ```js
 class Vector {
     init(x, y) {
@@ -227,11 +238,9 @@ class Vector {
 
 # Standard Library
 
-The standard library is a work in progress. It is written in C, and is compiled into the `lux` executable.
+The standard library is a work in progress. It is written in C, and is compiled into the `lux` executable, so it is always available.
 
-## Global Functions
-
-These are functions that are available in the global scope.
+These are functions that are always available in the global scope.
 
 ```js
 print("Hello World"); // no newline
@@ -242,10 +251,13 @@ let count = len([1, 2, 3]); // 3
 let http = module("http"); // loads the http module
 ```
 
+Other modules can be loaded with the `module` function, when required.
+
 ## `system`
 
 ```js
 let system = module("system");
+
 let formatted = sprint("Hello {}", "World"); // "Hello World"
 let time = system.time(); // ms since epoch
 let clock = system.clock(); // ms since process start
@@ -255,10 +267,9 @@ system.usleep(100); // sleep for 100 ms
 
 ## `math`
 
-Basic math functions. All numbers are doubles, unless otherwise noted.
-
 ```js
 let math = module("math");
+
 let ceil = math.ceil(1.5);
 let floor = math.floor(1.5);
 let abs = math.abs(-1.5);
@@ -295,6 +306,7 @@ This is a very basic HTTP client. It is synchronous, and only supports GET, POST
 
 ```js
 let http = module("http");
+
 let response = http.get("http://localhost/get");
 let response = http.post("http://localhost/post", "hello=world");
 let response = http.put("http://localhost/put", "hello=world");
@@ -310,6 +322,7 @@ These are more or less wrappers around the C standard library file functions.
 
 ```js
 let file = module("file");
+
 // std streams, valid fp objects
 let stdin = file.stdin;
 let stdout = file.stdout;
