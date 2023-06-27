@@ -1,4 +1,5 @@
 #include "file.h"
+#include "../vm.h"
 #include <stdio.h>
 
 // FILE * fopen(const char * restrict path, const char * restrict mode);

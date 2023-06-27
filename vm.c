@@ -4,7 +4,6 @@
 
 #include "compiler.h"
 #include "debug.h"
-#include "native/native.h"
 #include "vm.h"
 
 VM vm;
@@ -42,30 +41,11 @@ void runtimeError(const char* format, ...)
     vm.errorState = true;
 }
 
-static void defineNative(const char* name, NativeFn function)
+void defineNative(Table* dest, const char* name, NativeFn function)
 {
     push(OBJ_VAL(copyString(name, (int)strlen(name))));
     push(OBJ_VAL(newNative(function)));
-    tableSet(&vm.globals, vm.stack[0], vm.stack[1]);
-    pop();
-    pop();
-}
-
-static void defineNativeModule(NativeModuleEntry* module)
-{
-    ObjTable* table = newTable();
-    push(OBJ_VAL(table));
-
-    for (NativeFnEntry* entry = module->fns; entry->name != NULL; entry++) {
-        push(OBJ_VAL(copyString(entry->name, (int)strlen(entry->name))));
-        push(OBJ_VAL(newNative(entry->function)));
-        tableSet(&AS_TABLE(vm.stack[0])->table, vm.stack[1], vm.stack[2]);
-        pop();
-        pop();
-    }
-
-    push(OBJ_VAL(copyString(module->name, strlen(module->name))));
-    tableSet(&vm.globals, vm.stack[1], vm.stack[0]);
+    tableSet(dest, vm.stack[0], vm.stack[1]);
     pop();
     pop();
 }
@@ -73,26 +53,7 @@ static void defineNativeModule(NativeModuleEntry* module)
 static void initNative()
 {
     for (NativeFnEntry* entry = globalFns; entry->name != NULL; entry++) {
-        defineNative(entry->name, entry->function);
-    }
-
-    for (NativeModuleEntry* entry = nativeModules; entry->name != NULL; entry++) {
-        defineNativeModule(entry);
-    }
-
-    for (NativeModuleCallback* entry = nativeModuleCallbacks; entry->name != NULL; entry++) {
-        Value table;
-        if (!tableGet(&vm.globals, OBJ_VAL(copyString(entry->name, strlen(entry->name))), &table)) {
-            fprintf(stderr, "Error: module '%s' not found\n", entry->name);
-            exit(1);
-        }
-
-        if (!IS_TABLE(table)) {
-            fprintf(stderr, "Error: module '%s' is not a table\n", entry->name);
-            exit(1);
-        }
-
-        entry->callback(&AS_TABLE(table)->table);
+        defineNative(&vm.globals, entry->name, entry->function);
     }
 }
 

@@ -4,6 +4,7 @@
 #include "chunk.h"
 #include "common.h"
 #include "memory.h"
+#include "native/native.h"
 #include "object.h"
 #include "table.h"
 #include "utf8.h"
@@ -71,5 +72,6 @@ void            push(Value value);
 Value           pop();
 bool            call(ObjClosure* closure, int argCount);
 InterpretResult run(bool reenter);
+void            defineNative(Table* dest, const char* name, NativeFn function);
 
 #endif

@@ -1,10 +1,50 @@
 #include "native.h"
 
+NativeModuleEntry* findNativeModule(NativeModuleEntry* modules, const char* name)
+{
+    NativeModuleEntry* module = modules;
+    while (module->name != NULL) {
+        if (strcmp(module->name, name) == 0) {
+            return module;
+        }
+        ++module;
+    }
+    return NULL;
+}
+
+NativeModuleCallback* findNativeModuleCallback(NativeModuleCallback* callbacks, const char* name)
+{
+    NativeModuleCallback* callback = callbacks;
+    while (callback->name != NULL) {
+        if (strcmp(callback->name, name) == 0) {
+            return callback;
+        }
+        ++callback;
+    }
+    return NULL;
+}
+
+ObjTable* defineNativeModule(NativeModuleEntry* module)
+{
+    ObjTable* table = newTable();
+
+    for (NativeFnEntry* entry = module->fns; entry->name != NULL; entry++) {
+        tableSet(&table->table, OBJ_VAL(copyString(entry->name, (int)strlen(entry->name))), OBJ_VAL(newNative(entry->function)));
+    }
+
+    NativeModuleCallback* callback = findNativeModuleCallback(nativeModuleCallbacks, module->name);
+    if (callback != NULL)
+        callback->callback(&table->table);
+
+    return table;
+}
+
 NativeFnEntry globalFns[] = {
     { "print", _print },
     { "sprint", _sprint },
     { "println", _println },
     { "len", _len },
+    { "module", _module },
     { NULL, NULL },
 };
 
@@ -20,7 +60,7 @@ NativeFnEntry systemFns[] = {
 NativeFnEntry mathFns[] = {
     { "ceil", _ceil },
     { "floor", _floor },
-    { "abs", _abs },
+    { "abs", _fabs },
     { "exp", _exp },
     { "sqrt", _sqrt },
     { "sin", _sin },

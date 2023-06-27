@@ -147,6 +147,25 @@ bool _len(int argCount, Value* args)
     return true;
 }
 
+bool _module(int argCount, Value* args)
+{
+    lux_checkArgs(1);
+    lux_checkString(0);
+
+    const char*        name  = lux_toCString(0);
+    NativeModuleEntry* entry = findNativeModule(nativeModules, name);
+
+    if (entry == NULL) {
+        lux_error("Module '%s' not found.", name);
+        return false;
+    }
+
+    ObjTable* table = defineNativeModule(entry);
+
+    lux_pushObject(-1, table);
+    return true;
+}
+
 // bool _call(int argCount, Value* args)
 // {
 //     if (argCount < 1) {

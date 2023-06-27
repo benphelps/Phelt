@@ -56,7 +56,7 @@ bool _get(int argCount, Value* args)
 
         curl_easy_cleanup(curl);
 
-        lux_pushString(-1, OBJ_VAL(copyString(s.ptr, s.len)));
+        lux_pushString(-1, copyString(s.ptr, s.len));
         free(s.ptr);
         return true;
     }
@@ -90,7 +90,7 @@ bool _post(int argCount, Value* args)
 
         curl_easy_cleanup(curl);
 
-        lux_pushString(-1, OBJ_VAL(copyString(s.ptr, s.len)));
+        lux_pushString(-1, copyString(s.ptr, s.len));
         free(s.ptr);
         return true;
     }
@@ -125,7 +125,7 @@ bool _put(int argCount, Value* args)
 
         curl_easy_cleanup(curl);
 
-        lux_pushString(-1, OBJ_VAL(copyString(s.ptr, s.len)));
+        lux_pushString(-1, copyString(s.ptr, s.len));
         free(s.ptr);
         return true;
     }
@@ -160,7 +160,7 @@ bool _delete(int argCount, Value* args)
 
         curl_easy_cleanup(curl);
 
-        lux_pushString(-1, OBJ_VAL(copyString(s.ptr, s.len)));
+        lux_pushString(-1, copyString(s.ptr, s.len));
         free(s.ptr);
         return true;
     }
@@ -193,7 +193,7 @@ bool _head(int argCount, Value* args)
 
         curl_easy_cleanup(curl);
 
-        lux_pushString(-1, OBJ_VAL(copyString(s.ptr, s.len)));
+        lux_pushString(-1, copyString(s.ptr, s.len));
         free(s.ptr);
         return true;
     }
@@ -226,7 +226,7 @@ bool _options(int argCount, Value* args)
 
         curl_easy_cleanup(curl);
 
-        lux_pushString(-1, OBJ_VAL(copyString(s.ptr, s.len)));
+        lux_pushString(-1, copyString(s.ptr, s.len));
         free(s.ptr);
         return true;
     }
@@ -261,7 +261,7 @@ bool _patch(int argCount, Value* args)
 
         curl_easy_cleanup(curl);
 
-        lux_pushString(-1, OBJ_VAL(copyString(s.ptr, s.len)));
+        lux_pushString(-1, copyString(s.ptr, s.len));
         free(s.ptr);
         return true;
     }

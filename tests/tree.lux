@@ -1,3 +1,5 @@
+let system = module("system");
+
 class Tree {
   init(item, depth) {
     this.item = item;

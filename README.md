@@ -6,7 +6,7 @@ Lux is a small and versitile scripting language, based on Lox, as described in t
 
 -   UTF-8 support
     -   Strings & identifiers, literals, function names, class names, etc
-    -   It should just work everywhere
+    -   It should just work everywhere, including indexing, slicing, etc.
 -   Variables
     -   Strings, Numbers (floats, integers, hex, binary, octal), Booleans, Nil
     -   Arrays, Tables (dictionaries, maps, etc., whatever you want to call them)
@@ -25,7 +25,15 @@ Lux is a small and versitile scripting language, based on Lox, as described in t
     -   Constructors, Inheritance
     -   Defined properties (not yet constants)
     -   Dunder methods (e.g. `__add`, `__sub`, `__eq`, etc.)
+-   Mostly reentrant
+    -   The VM is mostly reentrant, you can invoke Lux functions from C, this is how `__str` is implemented for example.
 -   Standard library
+    -   The standard library is written in C, and is compiled into the `lux` executable.
+        -   A lua-esque set of macros for manipulating the stack, allows for easy implementation of functions in C.
+    -   It is a work in progress, might be buggy.
+    -   Currently includes `system`, `math`, `http` and `file` modules.
+    -   On-demand loading of modules, using `module(name)` function.
+        -   Keeps namespace clean, allows for mapping modules to your own names.
 
 # Compiling
 
@@ -217,24 +225,126 @@ class Vector {
 }
 ```
 
-## Standard Library
+# Standard Library
 
-The standard library is a work in progress. The following modules / functions are available:
+The standard library is a work in progress. It is written in C, and is compiled into the `lux` executable.
+
+## Global Functions
+
+These are functions that are available in the global scope.
 
 ```js
-// math
-// ceil, floor, abs, exp, sqrt, sin, cos, tan, atan, pow, atan2, deg, rad, clamp, lerp, map, norm
-math.abs(-1);
+print("Hello World"); // no newline
+println("Hello World"); // with newline
+let chars = len("Hello World"); // 11
+let count = len([1, 2, 3]); // 3
 
-// system
-// time, clock, sleep, usleep
-system.clock();
-
-// file
-// fopen, fclose, fread, fwrite
-let fp = file.fopen("test.txt", "w");
-file.fwrite(fp, "Hello World");
-file.fclose(fp);
+let http = module("http"); // loads the http module
 ```
 
-See the native modules in the `native` directory for more information.
+## `system`
+
+```js
+let system = module("system");
+let formatted = sprint("Hello {}", "World"); // "Hello World"
+let time = system.time(); // ms since epoch
+let clock = system.clock(); // ms since process start
+system.sleep(1); // sleep for 1 second
+system.usleep(100); // sleep for 100 ms
+```
+
+## `math`
+
+Basic math functions. All numbers are doubles, unless otherwise noted.
+
+```js
+let math = module("math");
+let ceil = math.ceil(1.5);
+let floor = math.floor(1.5);
+let abs = math.abs(-1.5);
+let exp = math.exp(12);
+let sqrt = math.sqrt(4);
+let sin = math.sin(0);
+let cos = math.cos(0);
+let tan = math.tan(0);
+let atan = math.atan(0);
+let pow = math.pow(2, 3);
+let atan2 = math.atan2(1, 1);
+let deg = math.deg(0.7853981633974483);
+let rad = math.rad(45);
+let clamp = math.clamp(5, 0, 10);
+let lerp = math.lerp(0.5, 0, 10);
+let map = math.map(5, 0, 10, 0, 100);
+let norm = math.norm(5, 0, 10);
+
+// along with the following constants
+let e = math.E;
+let log2e = math.LOG2E;
+let log10e = math.LOG10E;
+let ln2 = math.LN2;
+let ln10 = math.LN10;
+let pi = math.PI;
+let tau = math.TAU;
+let sqrt2 = math.SQRT2;
+let sqrt1_2 = math.SQRT1_2;
+```
+
+## `http`
+
+This is a very basic HTTP client. It is synchronous, and only supports GET, POST, PUT, DELETE, PATCH, HEAD, and OPTIONS. It always returns the response body, or raw http response in the case of HEAD and OPTIONS.
+
+```js
+let http = module("http");
+let response = http.get("http://localhost/get");
+let response = http.post("http://localhost/post", "hello=world");
+let response = http.put("http://localhost/put", "hello=world");
+let response = http.delete("http://localhost/delete", "hello=world");
+let response = http.patch("http://localhost/patch", "hello=world");
+let response = http.head("http://localhost/get");
+let response = http.options("http://localhost/get");
+```
+
+## `file`
+
+These are more or less wrappers around the C standard library file functions.
+
+```js
+let file = module("file");
+// std streams, valid fp objects
+let stdin = file.stdin;
+let stdout = file.stdout;
+let stderr = file.stderr;
+
+// constants
+let SEEK_SET = file.SEEK_SET;
+let SEEK_CUR = file.SEEK_CUR;
+let SEEK_END = file.SEEK_END;
+
+// open a file
+let fp = fopen("file.txt", "w+");
+let fp = file.tmpfile();
+let fp = file.mkstemps("fileXXXXXX");
+
+// close a file
+fclose(fp);
+
+// write to a file
+let bytes_written = fwrite(fp, data);
+file.fputc(fp, 65);
+file.fputs(fp, "Hello World");
+file.fflush(fp);
+
+// read from a file
+let data = file.fread(fp, bytes);
+let char = file.fgetc(fp);
+let data = file.fgets(fp, 10);
+
+// traverse a file
+let pos = file.fseek(fp, 0, SEEK_END);
+let pos = file.ftell(fp);
+file.rewind(fp);
+
+// file operations
+file.remove("test.txt");
+file.rename("test.txt", "test2.txt");
+```

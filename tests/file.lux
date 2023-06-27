@@ -1,3 +1,5 @@
+let file = module("file");
+
 let fp = file.fopen("test.txt", "w+");
 
 // write

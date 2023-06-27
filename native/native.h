@@ -30,6 +30,10 @@ extern NativeFnEntry        globalFns[];
 extern NativeModuleEntry    nativeModules[];
 extern NativeModuleCallback nativeModuleCallbacks[];
 
+NativeModuleEntry*    findNativeModule(NativeModuleEntry* modules, const char* name);
+NativeModuleCallback* findNativeModuleCallback(NativeModuleCallback* callbacks, const char* name);
+ObjTable*             defineNativeModule(NativeModuleEntry* module);
+
 #define lux_push(pos, val) (args[pos] = val)
 #define lux_pushObject(pos, val) (args[pos] = OBJ_VAL(val))
 #define lux_pushCString(pos, val) (args[pos] = OBJ_VAL(copyString(val, strlen(val))))

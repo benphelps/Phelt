@@ -1,3 +1,5 @@
+let math = module("math");
+
 // classes
 class Vector {
     init(x, y) {

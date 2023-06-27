@@ -1,4 +1,5 @@
 #include "math.h"
+#include "../vm.h"
 #include <math.h>
 
 #define DEFINE_MATH_FUNC_SINGLE(FUNC_NAME, TYPE) \
@@ -28,7 +29,7 @@
 
 DEFINE_MATH_FUNC_SINGLE(ceil, double)
 DEFINE_MATH_FUNC_SINGLE(floor, double)
-DEFINE_MATH_FUNC_SINGLE(abs, int)
+DEFINE_MATH_FUNC_SINGLE(fabs, double)
 DEFINE_MATH_FUNC_SINGLE(exp, double)
 DEFINE_MATH_FUNC_SINGLE(sqrt, double)
 DEFINE_MATH_FUNC_SINGLE(sin, double)
@@ -171,11 +172,7 @@ void mathCallback(Table* table)
     SET_CONST("LN2", M_LN2);
     SET_CONST("LN10", M_LN10);
     SET_CONST("PI", M_PI);
-    SET_CONST("PI_2", M_PI_2);
-    SET_CONST("PI_4", M_PI_4);
-    SET_CONST("1_PI", M_1_PI);
-    SET_CONST("2_PI", M_2_PI);
-    SET_CONST("2_SQRTPI", M_2_SQRTPI);
+    SET_CONST("TAU", M_PI * 2);
     SET_CONST("SQRT2", M_SQRT2);
     SET_CONST("SQRT1_2", M_SQRT1_2);
 #undef SET_CONST

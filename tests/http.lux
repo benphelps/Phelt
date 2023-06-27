@@ -1,6 +1,10 @@
 // tested using:
 // docker run -p 80:80 kennethreitz/httpbin
 
+let http = module("http");
+
+dump(http);
+
 println("--- GET ---");
 let body = http.get("http://localhost/get");
 println(body);
