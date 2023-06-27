@@ -58,4 +58,48 @@ extern NativeModuleCallback nativeModuleCallbacks[];
 
 #define lux_objectValue(val) (OBJ_VAL(args[val]))
 
+#define lux_checkNumber(pos)                                                         \
+    if (!lux_isNumber(pos)) {                                                        \
+        lux_pushObject(-1, formatString("Argument %d must be a pointer.", pos + 1)); \
+        return false;                                                                \
+    }
+
+#define lux_checkString(pos)                                                        \
+    if (!lux_isString(pos)) {                                                       \
+        lux_pushObject(-1, formatString("Argument %d must be a string.", pos + 1)); \
+        return false;                                                               \
+    }
+
+#define lux_checkPointer(pos)                                                        \
+    if (!lux_isPointer(pos)) {                                                       \
+        lux_pushObject(-1, formatString("Argument %d must be a pointer.", pos + 1)); \
+        return false;                                                                \
+    }
+
+#define lux_checkObject(pos)                                                        \
+    if (!lux_isObject(pos)) {                                                       \
+        lux_pushObject(-1, formatString("Argument %d must be a object.", pos + 1)); \
+        return false;                                                               \
+    }
+
+#define lux_checkBool(pos)                                                           \
+    if (!lux_isBool(pos)) {                                                          \
+        lux_pushObject(-1, formatString("Argument %d must be a boolean.", pos + 1)); \
+        return false;                                                                \
+    }
+
+#define lux_checkNil(pos)                                                        \
+    if (!lux_isNil(pos)) {                                                       \
+        lux_pushObject(-1, formatString("Argument %d must be a nil.", pos + 1)); \
+        return false;                                                            \
+    }
+
+#define lux_checkArgs(count)                                                                    \
+    if (argCount != count) {                                                                    \
+        lux_pushObject(-1, formatString("Expected %d arguments but got %d.", count, argCount)); \
+        return false;                                                                           \
+    }
+
+#define lux_error(msg, ...) lux_pushObject(-1, formatString(msg, ##__VA_ARGS__))
+
 #endif

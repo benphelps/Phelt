@@ -1,5 +1,8 @@
 #include "system.h"
+#include "../object.h"
 #include "../value.h"
+#include "../vm.h"
+
 #include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
@@ -25,10 +28,7 @@ double time_in_mill()
 // let time = system.time()
 bool _time(int argCount, Value* args)
 {
-    if (argCount != 0) {
-        lux_pushObject(-1, formatString("Expected 0 arguments but got %d.", argCount));
-        return false;
-    }
+    lux_checkArgs(0);
 
     lux_pushNumber(-1, time_in_mill());
     return true;
@@ -38,10 +38,7 @@ bool _time(int argCount, Value* args)
 // let clock = system.clock()
 bool _clock(int argCount, Value* args)
 {
-    if (argCount != 0) {
-        lux_pushObject(-1, formatString("Expected 0 arguments but got %d.", argCount));
-        return false;
-    }
+    lux_checkArgs(0);
 
     lux_pushNumber(-1, (double)clock() / CLOCKS_PER_SEC);
     return true;
@@ -51,15 +48,8 @@ bool _clock(int argCount, Value* args)
 // let sleep = system.sleep(1)
 bool _sleep(int argCount, Value* args)
 {
-    if (argCount != 1) {
-        lux_pushObject(-1, formatString("Expected 1 argument but got %d.", argCount));
-        return false;
-    }
-
-    if (!lux_isNumber(0)) {
-        lux_pushObject(-1, formatString("Argument must be a number."));
-        return false;
-    }
+    lux_checkArgs(1);
+    lux_checkNumber(0);
 
     sleep((unsigned int)lux_toNumber(0));
     lux_pushNil(-1);
@@ -70,15 +60,8 @@ bool _sleep(int argCount, Value* args)
 // let usleep = system.usleep(1000)
 bool _usleep(int argCount, Value* args)
 {
-    if (argCount != 1) {
-        lux_pushObject(-1, formatString("Expected 1 argument but got %d.", argCount));
-        return false;
-    }
-
-    if (!lux_isNumber(0)) {
-        lux_pushObject(-1, formatString("Argument must be a number."));
-        return false;
-    }
+    lux_checkArgs(1);
+    lux_checkNumber(0);
 
     usleep((unsigned int)lux_toNumber(0));
     lux_pushNil(-1);
@@ -105,7 +88,7 @@ char* replace_placeholder(char* template, char* value)
 bool _print(int argCount, Value* args)
 {
     if (argCount < 1) {
-        printf("Error: No template provided.\n");
+        lux_error("No template provided.");
         return false;
     }
 
@@ -125,7 +108,7 @@ bool _print(int argCount, Value* args)
 bool _sprint(int argCount, Value* args)
 {
     if (argCount < 1) {
-        printf("Error: No template provided.\n");
+        lux_error("No template provided.");
         return false;
     }
 
@@ -150,23 +133,37 @@ bool _println(int argCount, Value* args)
 
 bool _len(int argCount, Value* args)
 {
-    if (argCount != 1) {
-        lux_pushObject(-1, formatString("Expected 1 argument but got %d.", argCount));
-        return false;
-    }
-
-    if (!lux_isObject(0)) {
-        lux_pushObject(-1, formatString("Argument must be an object."));
-        return false;
-    }
+    lux_checkArgs(1);
+    lux_checkObject(0);
 
     int length = objectLength(OBJ_VAL(lux_toObject(0)));
 
     if (length == -1) {
-        lux_pushObject(-1, formatString("Argument must be an object with a length."));
+        lux_error("Argument must be an object with a length.");
         return false;
     }
 
     lux_pushNumber(-1, length);
     return true;
 }
+
+// bool _call(int argCount, Value* args)
+// {
+//     if (argCount < 1) {
+//         lux_pushObject(-1, formatString("Expected at least 1 argument, got %d.", argCount));
+//         return false;
+//     }
+
+//     if (!lux_isObject(0)) {
+//         lux_pushObject(-1, formatString("Argument must be an object."));
+//         return false;
+//     }
+
+//     ObjClosure* closure = lux_toClosure(0);
+//     // patch the function to reenter the VM, instead of returning
+//     closure->function->chunk.code[closure->function->chunk.count - 1] = OP_REENTER;
+//     call(closure, argCount - 1);
+//     run(true);
+//     *(vm.stackTop - 1 - argCount) = *(vm.stackTop - 1);
+//     return true;
+// }

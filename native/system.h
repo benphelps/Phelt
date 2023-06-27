@@ -11,5 +11,6 @@ extern bool _print(int argCount, Value* args);
 extern bool _println(int argCount, Value* args);
 extern bool _sprint(int argCount, Value* args);
 extern bool _len(int argCount, Value* args);
+// extern bool _call(int argCount, Value* args);
 
 #endif

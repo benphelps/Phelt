@@ -1,77 +1,29 @@
 #include "math.h"
 #include <math.h>
 
-double deg(double radians)
-{
-    return radians * (180.0 / M_PI);
-}
-
-double rad(double degrees)
-{
-    return degrees * (M_PI / 180.0);
-}
-
-double clamp(double value, double min, double max)
-{
-    if (value < min) {
-        return min;
-    }
-    if (value > max) {
-        return max;
-    }
-    return value;
-}
-
-double lerp(double a, double b, double t)
-{
-    return a + (b - a) * t;
-}
-
-double map(double value, double start1, double stop1, double start2, double stop2)
-{
-    return start2 + (stop2 - start2) * ((value - start1) / (stop1 - start1));
-}
-
-double norm(double value, double start, double stop)
-{
-    return (value - start) / (stop - start);
-}
-
-#define DEFINE_MATH_FUNC_SINGLE(FUNC_NAME, TYPE)                                                  \
-    bool _##FUNC_NAME(int argCount, Value* args)                                                  \
-    {                                                                                             \
-        if (argCount != 1) {                                                                      \
-            lux_pushObject(-1, formatString(#FUNC_NAME "() takes 1 argument, got %d", argCount)); \
-            return false;                                                                         \
-        }                                                                                         \
-                                                                                                  \
-        if (!lux_isNumber(0)) {                                                                   \
-            lux_pushObject(-1, formatString(#FUNC_NAME "() argument must be a number"));          \
-            return false;                                                                         \
-        }                                                                                         \
-                                                                                                  \
-        TYPE num = (TYPE)lux_toNumber(0);                                                         \
-        lux_pushNumber(-1, FUNC_NAME(num));                                                       \
-        return true;                                                                              \
+#define DEFINE_MATH_FUNC_SINGLE(FUNC_NAME, TYPE) \
+    bool _##FUNC_NAME(int argCount, Value* args) \
+    {                                            \
+        lux_checkArgs(1);                        \
+        lux_checkNumber(0);                      \
+                                                 \
+        TYPE num = (TYPE)lux_toNumber(0);        \
+        lux_pushNumber(-1, FUNC_NAME(num));      \
+        return true;                             \
     }
 
-#define DEFINE_MATH_FUNC_DOUBLE(FUNC_NAME, TYPE)                                                   \
-    bool _##FUNC_NAME(int argCount, Value* args)                                                   \
-    {                                                                                              \
-        if (argCount != 2) {                                                                       \
-            lux_pushObject(-1, formatString(#FUNC_NAME "() takes 2 arguments, got %d", argCount)); \
-            return false;                                                                          \
-        }                                                                                          \
-                                                                                                   \
-        if (!lux_isNumber(0) || !lux_isNumber(1)) {                                                \
-            lux_pushObject(-1, formatString(#FUNC_NAME "() arguments must be numbers"));           \
-            return false;                                                                          \
-        }                                                                                          \
-                                                                                                   \
-        TYPE num1 = (TYPE)lux_toNumber(0);                                                         \
-        TYPE num2 = (TYPE)lux_toNumber(1);                                                         \
-        lux_pushNumber(-1, FUNC_NAME(num1, num2));                                                 \
-        return true;                                                                               \
+#define DEFINE_MATH_FUNC_DOUBLE(FUNC_NAME, TYPE)   \
+    bool _##FUNC_NAME(int argCount, Value* args)   \
+    {                                              \
+        lux_checkArgs(2);                          \
+                                                   \
+        lux_checkNumber(0);                        \
+        lux_checkNumber(1);                        \
+                                                   \
+        TYPE num1 = (TYPE)lux_toNumber(0);         \
+        TYPE num2 = (TYPE)lux_toNumber(1);         \
+        lux_pushNumber(-1, FUNC_NAME(num1, num2)); \
+        return true;                               \
     }
 
 DEFINE_MATH_FUNC_SINGLE(ceil, double)
@@ -88,51 +40,53 @@ DEFINE_MATH_FUNC_SINGLE(acos, double)
 DEFINE_MATH_FUNC_DOUBLE(pow, double)
 DEFINE_MATH_FUNC_DOUBLE(atan2, double)
 
+double deg(double radians)
+{
+    return radians * (180.0 / M_PI);
+}
+
 bool _deg(int argCount, Value* args)
 {
-    if (argCount != 1) {
-        lux_pushObject(-1, formatString("deg() takes 1 argument, got %d", argCount));
-        return false;
-    }
-
-    if (!lux_isNumber(0)) {
-        lux_pushObject(-1, formatString("deg() argument must be a number"));
-        return false;
-    }
+    lux_checkArgs(1);
+    lux_checkNumber(0);
 
     double num = lux_toNumber(0);
     lux_pushNumber(-1, deg(num));
     return true;
 }
 
+double rad(double degrees)
+{
+    return degrees * (M_PI / 180.0);
+}
+
 bool _rad(int argCount, Value* args)
 {
-    if (argCount != 1) {
-        lux_pushObject(-1, formatString("rad() takes 1 argument, got %d", argCount));
-        return false;
-    }
-
-    if (!lux_isNumber(0)) {
-        lux_pushObject(-1, formatString("rad() argument must be a number"));
-        return false;
-    }
+    lux_checkArgs(1);
+    lux_checkNumber(0);
 
     double num = lux_toNumber(0);
     lux_pushNumber(-1, rad(num));
     return true;
 }
 
+double clamp(double value, double min, double max)
+{
+    if (value < min) {
+        return min;
+    }
+    if (value > max) {
+        return max;
+    }
+    return value;
+}
+
 bool _clamp(int argCount, Value* args)
 {
-    if (argCount != 3) {
-        lux_pushObject(-1, formatString("clamp() takes 3 arguments, got %d", argCount));
-        return false;
-    }
-
-    if (!lux_isNumber(0) || !lux_isNumber(1) || !lux_isNumber(2)) {
-        lux_pushObject(-1, formatString("clamp() arguments must be numbers"));
-        return false;
-    }
+    lux_checkArgs(3);
+    lux_checkNumber(0);
+    lux_checkNumber(1);
+    lux_checkNumber(2);
 
     double value = lux_toNumber(0);
     double min   = lux_toNumber(1);
@@ -141,17 +95,17 @@ bool _clamp(int argCount, Value* args)
     return true;
 }
 
+double lerp(double a, double b, double t)
+{
+    return a + (b - a) * t;
+}
+
 bool _lerp(int argCount, Value* args)
 {
-    if (argCount != 3) {
-        lux_pushObject(-1, formatString("lerp() takes 3 arguments, got %d", argCount));
-        return false;
-    }
-
-    if (!lux_isNumber(0) || !lux_isNumber(1) || !lux_isNumber(2)) {
-        lux_pushObject(-1, formatString("lerp() arguments must be numbers"));
-        return false;
-    }
+    lux_checkArgs(3);
+    lux_checkNumber(0);
+    lux_checkNumber(1);
+    lux_checkNumber(2);
 
     double a = lux_toNumber(0);
     double b = lux_toNumber(1);
@@ -160,17 +114,19 @@ bool _lerp(int argCount, Value* args)
     return true;
 }
 
+double map(double value, double start1, double stop1, double start2, double stop2)
+{
+    return start2 + (stop2 - start2) * ((value - start1) / (stop1 - start1));
+}
+
 bool _map(int argCount, Value* args)
 {
-    if (argCount != 5) {
-        lux_pushObject(-1, formatString("map() takes 5 arguments, got %d", argCount));
-        return false;
-    }
-
-    if (!lux_isNumber(0) || !lux_isNumber(1) || !lux_isNumber(2) || !lux_isNumber(3) || !lux_isNumber(4)) {
-        lux_pushObject(-1, formatString("map() arguments must be numbers"));
-        return false;
-    }
+    lux_checkArgs(5);
+    lux_checkNumber(0);
+    lux_checkNumber(1);
+    lux_checkNumber(2);
+    lux_checkNumber(3);
+    lux_checkNumber(4);
 
     double value  = lux_toNumber(0);
     double start1 = lux_toNumber(1);
@@ -181,17 +137,17 @@ bool _map(int argCount, Value* args)
     return true;
 }
 
+double norm(double value, double start, double stop)
+{
+    return (value - start) / (stop - start);
+}
+
 bool _norm(int argCount, Value* args)
 {
-    if (argCount != 3) {
-        lux_pushObject(-1, formatString("norm() takes 3 arguments, got %d", argCount));
-        return false;
-    }
-
-    if (!lux_isNumber(0) || !lux_isNumber(1) || !lux_isNumber(2)) {
-        lux_pushObject(-1, formatString("norm() arguments must be numbers"));
-        return false;
-    }
+    lux_checkArgs(3);
+    lux_checkNumber(0);
+    lux_checkNumber(1);
+    lux_checkNumber(2);
 
     double value = lux_toNumber(0);
     double start = lux_toNumber(1);

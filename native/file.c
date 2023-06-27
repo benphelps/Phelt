@@ -5,22 +5,16 @@
 // let fp = fopen("file.txt", "w+");
 bool _fopen(int argCount, Value* args)
 {
-    if (argCount != 2) {
-        lux_pushObject(-1, formatString("Expected 2 arguments but got %d.", argCount));
-        return false;
-    }
-
-    if (!lux_isString(0) || !lux_isString(1)) {
-        lux_pushObject(-1, formatString("Expected string arguments."));
-        return false;
-    }
+    lux_checkArgs(2);
+    lux_checkString(0);
+    lux_checkString(1);
 
     const char* path = lux_toCString(0);
     const char* mode = lux_toCString(1);
 
     FILE* file = fopen(path, mode);
     if (file == NULL) {
-        lux_pushObject(-1, formatString("Failed to open file '%s' with mode '%s'.", path, mode));
+        lux_error("Failed to open file '%s' with mode '%s'.", path, mode);
         return false;
     }
 
@@ -32,14 +26,11 @@ bool _fopen(int argCount, Value* args)
 // let fp = file.tmpfile()
 bool _tmpfile(int argCount, Value* args)
 {
-    if (argCount != 0) {
-        lux_pushObject(-1, formatString("Expected 0 arguments but got %d.", argCount));
-        return false;
-    }
+    lux_checkArgs(0);
 
     FILE* file = tmpfile();
     if (file == NULL) {
-        lux_pushObject(-1, formatString("Failed to create temporary file."));
+        lux_error("Failed to create temporary file.");
         return false;
     }
 
@@ -51,26 +42,19 @@ bool _tmpfile(int argCount, Value* args)
 // let fp = file.mkstemps("fileXXXXXX")
 bool _mkstemps(int argCount, Value* args)
 {
-    if (argCount != 1) {
-        lux_pushObject(-1, formatString("Expected 1 argument but got %d.", argCount));
-        return false;
-    }
-
-    if (!lux_isString(0)) {
-        lux_pushObject(-1, formatString("Expected string argument."));
-        return false;
-    }
+    lux_checkArgs(1);
+    lux_checkString(0);
 
     char* template = lux_toCString(0);
     int fd         = mkstemp(template);
     if (fd == -1) {
-        lux_pushObject(-1, formatString("Failed to create temporary file."));
+        lux_error("Failed to create temporary file.");
         return false;
     }
 
     FILE* file = fdopen(fd, "w+");
     if (file == NULL) {
-        lux_pushObject(-1, formatString("Failed to open temporary file."));
+        lux_error("Failed to open temporary file.");
         return false;
     }
 
@@ -82,20 +66,13 @@ bool _mkstemps(int argCount, Value* args)
 // fclose(fp)
 bool _fclose(int argCount, Value* args)
 {
-    if (argCount != 1) {
-        lux_pushObject(-1, formatString("Expected 1 argument but got %d.", argCount));
-        return false;
-    }
-
-    if (!lux_isPointer(0)) {
-        lux_pushObject(-1, formatString("Expected pointer argument."));
-        return false;
-    }
+    lux_checkArgs(1);
+    lux_checkPointer(0);
 
     FILE* file   = (FILE*)lux_toPointer(0);
     int   result = fclose(file);
     if (result != 0) {
-        lux_pushObject(-1, formatString("Failed to close file."));
+        lux_error("Failed to close file.");
         return false;
     }
 
@@ -106,22 +83,16 @@ bool _fclose(int argCount, Value* args)
 // bytes_written = fwrite(fp, str)
 bool _fwrite(int argCount, Value* args)
 {
-    if (argCount != 2) {
-        lux_pushObject(-1, formatString("Expected 2 arguments but got %d.", argCount));
-        return false;
-    }
-
-    if (!lux_isPointer(0) || !lux_isString(1)) {
-        lux_pushObject(-1, formatString("Expected pointer, string arguments."));
-        return false;
-    }
+    lux_checkArgs(2);
+    lux_checkPointer(0);
+    lux_checkString(1);
 
     FILE*      stream = (FILE*)lux_toPointer(0);
     ObjString* string = lux_toString(1);
 
     size_t result = fwrite(string->chars, sizeof(char), string->length, stream);
     if (result != string->length) {
-        lux_pushObject(-1, formatString("Failed to write to file."));
+        lux_error("Failed to write to file.");
         return false;
     }
 
@@ -133,28 +104,22 @@ bool _fwrite(int argCount, Value* args)
 // let str = file.fread(fp, bytes)
 bool _fread(int argCount, Value* args)
 {
-    if (argCount != 2) {
-        lux_pushObject(-1, formatString("Expected 2 arguments but got %d.", argCount));
-        return false;
-    }
-
-    if (!lux_isPointer(0) || !lux_isNumber(1)) {
-        lux_pushObject(-1, formatString("Expected pointer, number arguments."));
-        return false;
-    }
+    lux_checkArgs(2);
+    lux_checkPointer(0);
+    lux_checkNumber(1);
 
     FILE*  stream = (FILE*)lux_toPointer(0);
     size_t bytes  = (size_t)lux_toNumber(1);
 
     char* buffer = (char*)malloc(bytes);
     if (buffer == NULL) {
-        lux_pushObject(-1, formatString("Failed to allocate memory."));
+        lux_error("Failed to allocate memory.");
         return false;
     }
 
     size_t result = fread(buffer, sizeof(char), bytes, stream);
     if (result != bytes) {
-        lux_pushObject(-1, formatString("Failed to read from file."));
+        lux_error("Failed to read from file.");
         return false;
     }
 
@@ -169,15 +134,10 @@ bool _fread(int argCount, Value* args)
 // let pos = file.fseek(fp, 0, SEEK_END)
 bool _fseek(int argCount, Value* args)
 {
-    if (argCount != 3) {
-        lux_pushObject(-1, formatString("Expected 3 arguments but got %d.", argCount));
-        return false;
-    }
-
-    if (!lux_isPointer(0) || !lux_isNumber(1) || !lux_isNumber(2)) {
-        lux_pushObject(-1, formatString("Expected pointer, number, number arguments."));
-        return false;
-    }
+    lux_checkArgs(3);
+    lux_checkPointer(0);
+    lux_checkNumber(1);
+    lux_checkNumber(2);
 
     FILE*    stream = (FILE*)lux_toPointer(0);
     long int offset = (long int)lux_toNumber(1);
@@ -185,7 +145,7 @@ bool _fseek(int argCount, Value* args)
 
     int result = fseek(stream, offset, whence);
     if (result != 0) {
-        lux_pushObject(-1, formatString("Failed to seek file."));
+        lux_error("Failed to seek file.");
         return false;
     }
 
@@ -196,21 +156,14 @@ bool _fseek(int argCount, Value* args)
 // let pos = file.ftell(fp)
 bool _ftell(int argCount, Value* args)
 {
-    if (argCount != 1) {
-        lux_pushObject(-1, formatString("Expected 1 argument but got %d.", argCount));
-        return false;
-    }
-
-    if (!lux_isPointer(0)) {
-        lux_pushObject(-1, formatString("Expected pointer argument."));
-        return false;
-    }
+    lux_checkArgs(1);
+    lux_checkPointer(0);
 
     FILE* stream = (FILE*)lux_toPointer(0);
 
     long int result = ftell(stream);
     if (result == -1) {
-        lux_pushObject(-1, formatString("Failed to get file position."));
+        lux_error("Failed to get file position.");
         return false;
     }
 
@@ -222,15 +175,8 @@ bool _ftell(int argCount, Value* args)
 // file.rewind(fp)
 bool _rewind(int argCount, Value* args)
 {
-    if (argCount != 1) {
-        lux_pushObject(-1, formatString("Expected 1 argument but got %d.", argCount));
-        return false;
-    }
-
-    if (!lux_isPointer(0)) {
-        lux_pushObject(-1, formatString("Expected pointer argument."));
-        return false;
-    }
+    lux_checkArgs(1);
+    lux_checkPointer(0);
 
     FILE* stream = (FILE*)lux_toPointer(0);
 
@@ -242,21 +188,14 @@ bool _rewind(int argCount, Value* args)
 // file.fflush(fp)
 bool _fflush(int argCount, Value* args)
 {
-    if (argCount != 1) {
-        lux_pushObject(-1, formatString("Expected 1 argument but got %d.", argCount));
-        return false;
-    }
-
-    if (!lux_isPointer(0)) {
-        lux_pushObject(-1, formatString("Expected pointer argument."));
-        return false;
-    }
+    lux_checkArgs(1);
+    lux_checkPointer(0);
 
     FILE* stream = (FILE*)lux_toPointer(0);
 
     int result = fflush(stream);
     if (result != 0) {
-        lux_pushObject(-1, formatString("Failed to flush file."));
+        lux_error("Failed to flush file.");
         return false;
     }
 
@@ -267,21 +206,14 @@ bool _fflush(int argCount, Value* args)
 // let char = file.fgetc(fp)
 bool _fgetc(int argCount, Value* args)
 {
-    if (argCount != 1) {
-        lux_pushObject(-1, formatString("Expected 1 argument but got %d.", argCount));
-        return false;
-    }
-
-    if (!lux_isPointer(0)) {
-        lux_pushObject(-1, formatString("Expected pointer argument."));
-        return false;
-    }
+    lux_checkArgs(1);
+    lux_checkPointer(0);
 
     FILE* stream = (FILE*)lux_toPointer(0);
 
     int result = fgetc(stream);
     if (result == EOF) {
-        lux_pushObject(-1, formatString("Failed to get character."));
+        lux_error("Failed to get character.");
         return false;
     }
 
@@ -293,15 +225,9 @@ bool _fgetc(int argCount, Value* args)
 // let str = file.fgets(fp, 10)
 bool _fgets(int argCount, Value* args)
 {
-    if (argCount != 2) {
-        lux_pushObject(-1, formatString("Expected 3 arguments but got %d.", argCount));
-        return false;
-    }
-
-    if (!lux_isPointer(0) || !lux_isNumber(1)) {
-        lux_pushObject(-1, formatString("Expected pointer, number arguments."));
-        return false;
-    }
+    lux_checkArgs(2);
+    lux_checkPointer(0);
+    lux_checkNumber(1);
 
     FILE* stream = (FILE*)lux_toPointer(0);
     int   num    = (int)lux_toNumber(1);
@@ -309,7 +235,7 @@ bool _fgets(int argCount, Value* args)
 
     char* result = fgets(str, num, stream);
     if (result == NULL) {
-        lux_pushObject(-1, formatString("Failed to get string."));
+        lux_error("Failed to get string.");
         return false;
     }
 
@@ -321,22 +247,16 @@ bool _fgets(int argCount, Value* args)
 // file.fputc(fp, 65)
 bool _fputc(int argCount, Value* args)
 {
-    if (argCount != 2) {
-        lux_pushObject(-1, formatString("Expected 2 arguments but got %d.", argCount));
-        return false;
-    }
-
-    if (!lux_isPointer(0) || !lux_isNumber(1)) {
-        lux_pushObject(-1, formatString("Expected pointer, number arguments."));
-        return false;
-    }
+    lux_checkArgs(2);
+    lux_checkPointer(0);
+    lux_checkNumber(1);
 
     FILE* stream    = (FILE*)lux_toPointer(0);
     int   character = (int)lux_toNumber(1);
 
     int result = fputc(character, stream);
     if (result == EOF) {
-        lux_pushObject(-1, formatString("Failed to put character."));
+        lux_error("Failed to put character.");
         return false;
     }
 
@@ -347,22 +267,16 @@ bool _fputc(int argCount, Value* args)
 // file.fputs(fp, "Hello World")
 bool _fputs(int argCount, Value* args)
 {
-    if (argCount != 2) {
-        lux_pushObject(-1, formatString("Expected 2 arguments but got %d.", argCount));
-        return false;
-    }
-
-    if (!lux_isPointer(0) || !lux_isString(1)) {
-        lux_pushObject(-1, formatString("Expected pointer, string arguments."));
-        return false;
-    }
+    lux_checkArgs(2);
+    lux_checkPointer(0);
+    lux_checkString(1);
 
     FILE*       stream = (FILE*)lux_toPointer(0);
     const char* str    = lux_toCString(1);
 
     int result = fputs(str, stream);
     if (result == EOF) {
-        lux_pushObject(-1, formatString("Failed to put string."));
+        lux_error("Failed to put string.");
         return false;
     }
 
@@ -373,21 +287,14 @@ bool _fputs(int argCount, Value* args)
 // file.remove("test.txt")
 bool _remove(int argCount, Value* args)
 {
-    if (argCount != 1) {
-        lux_pushObject(-1, formatString("Expected 1 argument but got %d.", argCount));
-        return false;
-    }
-
-    if (!lux_isString(0)) {
-        lux_pushObject(-1, formatString("Expected string argument."));
-        return false;
-    }
+    lux_checkArgs(1);
+    lux_checkString(0);
 
     const char* filename = lux_toCString(0);
 
     int result = remove(filename);
     if (result != 0) {
-        lux_pushObject(-1, formatString("Failed to remove file."));
+        lux_error("Failed to remove file.");
         return false;
     }
 
@@ -398,22 +305,16 @@ bool _remove(int argCount, Value* args)
 // file.rename("test.txt", "test2.txt")
 bool _rename(int argCount, Value* args)
 {
-    if (argCount != 2) {
-        lux_pushObject(-1, formatString("Expected 2 arguments but got %d.", argCount));
-        return false;
-    }
-
-    if (!lux_isString(0) || !lux_isString(1)) {
-        lux_pushObject(-1, formatString("Expected string arguments."));
-        return false;
-    }
+    lux_checkArgs(2);
+    lux_checkString(0);
+    lux_checkString(1);
 
     const char* oldname = lux_toCString(0);
     const char* newname = lux_toCString(1);
 
     int result = rename(oldname, newname);
     if (result != 0) {
-        lux_pushObject(-1, formatString("Failed to rename file."));
+        lux_error("Failed to rename file.");
         return false;
     }
 

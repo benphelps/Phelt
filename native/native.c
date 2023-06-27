@@ -13,6 +13,7 @@ NativeFnEntry systemFns[] = {
     { "clock", _clock },
     { "sleep", _sleep },
     { "usleep", _usleep },
+    // { "call", _call },
     { NULL, NULL },
 };
 
