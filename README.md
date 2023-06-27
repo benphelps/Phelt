@@ -29,14 +29,14 @@ Lux is a small and versitile scripting language, based on Lox, as described in t
     -   The VM is mostly reentrant, you can invoke Lux functions from C, this is how `__str` is implemented for example.
 -   Standard library
     -   The standard library is written in C, and is compiled into the `lux` executable.
-        -   A lua-esque set of macros for manipulating the stack, allows for easy implementation of functions in C.
-    -   It is a work in progress, might be buggy.
-    -   Currently includes `system`, `math`, `http` and `file` modules.
-    -   On-demand loading of modules, using `module(name)` function.
-        -   Keeps namespace clean, allows for mapping modules to your own names.
+        -   A lua-esque set of macros for manipulating the stack, allows for easy implementation of functions in C
+    -   It is a work in progress, might be buggy
+    -   Currently includes `system`, `math`, `http` and `file` modules
+    -   On-demand loading of modules, using `module(name)` function
+        -   Keeps namespace clean, allows for mapping modules to your own names
 -   Imports
-    -   Imports are done using the `import` keyword.
-    -   Imports share the same namespace as the file they are imported into.
+    -   Imports are done using the `import` keyword
+    -   Imports share the same namespace as the file they are imported into
 
 # Compiling
 
@@ -213,7 +213,7 @@ Currently supported dunder methods:
 
 -   `__str` — called when printed, or otherwise converted to a string
 -   `__add`, `__sub`, `__mul`, `__div` — called when using `+`, `-`, `*`, `/` operators
--   `__gt`, `__lt`, `__eq`, `__not` — called when using `>`, `<`, `==`, `!` operators, other comparison - operators are implemented in terms of these
+-   `__gt`, `__lt`, `__eq`, `__not` — called when using `>`, `<`, `==`, `!` operators, other comparison operators are implemented in terms of these
 -   `__and`, `__or`, `__xor`, `__mod` — called when using `&`, `|`, `^`, `%` operators
 -   `__rshift`, `__lshift` — called when using `>>`, `<<` operators
 
