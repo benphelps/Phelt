@@ -9,6 +9,7 @@
 #define NAN_BOXING
 #define UINT8_COUNT (UINT8_MAX + 1)
 #define COMPUTED_GOTO
+#define HASH_FUNCTION HASH_MURMUR3 // or HASH_FNV1A
 
 #include "utf8.h"
 #include <stdarg.h>
