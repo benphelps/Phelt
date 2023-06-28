@@ -1,6 +1,6 @@
 # Phelt
 
-Phelt is a small and versitile scripting language, based on Lox, as described in the [Crafting Interpreters](https://craftinginterpreters.com/) book.
+Phelt is a small and versatile scripting language. It's based on Lox, as described in the second part of [Crafting Interpreters](https://craftinginterpreters.com/), with many additions and changes.
 
 # Features
 
