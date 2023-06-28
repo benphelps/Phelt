@@ -1,5 +1,5 @@
-#ifndef lux_vm_h
-#define lux_vm_h
+#ifndef phelt_vm_h
+#define phelt_vm_h
 
 #include "chunk.h"
 #include "common.h"

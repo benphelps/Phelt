@@ -5,25 +5,25 @@
 #define DEFINE_MATH_FUNC_SINGLE(FUNC_NAME, TYPE) \
     bool _##FUNC_NAME(int argCount, Value* args) \
     {                                            \
-        lux_checkArgs(1);                        \
-        lux_checkNumber(0);                      \
+        phelt_checkArgs(1);                        \
+        phelt_checkNumber(0);                      \
                                                  \
-        TYPE num = (TYPE)lux_toNumber(0);        \
-        lux_pushNumber(-1, FUNC_NAME(num));      \
+        TYPE num = (TYPE)phelt_toNumber(0);        \
+        phelt_pushNumber(-1, FUNC_NAME(num));      \
         return true;                             \
     }
 
 #define DEFINE_MATH_FUNC_DOUBLE(FUNC_NAME, TYPE)   \
     bool _##FUNC_NAME(int argCount, Value* args)   \
     {                                              \
-        lux_checkArgs(2);                          \
+        phelt_checkArgs(2);                          \
                                                    \
-        lux_checkNumber(0);                        \
-        lux_checkNumber(1);                        \
+        phelt_checkNumber(0);                        \
+        phelt_checkNumber(1);                        \
                                                    \
-        TYPE num1 = (TYPE)lux_toNumber(0);         \
-        TYPE num2 = (TYPE)lux_toNumber(1);         \
-        lux_pushNumber(-1, FUNC_NAME(num1, num2)); \
+        TYPE num1 = (TYPE)phelt_toNumber(0);         \
+        TYPE num2 = (TYPE)phelt_toNumber(1);         \
+        phelt_pushNumber(-1, FUNC_NAME(num1, num2)); \
         return true;                               \
     }
 
@@ -48,11 +48,11 @@ double deg(double radians)
 
 bool _deg(int argCount, Value* args)
 {
-    lux_checkArgs(1);
-    lux_checkNumber(0);
+    phelt_checkArgs(1);
+    phelt_checkNumber(0);
 
-    double num = lux_toNumber(0);
-    lux_pushNumber(-1, deg(num));
+    double num = phelt_toNumber(0);
+    phelt_pushNumber(-1, deg(num));
     return true;
 }
 
@@ -63,11 +63,11 @@ double rad(double degrees)
 
 bool _rad(int argCount, Value* args)
 {
-    lux_checkArgs(1);
-    lux_checkNumber(0);
+    phelt_checkArgs(1);
+    phelt_checkNumber(0);
 
-    double num = lux_toNumber(0);
-    lux_pushNumber(-1, rad(num));
+    double num = phelt_toNumber(0);
+    phelt_pushNumber(-1, rad(num));
     return true;
 }
 
@@ -84,15 +84,15 @@ double clamp(double value, double min, double max)
 
 bool _clamp(int argCount, Value* args)
 {
-    lux_checkArgs(3);
-    lux_checkNumber(0);
-    lux_checkNumber(1);
-    lux_checkNumber(2);
+    phelt_checkArgs(3);
+    phelt_checkNumber(0);
+    phelt_checkNumber(1);
+    phelt_checkNumber(2);
 
-    double value = lux_toNumber(0);
-    double min   = lux_toNumber(1);
-    double max   = lux_toNumber(2);
-    lux_pushNumber(-1, clamp(value, min, max));
+    double value = phelt_toNumber(0);
+    double min   = phelt_toNumber(1);
+    double max   = phelt_toNumber(2);
+    phelt_pushNumber(-1, clamp(value, min, max));
     return true;
 }
 
@@ -103,15 +103,15 @@ double lerp(double a, double b, double t)
 
 bool _lerp(int argCount, Value* args)
 {
-    lux_checkArgs(3);
-    lux_checkNumber(0);
-    lux_checkNumber(1);
-    lux_checkNumber(2);
+    phelt_checkArgs(3);
+    phelt_checkNumber(0);
+    phelt_checkNumber(1);
+    phelt_checkNumber(2);
 
-    double a = lux_toNumber(0);
-    double b = lux_toNumber(1);
-    double t = lux_toNumber(2);
-    lux_pushNumber(-1, lerp(a, b, t));
+    double a = phelt_toNumber(0);
+    double b = phelt_toNumber(1);
+    double t = phelt_toNumber(2);
+    phelt_pushNumber(-1, lerp(a, b, t));
     return true;
 }
 
@@ -122,19 +122,19 @@ double map(double value, double start1, double stop1, double start2, double stop
 
 bool _map(int argCount, Value* args)
 {
-    lux_checkArgs(5);
-    lux_checkNumber(0);
-    lux_checkNumber(1);
-    lux_checkNumber(2);
-    lux_checkNumber(3);
-    lux_checkNumber(4);
+    phelt_checkArgs(5);
+    phelt_checkNumber(0);
+    phelt_checkNumber(1);
+    phelt_checkNumber(2);
+    phelt_checkNumber(3);
+    phelt_checkNumber(4);
 
-    double value  = lux_toNumber(0);
-    double start1 = lux_toNumber(1);
-    double stop1  = lux_toNumber(2);
-    double start2 = lux_toNumber(3);
-    double stop2  = lux_toNumber(4);
-    lux_pushNumber(-1, map(value, start1, stop1, start2, stop2));
+    double value  = phelt_toNumber(0);
+    double start1 = phelt_toNumber(1);
+    double stop1  = phelt_toNumber(2);
+    double start2 = phelt_toNumber(3);
+    double stop2  = phelt_toNumber(4);
+    phelt_pushNumber(-1, map(value, start1, stop1, start2, stop2));
     return true;
 }
 
@@ -145,31 +145,31 @@ double norm(double value, double start, double stop)
 
 bool _norm(int argCount, Value* args)
 {
-    lux_checkArgs(3);
-    lux_checkNumber(0);
-    lux_checkNumber(1);
-    lux_checkNumber(2);
+    phelt_checkArgs(3);
+    phelt_checkNumber(0);
+    phelt_checkNumber(1);
+    phelt_checkNumber(2);
 
-    double value = lux_toNumber(0);
-    double start = lux_toNumber(1);
-    double stop  = lux_toNumber(2);
-    lux_pushNumber(-1, norm(value, start, stop));
+    double value = phelt_toNumber(0);
+    double start = phelt_toNumber(1);
+    double stop  = phelt_toNumber(2);
+    phelt_pushNumber(-1, norm(value, start, stop));
     return true;
 }
 
 bool _seed(int argCount, Value* args)
 {
-    lux_checkArgs(1);
-    lux_checkNumber(0);
-    srand((unsigned int)lux_toNumber(0));
+    phelt_checkArgs(1);
+    phelt_checkNumber(0);
+    srand((unsigned int)phelt_toNumber(0));
     return true;
 }
 
 bool _rand(int argCount, Value* args)
 {
-    lux_checkArgs(0);
+    phelt_checkArgs(0);
     double num = (double)rand() / (double)RAND_MAX;
-    lux_pushNumber(-1, num);
+    phelt_pushNumber(-1, num);
     return true;
 }
 

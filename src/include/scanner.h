@@ -1,5 +1,5 @@
-#ifndef lux_scanner_h
-#define lux_scanner_h
+#ifndef phelt_scanner_h
+#define phelt_scanner_h
 
 #include "utf8.h"
 

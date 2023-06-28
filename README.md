@@ -1,6 +1,6 @@
-# Lux - Enlightened scripting
+# Phelt
 
-Lux is a small and versitile scripting language, based on Lox, as described in the [Crafting Interpreters](https://craftinginterpreters.com/) book.
+Phelt is a small and versitile scripting language, based on Lox, as described in the [Crafting Interpreters](https://craftinginterpreters.com/) book.
 
 # Features
 
@@ -26,9 +26,9 @@ Lux is a small and versitile scripting language, based on Lox, as described in t
     -   Defined properties (not yet constants)
     -   Dunder methods (e.g. `__str`, `__add`, `__sub`, `__eq`, etc.)
 -   Mostly reentrant
-    -   The VM is mostly reentrant, you can invoke Lux functions from C, this is how `__str` is implemented for example.
+    -   The VM is mostly reentrant, you can invoke Phelt functions from C, this is how `__str` is implemented for example.
 -   Standard library
-    -   The standard library is written in C, and is compiled into the `lux` executable.
+    -   The standard library is written in C, and is compiled into the `phelt` executable.
         -   A lua-esque set of macros for manipulating the stack, allows for easy implementation of functions in C
     -   It is a work in progress, might be buggy
     -   Currently includes `system`, `math`, `http` and `file` modules
@@ -40,7 +40,7 @@ Lux is a small and versitile scripting language, based on Lox, as described in t
 
 # Compiling
 
-Lux is written in C, and builds with Cmake. To compile Lux, run the following commands:
+Phelt is written in C, and builds with Cmake. To compile Phelt, run the following commands:
 
 ```bash
 mkdir build
@@ -57,16 +57,16 @@ gperf identifiers.gperf > identifiers.def
 
 # Usage
 
-To run a Lux script, use the `lux` command:
+To run a Phelt script, use the `phelt` command:
 
 ```bash
-lux script.lux
+phelt script.ph
 ```
 
-To run the REPL, use the `lux` command without any arguments:
+To run the REPL, use the `phelt` command without any arguments:
 
 ```bash
-lux
+phelt
 ```
 
 # Examples
@@ -81,8 +81,8 @@ print("Hello World!");
 
 ```js
 let string = "Hello World";
-let приклад = "lux говорить вашою мовою";
-let サンプル = "luxはあなたの言語を話します";
+let приклад = "phelt говорить вашою мовою";
+let サンプル = "pheltはあなたの言語を話します";
 let उदाहरण = "लक्स आपकी भाषा बोलता है";
 let 💎 = "🙌";
 ```
@@ -238,7 +238,7 @@ class Vector {
 
 # Standard Library
 
-The standard library is a work in progress. It is written in C, and is compiled into the `lux` executable, so it is always available.
+The standard library is a work in progress. It is written in C, and is compiled into the `phelt` executable, so it is always available.
 
 These are functions that are always available in the global scope.
 

@@ -6,20 +6,20 @@
 // let fp = fopen("file.txt", "w+");
 bool _fopen(int argCount, Value* args)
 {
-    lux_checkArgs(2);
-    lux_checkString(0);
-    lux_checkString(1);
+    phelt_checkArgs(2);
+    phelt_checkString(0);
+    phelt_checkString(1);
 
-    const char* path = lux_toCString(0);
-    const char* mode = lux_toCString(1);
+    const char* path = phelt_toCString(0);
+    const char* mode = phelt_toCString(1);
 
     FILE* file = fopen(path, mode);
     if (file == NULL) {
-        lux_error("Failed to open file '%s' with mode '%s'.", path, mode);
+        phelt_error("Failed to open file '%s' with mode '%s'.", path, mode);
         return false;
     }
 
-    lux_pushPointer(-1, (uintptr_t)file);
+    phelt_pushPointer(-1, (uintptr_t)file);
     return true;
 }
 
@@ -27,15 +27,15 @@ bool _fopen(int argCount, Value* args)
 // let fp = file.tmpfile()
 bool _tmpfile(int argCount, Value* args)
 {
-    lux_checkArgs(0);
+    phelt_checkArgs(0);
 
     FILE* file = tmpfile();
     if (file == NULL) {
-        lux_error("Failed to create temporary file.");
+        phelt_error("Failed to create temporary file.");
         return false;
     }
 
-    lux_pushPointer(-1, (uintptr_t)file);
+    phelt_pushPointer(-1, (uintptr_t)file);
     return true;
 }
 
@@ -43,23 +43,23 @@ bool _tmpfile(int argCount, Value* args)
 // let fp = file.mkstemps("fileXXXXXX")
 bool _mkstemps(int argCount, Value* args)
 {
-    lux_checkArgs(1);
-    lux_checkString(0);
+    phelt_checkArgs(1);
+    phelt_checkString(0);
 
-    char* template = lux_toCString(0);
+    char* template = phelt_toCString(0);
     int fd         = mkstemp(template);
     if (fd == -1) {
-        lux_error("Failed to create temporary file.");
+        phelt_error("Failed to create temporary file.");
         return false;
     }
 
     FILE* file = fdopen(fd, "w+");
     if (file == NULL) {
-        lux_error("Failed to open temporary file.");
+        phelt_error("Failed to open temporary file.");
         return false;
     }
 
-    lux_pushPointer(-1, (uintptr_t)file);
+    phelt_pushPointer(-1, (uintptr_t)file);
     return true;
 }
 
@@ -67,13 +67,13 @@ bool _mkstemps(int argCount, Value* args)
 // fclose(fp)
 bool _fclose(int argCount, Value* args)
 {
-    lux_checkArgs(1);
-    lux_checkPointer(0);
+    phelt_checkArgs(1);
+    phelt_checkPointer(0);
 
-    FILE* file   = (FILE*)lux_toPointer(0);
+    FILE* file   = (FILE*)phelt_toPointer(0);
     int   result = fclose(file);
     if (result != 0) {
-        lux_error("Failed to close file.");
+        phelt_error("Failed to close file.");
         return false;
     }
 
@@ -84,20 +84,20 @@ bool _fclose(int argCount, Value* args)
 // bytes_written = fwrite(fp, str)
 bool _fwrite(int argCount, Value* args)
 {
-    lux_checkArgs(2);
-    lux_checkPointer(0);
-    lux_checkString(1);
+    phelt_checkArgs(2);
+    phelt_checkPointer(0);
+    phelt_checkString(1);
 
-    FILE*      stream = (FILE*)lux_toPointer(0);
-    ObjString* string = lux_toString(1);
+    FILE*      stream = (FILE*)phelt_toPointer(0);
+    ObjString* string = phelt_toString(1);
 
     size_t result = fwrite(string->chars, sizeof(char), string->length, stream);
     if (result != (size_t)string->length) {
-        lux_error("Failed to write to file.");
+        phelt_error("Failed to write to file.");
         return false;
     }
 
-    lux_pushNumber(-1, result);
+    phelt_pushNumber(-1, result);
     return true;
 }
 
@@ -105,29 +105,29 @@ bool _fwrite(int argCount, Value* args)
 // let str = file.fread(fp, bytes)
 bool _fread(int argCount, Value* args)
 {
-    lux_checkArgs(2);
-    lux_checkPointer(0);
-    lux_checkNumber(1);
+    phelt_checkArgs(2);
+    phelt_checkPointer(0);
+    phelt_checkNumber(1);
 
-    FILE*  stream = (FILE*)lux_toPointer(0);
-    size_t bytes  = (size_t)lux_toNumber(1);
+    FILE*  stream = (FILE*)phelt_toPointer(0);
+    size_t bytes  = (size_t)phelt_toNumber(1);
 
     char* buffer = (char*)malloc(bytes);
     if (buffer == NULL) {
-        lux_error("Failed to allocate memory.");
+        phelt_error("Failed to allocate memory.");
         return false;
     }
 
     size_t result = fread(buffer, sizeof(char), bytes, stream);
     if (result != bytes) {
-        lux_error("Failed to read from file.");
+        phelt_error("Failed to read from file.");
         return false;
     }
 
     ObjString* string = copyString(buffer, bytes);
     free(buffer);
 
-    lux_pushString(-1, string);
+    phelt_pushString(-1, string);
     return true;
 }
 
@@ -135,18 +135,18 @@ bool _fread(int argCount, Value* args)
 // let pos = file.fseek(fp, 0, SEEK_END)
 bool _fseek(int argCount, Value* args)
 {
-    lux_checkArgs(3);
-    lux_checkPointer(0);
-    lux_checkNumber(1);
-    lux_checkNumber(2);
+    phelt_checkArgs(3);
+    phelt_checkPointer(0);
+    phelt_checkNumber(1);
+    phelt_checkNumber(2);
 
-    FILE*    stream = (FILE*)lux_toPointer(0);
-    long int offset = (long int)lux_toNumber(1);
-    int      whence = (int)lux_toNumber(2);
+    FILE*    stream = (FILE*)phelt_toPointer(0);
+    long int offset = (long int)phelt_toNumber(1);
+    int      whence = (int)phelt_toNumber(2);
 
     int result = fseek(stream, offset, whence);
     if (result != 0) {
-        lux_error("Failed to seek file.");
+        phelt_error("Failed to seek file.");
         return false;
     }
 
@@ -157,18 +157,18 @@ bool _fseek(int argCount, Value* args)
 // let pos = file.ftell(fp)
 bool _ftell(int argCount, Value* args)
 {
-    lux_checkArgs(1);
-    lux_checkPointer(0);
+    phelt_checkArgs(1);
+    phelt_checkPointer(0);
 
-    FILE* stream = (FILE*)lux_toPointer(0);
+    FILE* stream = (FILE*)phelt_toPointer(0);
 
     long int result = ftell(stream);
     if (result == -1) {
-        lux_error("Failed to get file position.");
+        phelt_error("Failed to get file position.");
         return false;
     }
 
-    lux_pushNumber(-1, result);
+    phelt_pushNumber(-1, result);
     return true;
 }
 
@@ -176,10 +176,10 @@ bool _ftell(int argCount, Value* args)
 // file.rewind(fp)
 bool _rewind(int argCount, Value* args)
 {
-    lux_checkArgs(1);
-    lux_checkPointer(0);
+    phelt_checkArgs(1);
+    phelt_checkPointer(0);
 
-    FILE* stream = (FILE*)lux_toPointer(0);
+    FILE* stream = (FILE*)phelt_toPointer(0);
 
     rewind(stream);
     return true;
@@ -189,14 +189,14 @@ bool _rewind(int argCount, Value* args)
 // file.fflush(fp)
 bool _fflush(int argCount, Value* args)
 {
-    lux_checkArgs(1);
-    lux_checkPointer(0);
+    phelt_checkArgs(1);
+    phelt_checkPointer(0);
 
-    FILE* stream = (FILE*)lux_toPointer(0);
+    FILE* stream = (FILE*)phelt_toPointer(0);
 
     int result = fflush(stream);
     if (result != 0) {
-        lux_error("Failed to flush file.");
+        phelt_error("Failed to flush file.");
         return false;
     }
 
@@ -207,18 +207,18 @@ bool _fflush(int argCount, Value* args)
 // let char = file.fgetc(fp)
 bool _fgetc(int argCount, Value* args)
 {
-    lux_checkArgs(1);
-    lux_checkPointer(0);
+    phelt_checkArgs(1);
+    phelt_checkPointer(0);
 
-    FILE* stream = (FILE*)lux_toPointer(0);
+    FILE* stream = (FILE*)phelt_toPointer(0);
 
     int result = fgetc(stream);
     if (result == EOF) {
-        lux_error("Failed to get character.");
+        phelt_error("Failed to get character.");
         return false;
     }
 
-    lux_pushNumber(-1, result);
+    phelt_pushNumber(-1, result);
     return true;
 }
 
@@ -226,21 +226,21 @@ bool _fgetc(int argCount, Value* args)
 // let str = file.fgets(fp, 10)
 bool _fgets(int argCount, Value* args)
 {
-    lux_checkArgs(2);
-    lux_checkPointer(0);
-    lux_checkNumber(1);
+    phelt_checkArgs(2);
+    phelt_checkPointer(0);
+    phelt_checkNumber(1);
 
-    FILE* stream = (FILE*)lux_toPointer(0);
-    int   num    = (int)lux_toNumber(1);
+    FILE* stream = (FILE*)phelt_toPointer(0);
+    int   num    = (int)phelt_toNumber(1);
     char  str[num];
 
     char* result = fgets(str, num, stream);
     if (result == NULL) {
-        lux_error("Failed to get string.");
+        phelt_error("Failed to get string.");
         return false;
     }
 
-    lux_pushString(-1, copyString((const char*)str, strlen(str)));
+    phelt_pushString(-1, copyString((const char*)str, strlen(str)));
     return true;
 }
 
@@ -248,16 +248,16 @@ bool _fgets(int argCount, Value* args)
 // file.fputc(fp, 65)
 bool _fputc(int argCount, Value* args)
 {
-    lux_checkArgs(2);
-    lux_checkPointer(0);
-    lux_checkNumber(1);
+    phelt_checkArgs(2);
+    phelt_checkPointer(0);
+    phelt_checkNumber(1);
 
-    FILE* stream    = (FILE*)lux_toPointer(0);
-    int   character = (int)lux_toNumber(1);
+    FILE* stream    = (FILE*)phelt_toPointer(0);
+    int   character = (int)phelt_toNumber(1);
 
     int result = fputc(character, stream);
     if (result == EOF) {
-        lux_error("Failed to put character.");
+        phelt_error("Failed to put character.");
         return false;
     }
 
@@ -268,16 +268,16 @@ bool _fputc(int argCount, Value* args)
 // file.fputs(fp, "Hello World")
 bool _fputs(int argCount, Value* args)
 {
-    lux_checkArgs(2);
-    lux_checkPointer(0);
-    lux_checkString(1);
+    phelt_checkArgs(2);
+    phelt_checkPointer(0);
+    phelt_checkString(1);
 
-    FILE*       stream = (FILE*)lux_toPointer(0);
-    const char* str    = lux_toCString(1);
+    FILE*       stream = (FILE*)phelt_toPointer(0);
+    const char* str    = phelt_toCString(1);
 
     int result = fputs(str, stream);
     if (result == EOF) {
-        lux_error("Failed to put string.");
+        phelt_error("Failed to put string.");
         return false;
     }
 
@@ -288,14 +288,14 @@ bool _fputs(int argCount, Value* args)
 // file.remove("test.txt")
 bool _remove(int argCount, Value* args)
 {
-    lux_checkArgs(1);
-    lux_checkString(0);
+    phelt_checkArgs(1);
+    phelt_checkString(0);
 
-    const char* filename = lux_toCString(0);
+    const char* filename = phelt_toCString(0);
 
     int result = remove(filename);
     if (result != 0) {
-        lux_error("Failed to remove file.");
+        phelt_error("Failed to remove file.");
         return false;
     }
 
@@ -306,16 +306,16 @@ bool _remove(int argCount, Value* args)
 // file.rename("test.txt", "test2.txt")
 bool _rename(int argCount, Value* args)
 {
-    lux_checkArgs(2);
-    lux_checkString(0);
-    lux_checkString(1);
+    phelt_checkArgs(2);
+    phelt_checkString(0);
+    phelt_checkString(1);
 
-    const char* oldname = lux_toCString(0);
-    const char* newname = lux_toCString(1);
+    const char* oldname = phelt_toCString(0);
+    const char* newname = phelt_toCString(1);
 
     int result = rename(oldname, newname);
     if (result != 0) {
-        lux_error("Failed to rename file.");
+        phelt_error("Failed to rename file.");
         return false;
     }
 

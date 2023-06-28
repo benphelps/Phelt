@@ -1,5 +1,5 @@
-#ifndef lux_value_h
-#define lux_value_h
+#ifndef phelt_value_h
+#define phelt_value_h
 
 #include "common.h"
 #include <string.h>

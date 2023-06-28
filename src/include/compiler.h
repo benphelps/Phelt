@@ -1,5 +1,5 @@
-#ifndef lux_compiler_h
-#define lux_compiler_h
+#ifndef phelt_compiler_h
+#define phelt_compiler_h
 
 #include "chunk.h"
 #include "common.h"

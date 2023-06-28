@@ -20,9 +20,9 @@ Value getEnv(const char* name)
 // let time = system.time()
 bool _time(int argCount, Value* args)
 {
-    lux_checkArgs(0);
+    phelt_checkArgs(0);
 
-    lux_pushNumber(-1, time(NULL));
+    phelt_pushNumber(-1, time(NULL));
     return true;
 }
 
@@ -30,13 +30,13 @@ bool _time(int argCount, Value* args)
 // let time = system.time()
 bool _mtime(int argCount, Value* args)
 {
-    lux_checkArgs(0);
+    phelt_checkArgs(0);
 
     struct timeval time;
     gettimeofday(&time, NULL);
     double elapsed = ((double)time.tv_sec * 1000) + ((double)time.tv_usec / 1000);
 
-    lux_pushNumber(-1, elapsed);
+    phelt_pushNumber(-1, elapsed);
     return true;
 }
 
@@ -44,9 +44,9 @@ bool _mtime(int argCount, Value* args)
 // let clock = system.clock()
 bool _clock(int argCount, Value* args)
 {
-    lux_checkArgs(0);
+    phelt_checkArgs(0);
 
-    lux_pushNumber(-1, (double)clock() / CLOCKS_PER_SEC);
+    phelt_pushNumber(-1, (double)clock() / CLOCKS_PER_SEC);
     return true;
 }
 
@@ -54,11 +54,11 @@ bool _clock(int argCount, Value* args)
 // let sleep = system.sleep(1)
 bool _sleep(int argCount, Value* args)
 {
-    lux_checkArgs(1);
-    lux_checkNumber(0);
+    phelt_checkArgs(1);
+    phelt_checkNumber(0);
 
-    sleep((unsigned int)lux_toNumber(0));
-    lux_pushNil(-1);
+    sleep((unsigned int)phelt_toNumber(0));
+    phelt_pushNil(-1);
     return true;
 }
 
@@ -66,11 +66,11 @@ bool _sleep(int argCount, Value* args)
 // let usleep = system.usleep(1000)
 bool _usleep(int argCount, Value* args)
 {
-    lux_checkArgs(1);
-    lux_checkNumber(0);
+    phelt_checkArgs(1);
+    phelt_checkNumber(0);
 
-    usleep((unsigned int)lux_toNumber(0));
-    lux_pushNil(-1);
+    usleep((unsigned int)phelt_toNumber(0));
+    phelt_pushNil(-1);
     return true;
 }
 
@@ -94,7 +94,7 @@ char* replace_placeholder(char* template, char* value)
 bool _print(int argCount, Value* args)
 {
     if (argCount < 1) {
-        lux_error("No template provided.");
+        phelt_error("No template provided.");
         return false;
     }
 
@@ -114,7 +114,7 @@ bool _print(int argCount, Value* args)
 bool _sprint(int argCount, Value* args)
 {
     if (argCount < 1) {
-        lux_error("No template provided.");
+        phelt_error("No template provided.");
         return false;
     }
 
@@ -126,7 +126,7 @@ bool _sprint(int argCount, Value* args)
         replace_placeholder(template, value);
     }
 
-    lux_pushObject(-1, copyString(template, strlen(template)));
+    phelt_pushObject(-1, copyString(template, strlen(template)));
     return true;
 }
 
@@ -139,52 +139,52 @@ bool _println(int argCount, Value* args)
 
 bool _len(int argCount, Value* args)
 {
-    lux_checkArgs(1);
-    lux_checkObject(0);
+    phelt_checkArgs(1);
+    phelt_checkObject(0);
 
-    int length = objectLength(OBJ_VAL(lux_toObject(0)));
+    int length = objectLength(OBJ_VAL(phelt_toObject(0)));
 
     if (length == -1) {
-        lux_error("Argument must be an object with a length.");
+        phelt_error("Argument must be an object with a length.");
         return false;
     }
 
-    lux_pushNumber(-1, length);
+    phelt_pushNumber(-1, length);
     return true;
 }
 
 bool _module(int argCount, Value* args)
 {
-    lux_checkArgs(1);
-    lux_checkString(0);
+    phelt_checkArgs(1);
+    phelt_checkString(0);
 
-    const char*        name  = lux_toCString(0);
+    const char*        name  = phelt_toCString(0);
     NativeModuleEntry* entry = findNativeModule(nativeModules, name);
 
     if (entry == NULL) {
-        lux_error("Module '%s' not found.", name);
+        phelt_error("Module '%s' not found.", name);
         return false;
     }
 
     ObjTable* table = defineNativeModule(entry);
 
-    lux_pushObject(-1, table);
+    phelt_pushObject(-1, table);
     return true;
 }
 
 // bool _call(int argCount, Value* args)
 // {
 //     if (argCount < 1) {
-//         lux_pushObject(-1, formatString("Expected at least 1 argument, got %d.", argCount));
+//         phelt_pushObject(-1, formatString("Expected at least 1 argument, got %d.", argCount));
 //         return false;
 //     }
 
-//     if (!lux_isObject(0)) {
-//         lux_pushObject(-1, formatString("Argument must be an object."));
+//     if (!phelt_isObject(0)) {
+//         phelt_pushObject(-1, formatString("Argument must be an object."));
 //         return false;
 //     }
 
-//     ObjClosure* closure = lux_toClosure(0);
+//     ObjClosure* closure = phelt_toClosure(0);
 //     // patch the function to reenter the VM, instead of returning
 //     closure->function->chunk.code[closure->function->chunk.count - 1] = OP_REENTER;
 //     call(closure, argCount - 1);

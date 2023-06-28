@@ -1,5 +1,5 @@
-#ifndef LUX_NATIVE_HTTP_H
-#define LUX_NATIVE_HTTP_H
+#ifndef PHELT_NATIVE_HTTP_H
+#define PHELT_NATIVE_HTTP_H
 
 #include "native.h"
 

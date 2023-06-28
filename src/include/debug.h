@@ -1,5 +1,5 @@
-#ifndef lux_debug_h
-#define lux_debug_h
+#ifndef phelt_debug_h
+#define phelt_debug_h
 
 #include "chunk.h"
 #include "common.h"

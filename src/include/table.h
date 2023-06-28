@@ -1,5 +1,5 @@
-#ifndef lux_table_h
-#define lux_table_h
+#ifndef phelt_table_h
+#define phelt_table_h
 
 #include "common.h"
 #include "value.h"

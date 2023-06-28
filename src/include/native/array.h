@@ -1,5 +1,5 @@
-#ifndef LUX_NATIVE_ARRAY_H
-#define LUX_NATIVE_ARRAY_H
+#ifndef PHELT_NATIVE_ARRAY_H
+#define PHELT_NATIVE_ARRAY_H
 
 #include "native.h"
 

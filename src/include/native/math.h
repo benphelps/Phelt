@@ -1,5 +1,5 @@
-#ifndef LUX_NATIVE_MATH_H
-#define LUX_NATIVE_MATH_H
+#ifndef PHELT_NATIVE_MATH_H
+#define PHELT_NATIVE_MATH_H
 
 #include "native.h"
 

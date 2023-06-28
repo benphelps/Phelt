@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(lux)
+project(phelt)
 
 # set include directory
 include_directories(src/include)
 
-add_executable(lux
+add_executable(phelt
     src/common.c
     src/main.c
     src/debug.c
@@ -25,5 +25,5 @@ add_executable(lux
     src/native/native.c
 )
 
-target_link_libraries(lux curl)
-target_compile_options(lux PRIVATE -Wall -Wextra -Wpedantic -Werror -Wno-gnu-label-as-value -Wno-gnu-zero-variadic-macro-arguments)
+target_link_libraries(phelt curl)
+target_compile_options(phelt PRIVATE -Wall -Wextra -Wpedantic -Werror -Wno-gnu-label-as-value -Wno-gnu-zero-variadic-macro-arguments)

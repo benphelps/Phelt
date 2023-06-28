@@ -1,5 +1,5 @@
-#ifndef lux_common_h
-#define lux_common_h
+#ifndef phelt_common_h
+#define phelt_common_h
 
 // #define DEBUG_PRINT_CODE
 // #define DEBUG_TRACE_EXECUTION

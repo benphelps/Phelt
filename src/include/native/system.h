@@ -1,5 +1,5 @@
-#ifndef LUX_NATIVE_SYSTEM_H
-#define LUX_NATIVE_SYSTEM_H
+#ifndef PHELT_NATIVE_SYSTEM_H
+#define PHELT_NATIVE_SYSTEM_H
 
 #include "native.h"
 

@@ -1,5 +1,5 @@
-#ifndef lux_memory_h
-#define lux_memory_h
+#ifndef phelt_memory_h
+#define phelt_memory_h
 
 #include "common.h"
 #include "object.h"

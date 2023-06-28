@@ -1,7 +1,7 @@
 #include "native/http.h"
 #include <curl/curl.h>
 
-const char* useragent = "lux/0.1";
+const char* useragent = "phelt/0.1";
 
 struct string {
     char*  ptr;
@@ -35,8 +35,8 @@ size_t writefunc(void* ptr, size_t size, size_t nmemb, struct string* s)
 
 bool _get(int argCount, Value* args)
 {
-    lux_checkArgs(1);
-    lux_checkString(0);
+    phelt_checkArgs(1);
+    phelt_checkString(0);
 
     CURL* curl = curl_easy_init();
     if (curl) {
@@ -44,32 +44,32 @@ bool _get(int argCount, Value* args)
         init_string(&s);
 
         curl_easy_setopt(curl, CURLOPT_USERAGENT, useragent);
-        curl_easy_setopt(curl, CURLOPT_URL, lux_toCString(0));
+        curl_easy_setopt(curl, CURLOPT_URL, phelt_toCString(0));
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &s);
 
         CURLcode res = curl_easy_perform(curl);
         if (res != CURLE_OK) {
-            lux_pushObject(-1, formatString("curl_easy_perform() failed: %s\n", curl_easy_strerror(res)));
+            phelt_pushObject(-1, formatString("curl_easy_perform() failed: %s\n", curl_easy_strerror(res)));
             return false;
         }
 
         curl_easy_cleanup(curl);
 
-        lux_pushString(-1, copyString(s.ptr, s.len));
+        phelt_pushString(-1, copyString(s.ptr, s.len));
         free(s.ptr);
         return true;
     }
 
-    lux_pushObject(-1, formatString("curl_easy_init() failed\n"));
+    phelt_pushObject(-1, formatString("curl_easy_init() failed\n"));
     return false;
 }
 
 bool _post(int argCount, Value* args)
 {
-    lux_checkArgs(2);
-    lux_checkString(0);
-    lux_checkString(1);
+    phelt_checkArgs(2);
+    phelt_checkString(0);
+    phelt_checkString(1);
 
     CURL* curl = curl_easy_init();
     if (curl) {
@@ -77,33 +77,33 @@ bool _post(int argCount, Value* args)
         init_string(&s);
 
         curl_easy_setopt(curl, CURLOPT_USERAGENT, useragent);
-        curl_easy_setopt(curl, CURLOPT_URL, lux_toCString(0));
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, lux_toCString(1));
+        curl_easy_setopt(curl, CURLOPT_URL, phelt_toCString(0));
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, phelt_toCString(1));
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &s);
 
         CURLcode res = curl_easy_perform(curl);
         if (res != CURLE_OK) {
-            lux_pushObject(-1, formatString("curl_easy_perform() failed: %s\n", curl_easy_strerror(res)));
+            phelt_pushObject(-1, formatString("curl_easy_perform() failed: %s\n", curl_easy_strerror(res)));
             return false;
         }
 
         curl_easy_cleanup(curl);
 
-        lux_pushString(-1, copyString(s.ptr, s.len));
+        phelt_pushString(-1, copyString(s.ptr, s.len));
         free(s.ptr);
         return true;
     }
 
-    lux_pushObject(-1, formatString("curl_easy_init() failed\n"));
+    phelt_pushObject(-1, formatString("curl_easy_init() failed\n"));
     return false;
 }
 
 bool _put(int argCount, Value* args)
 {
-    lux_checkArgs(2);
-    lux_checkString(0);
-    lux_checkString(1);
+    phelt_checkArgs(2);
+    phelt_checkString(0);
+    phelt_checkString(1);
 
     CURL* curl = curl_easy_init();
     if (curl) {
@@ -111,34 +111,34 @@ bool _put(int argCount, Value* args)
         init_string(&s);
 
         curl_easy_setopt(curl, CURLOPT_USERAGENT, useragent);
-        curl_easy_setopt(curl, CURLOPT_URL, lux_toCString(0));
+        curl_easy_setopt(curl, CURLOPT_URL, phelt_toCString(0));
         curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "PUT");
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, lux_toCString(1));
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, phelt_toCString(1));
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &s);
 
         CURLcode res = curl_easy_perform(curl);
         if (res != CURLE_OK) {
-            lux_pushObject(-1, formatString("curl_easy_perform() failed: %s\n", curl_easy_strerror(res)));
+            phelt_pushObject(-1, formatString("curl_easy_perform() failed: %s\n", curl_easy_strerror(res)));
             return false;
         }
 
         curl_easy_cleanup(curl);
 
-        lux_pushString(-1, copyString(s.ptr, s.len));
+        phelt_pushString(-1, copyString(s.ptr, s.len));
         free(s.ptr);
         return true;
     }
 
-    lux_pushObject(-1, formatString("curl_easy_init() failed\n"));
+    phelt_pushObject(-1, formatString("curl_easy_init() failed\n"));
     return false;
 }
 
 bool _delete(int argCount, Value* args)
 {
-    lux_checkArgs(2);
-    lux_checkString(0);
-    lux_checkString(1);
+    phelt_checkArgs(2);
+    phelt_checkString(0);
+    phelt_checkString(1);
 
     CURL* curl = curl_easy_init();
     if (curl) {
@@ -146,33 +146,33 @@ bool _delete(int argCount, Value* args)
         init_string(&s);
 
         curl_easy_setopt(curl, CURLOPT_USERAGENT, useragent);
-        curl_easy_setopt(curl, CURLOPT_URL, lux_toCString(0));
+        curl_easy_setopt(curl, CURLOPT_URL, phelt_toCString(0));
         curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "DELETE");
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, lux_toCString(1));
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, phelt_toCString(1));
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &s);
 
         CURLcode res = curl_easy_perform(curl);
         if (res != CURLE_OK) {
-            lux_pushObject(-1, formatString("curl_easy_perform() failed: %s\n", curl_easy_strerror(res)));
+            phelt_pushObject(-1, formatString("curl_easy_perform() failed: %s\n", curl_easy_strerror(res)));
             return false;
         }
 
         curl_easy_cleanup(curl);
 
-        lux_pushString(-1, copyString(s.ptr, s.len));
+        phelt_pushString(-1, copyString(s.ptr, s.len));
         free(s.ptr);
         return true;
     }
 
-    lux_pushObject(-1, formatString("curl_easy_init() failed\n"));
+    phelt_pushObject(-1, formatString("curl_easy_init() failed\n"));
     return false;
 }
 
 bool _head(int argCount, Value* args)
 {
-    lux_checkArgs(1);
-    lux_checkString(0);
+    phelt_checkArgs(1);
+    phelt_checkString(0);
 
     CURL* curl = curl_easy_init();
     if (curl) {
@@ -180,32 +180,32 @@ bool _head(int argCount, Value* args)
         init_string(&s);
 
         curl_easy_setopt(curl, CURLOPT_USERAGENT, useragent);
-        curl_easy_setopt(curl, CURLOPT_URL, lux_toCString(0));
+        curl_easy_setopt(curl, CURLOPT_URL, phelt_toCString(0));
         curl_easy_setopt(curl, CURLOPT_NOBODY, 1L);
         curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, writefunc);
         curl_easy_setopt(curl, CURLOPT_HEADERDATA, &s);
 
         CURLcode res = curl_easy_perform(curl);
         if (res != CURLE_OK) {
-            lux_pushObject(-1, formatString("curl_easy_perform() failed: %s\n", curl_easy_strerror(res)));
+            phelt_pushObject(-1, formatString("curl_easy_perform() failed: %s\n", curl_easy_strerror(res)));
             return false;
         }
 
         curl_easy_cleanup(curl);
 
-        lux_pushString(-1, copyString(s.ptr, s.len));
+        phelt_pushString(-1, copyString(s.ptr, s.len));
         free(s.ptr);
         return true;
     }
 
-    lux_pushObject(-1, formatString("curl_easy_init() failed\n"));
+    phelt_pushObject(-1, formatString("curl_easy_init() failed\n"));
     return false;
 }
 
 bool _options(int argCount, Value* args)
 {
-    lux_checkArgs(1);
-    lux_checkString(0);
+    phelt_checkArgs(1);
+    phelt_checkString(0);
 
     CURL* curl = curl_easy_init();
     if (curl) {
@@ -213,33 +213,33 @@ bool _options(int argCount, Value* args)
         init_string(&s);
 
         curl_easy_setopt(curl, CURLOPT_USERAGENT, useragent);
-        curl_easy_setopt(curl, CURLOPT_URL, lux_toCString(0));
+        curl_easy_setopt(curl, CURLOPT_URL, phelt_toCString(0));
         curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "OPTIONS");
         curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, writefunc);
         curl_easy_setopt(curl, CURLOPT_HEADERDATA, &s);
 
         CURLcode res = curl_easy_perform(curl);
         if (res != CURLE_OK) {
-            lux_pushObject(-1, formatString("curl_easy_perform() failed: %s\n", curl_easy_strerror(res)));
+            phelt_pushObject(-1, formatString("curl_easy_perform() failed: %s\n", curl_easy_strerror(res)));
             return false;
         }
 
         curl_easy_cleanup(curl);
 
-        lux_pushString(-1, copyString(s.ptr, s.len));
+        phelt_pushString(-1, copyString(s.ptr, s.len));
         free(s.ptr);
         return true;
     }
 
-    lux_pushObject(-1, formatString("curl_easy_init() failed\n"));
+    phelt_pushObject(-1, formatString("curl_easy_init() failed\n"));
     return false;
 }
 
 bool _patch(int argCount, Value* args)
 {
-    lux_checkArgs(2);
-    lux_checkString(0);
-    lux_checkString(1);
+    phelt_checkArgs(2);
+    phelt_checkString(0);
+    phelt_checkString(1);
 
     CURL* curl = curl_easy_init();
     if (curl) {
@@ -247,25 +247,25 @@ bool _patch(int argCount, Value* args)
         init_string(&s);
 
         curl_easy_setopt(curl, CURLOPT_USERAGENT, useragent);
-        curl_easy_setopt(curl, CURLOPT_URL, lux_toCString(0));
+        curl_easy_setopt(curl, CURLOPT_URL, phelt_toCString(0));
         curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "PATCH");
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, lux_toCString(1));
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, phelt_toCString(1));
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &s);
 
         CURLcode res = curl_easy_perform(curl);
         if (res != CURLE_OK) {
-            lux_pushObject(-1, formatString("curl_easy_perform() failed: %s\n", curl_easy_strerror(res)));
+            phelt_pushObject(-1, formatString("curl_easy_perform() failed: %s\n", curl_easy_strerror(res)));
             return false;
         }
 
         curl_easy_cleanup(curl);
 
-        lux_pushString(-1, copyString(s.ptr, s.len));
+        phelt_pushString(-1, copyString(s.ptr, s.len));
         free(s.ptr);
         return true;
     }
 
-    lux_pushObject(-1, formatString("curl_easy_init() failed\n"));
+    phelt_pushObject(-1, formatString("curl_easy_init() failed\n"));
     return false;
 }
