@@ -92,7 +92,7 @@ bool _fwrite(int argCount, Value* args)
     ObjString* string = lux_toString(1);
 
     size_t result = fwrite(string->chars, sizeof(char), string->length, stream);
-    if (result != string->length) {
+    if (result != (size_t)string->length) {
         lux_error("Failed to write to file.");
         return false;
     }

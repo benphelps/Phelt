@@ -150,7 +150,7 @@ ObjTable*             defineNativeModule(NativeModuleEntry* module);
         Chunk chunk                 = closure->function->chunk; \
         chunk.code[chunk.count - 1] = OP_REENTER;               \
         call(closure, args);                                    \
-        run(true);                                              \
+        run();                                                  \
         *(vm.stackTop - 1 - args) = *(vm.stackTop - 1);         \
     } while (false)
 

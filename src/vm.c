@@ -8,7 +8,7 @@
 
 VM vm;
 
-static void resetStack()
+static void resetStack(void)
 {
     vm.stackTop     = vm.stack;
     vm.frameCount   = 0;
@@ -50,14 +50,14 @@ void defineNative(Table* dest, const char* name, NativeFn function)
     pop();
 }
 
-static void initNative()
+static void initNative(void)
 {
     for (NativeFnEntry* entry = globalFns; entry->name != NULL; entry++) {
         defineNative(&vm.globals, entry->name, entry->function);
     }
 }
 
-void initVM()
+void initVM(void)
 {
     resetStack();
     vm.objects = NULL;
@@ -108,7 +108,7 @@ void initVM()
     initNative();
 }
 
-void freeVM()
+void freeVM(void)
 {
     freeTable(&vm.globals);
     freeTable(&vm.strings);
@@ -137,7 +137,7 @@ void push(Value value)
     vm.stackTop++;
 }
 
-Value pop()
+Value pop(void)
 {
     vm.stackTop--;
     return *vm.stackTop;
@@ -355,8 +355,8 @@ bool valueSlice(Value start, Value end)
     if (IS_OBJ(value)) {
         switch (OBJ_TYPE(value)) {
         case OBJ_STRING: {
-            int i = (int)AS_NUMBER(start);
-            int j = (int)AS_NUMBER(end);
+            uint32_t i = (uint32_t)AS_NUMBER(start);
+            uint32_t j = (uint32_t)AS_NUMBER(end);
 
             ObjString* string     = AS_STRING(value);
             uint32_t   str_length = utf8len(string->chars);
@@ -464,7 +464,7 @@ static bool isFalsey(Value value)
     return IS_NIL(value) || (IS_BOOL(value) && !AS_BOOL(value));
 }
 
-static void concatenate()
+static void concatenate(void)
 {
     ObjString* b = AS_STRING(peek(0));
     ObjString* a = AS_STRING(peek(1));
@@ -481,7 +481,7 @@ static void concatenate()
     push(OBJ_VAL(result));
 }
 
-InterpretResult run(bool reenter)
+InterpretResult run(void)
 {
     if (vm.errorState) {
         return INTERPRET_RUNTIME_ERROR;
@@ -1342,7 +1342,7 @@ InterpretResult interpret(const char* sourcePath, utf8_int8_t* source)
     pop();
     push(OBJ_VAL(closure));
     if (call(closure, 0) && !vm.errorState) {
-        return run(false);
+        return run();
     }
 
     return INTERPRET_RUNTIME_ERROR;

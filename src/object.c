@@ -66,7 +66,7 @@ ObjClosure* newClosure(ObjFunction* function)
     return closure;
 }
 
-ObjFunction* newFunction()
+ObjFunction* newFunction(void)
 {
     ObjFunction* function  = ALLOCATE_OBJ(ObjFunction, OBJ_FUNCTION);
     function->arity        = 0;
@@ -171,14 +171,14 @@ ObjUpvalue* newUpvalue(Value* slot)
     return upvalue;
 }
 
-ObjTable* newTable()
+ObjTable* newTable(void)
 {
     ObjTable* table = ALLOCATE_OBJ(ObjTable, OBJ_TABLE);
     initTable(&table->table);
     return table;
 }
 
-ObjArray* newArray()
+ObjArray* newArray(void)
 {
     ObjArray* array = ALLOCATE_OBJ(ObjArray, OBJ_ARRAY);
     initValueArray(&array->array);
@@ -300,7 +300,7 @@ char* objectString(Value value)
         // patch the function to reenter the VM, instead of returning
         bound->method->function->chunk.code[bound->method->function->chunk.count - 1] = OP_REENTER;
         call(bound->method, 0);
-        run(true);
+        run();
         return AS_CSTRING(pop());
     }
     case OBJ_CLOSURE:

@@ -3,8 +3,6 @@
 
 utf8_int8_t* readFile(const char* path)
 {
-    const char* resolvedPath = resolvePath(path);
-
     FILE* file = fopen(path, "rb");
     if (file == NULL) {
         fprintf(stderr, "Could not open file \"%s\".\n", path);

@@ -3,7 +3,7 @@
 #include "debug.h"
 #include "vm.h"
 
-static void repl()
+static void repl(void)
 {
     utf8_int8_t line[1024];
     for (;;) {

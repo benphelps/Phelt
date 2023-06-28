@@ -119,7 +119,7 @@ ObjClass*       newClass(ObjString* name);
 ObjInstance*    newInstance(ObjClass* klass);
 
 ObjClosure*  newClosure(ObjFunction* function);
-ObjFunction* newFunction();
+ObjFunction* newFunction(void);
 ObjNative*   newNative(NativeFn function);
 
 ObjString* takeString(char* chars, int length);
@@ -128,8 +128,8 @@ ObjString* formatString(const char* format, ...);
 
 ObjUpvalue* newUpvalue(Value* slot);
 
-ObjTable* newTable();
-ObjArray* newArray();
+ObjTable* newTable(void);
+ObjArray* newArray(void);
 
 void  printObject(Value value);
 void  dumpObject(Value value);

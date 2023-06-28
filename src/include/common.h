@@ -25,4 +25,6 @@ const char*  resolvePath(const char* path);
 const char*  getFilePath(const char* path);
 const char*  resolveRelativePath(const char* path, const char* currentFile);
 
+#define UNUSED(x) (void)(x)
+
 #endif

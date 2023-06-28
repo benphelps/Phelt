@@ -1,5 +1,5 @@
-/* ANSI-C code produced by gperf version 3.0.3 */
-/* Command-line: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/gperf identifiers.gperf  */
+/* ANSI-C code produced by gperf version 3.1 */
+/* Command-line: gperf identifiers.gperf  */
 /* Computed positions: -k'2' */
 
 #if !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
@@ -26,14 +26,15 @@
       && ('w' == 119) && ('x' == 120) && ('y' == 121) && ('z' == 122) \
       && ('{' == 123) && ('|' == 124) && ('}' == 125) && ('~' == 126))
 /* The character set is not based on ISO-646.  */
-#error "gperf generated tables don't work with this execution character set. Please report a bug to <bug-gnu-gperf@gnu.org>."
+#error "gperf generated tables don't work with this execution character set. Please report a bug to <bug-gperf@gnu.org>."
 #endif
 
 #line 1 "identifiers.gperf"
 
+#pragma clang diagnostic ignored "-Weverything"
 #include "utf8.h"
 #include "scanner.h"
-#line 12 "identifiers.gperf"
+#line 13 "identifiers.gperf"
 struct Identifier { utf8_int8_t* name; TokenType token; };
 
 #define TOTAL_KEYWORDS 22
@@ -51,7 +52,7 @@ inline
 #endif
 #endif
 static unsigned int
-hash (register const char *str, register unsigned int len)
+hash (register const char *str, register size_t len)
 {
   static const unsigned char asso_values[] =
     {
@@ -86,63 +87,63 @@ hash (register const char *str, register unsigned int len)
 }
 
 const struct Identifier *
-checkIdentifier (register const char *str, register unsigned int len)
+checkIdentifier (register const char *str, register size_t len)
 {
   static const struct Identifier wordlist[] =
     {
       {""}, {""},
-#line 26 "identifiers.gperf"
-      {"if",       TOKEN_IF},
-#line 25 "identifiers.gperf"
-      {"fun",      TOKEN_FUN},
-#line 21 "identifiers.gperf"
-      {"dump",     TOKEN_DUMP},
-#line 32 "identifiers.gperf"
-      {"super",    TOKEN_SUPER},
-#line 33 "identifiers.gperf"
-      {"switch",   TOKEN_SWITCH},
-#line 30 "identifiers.gperf"
-      {"or",       TOKEN_OR},
-#line 28 "identifiers.gperf"
-      {"let",      TOKEN_LET},
-#line 35 "identifiers.gperf"
-      {"true",     TOKEN_TRUE},
-#line 16 "identifiers.gperf"
-      {"break",    TOKEN_BREAK},
-#line 31 "identifiers.gperf"
-      {"return",   TOKEN_RETURN},
-#line 20 "identifiers.gperf"
-      {"default",  TOKEN_DEFAULT},
-#line 24 "identifiers.gperf"
-      {"for",      TOKEN_FOR},
-#line 22 "identifiers.gperf"
-      {"else",     TOKEN_ELSE},
-#line 18 "identifiers.gperf"
-      {"class",    TOKEN_CLASS},
 #line 27 "identifiers.gperf"
+      {"if",       TOKEN_IF},
+#line 26 "identifiers.gperf"
+      {"fun",      TOKEN_FUN},
+#line 22 "identifiers.gperf"
+      {"dump",     TOKEN_DUMP},
+#line 33 "identifiers.gperf"
+      {"super",    TOKEN_SUPER},
+#line 34 "identifiers.gperf"
+      {"switch",   TOKEN_SWITCH},
+#line 31 "identifiers.gperf"
+      {"or",       TOKEN_OR},
+#line 29 "identifiers.gperf"
+      {"let",      TOKEN_LET},
+#line 36 "identifiers.gperf"
+      {"true",     TOKEN_TRUE},
+#line 17 "identifiers.gperf"
+      {"break",    TOKEN_BREAK},
+#line 32 "identifiers.gperf"
+      {"return",   TOKEN_RETURN},
+#line 21 "identifiers.gperf"
+      {"default",  TOKEN_DEFAULT},
+#line 25 "identifiers.gperf"
+      {"for",      TOKEN_FOR},
+#line 23 "identifiers.gperf"
+      {"else",     TOKEN_ELSE},
+#line 19 "identifiers.gperf"
+      {"class",    TOKEN_CLASS},
+#line 28 "identifiers.gperf"
       {"import",   TOKEN_IMPORT},
       {""},
-#line 19 "identifiers.gperf"
+#line 20 "identifiers.gperf"
       {"continue", TOKEN_CONTINUE},
-#line 34 "identifiers.gperf"
+#line 35 "identifiers.gperf"
       {"this",     TOKEN_THIS},
-#line 36 "identifiers.gperf"
+#line 37 "identifiers.gperf"
       {"while",    TOKEN_WHILE},
       {""}, {""},
-#line 15 "identifiers.gperf"
+#line 16 "identifiers.gperf"
       {"and",      TOKEN_AND},
-#line 17 "identifiers.gperf"
+#line 18 "identifiers.gperf"
       {"case",     TOKEN_CASE},
-#line 23 "identifiers.gperf"
+#line 24 "identifiers.gperf"
       {"false",    TOKEN_FALSE},
       {""}, {""},
-#line 29 "identifiers.gperf"
+#line 30 "identifiers.gperf"
       {"nil",      TOKEN_NIL}
     };
 
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
-      unsigned int key = hash (str, len);
+      register unsigned int key = hash (str, len);
 
       if (key <= MAX_HASH_VALUE)
         {
@@ -154,5 +155,5 @@ checkIdentifier (register const char *str, register unsigned int len)
     }
   return 0;
 }
-#line 37 "identifiers.gperf"
+#line 38 "identifiers.gperf"
 

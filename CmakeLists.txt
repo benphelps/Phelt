@@ -26,3 +26,4 @@ add_executable(lux
 )
 
 target_link_libraries(lux curl)
+target_compile_options(lux PRIVATE -Wall -Wextra -Wpedantic -Werror -Wno-gnu-label-as-value -Wno-gnu-zero-variadic-macro-arguments)

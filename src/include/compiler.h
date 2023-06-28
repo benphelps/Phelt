@@ -9,6 +9,6 @@
 #define MAX_CASES 256
 
 ObjFunction* compile(const char* sourcePath, utf8_int8_t* source);
-void         markCompilerRoots();
+void         markCompilerRoots(void);
 
 #endif

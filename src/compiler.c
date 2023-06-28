@@ -90,7 +90,7 @@ ClassCompiler* currentClass   = NULL;
 int            anonymousCount = 0;
 bool           inParamList    = false;
 
-static Chunk* currentChunk()
+static Chunk* currentChunk(void)
 {
     return &current->function->chunk;
 }
@@ -125,7 +125,7 @@ static void error(const char* message)
     errorAt(&parser.previous, message);
 }
 
-static void advance()
+static void advance(void)
 {
     parser.previous = parser.current;
 
@@ -192,7 +192,7 @@ static int emitJump(uint8_t instruction)
     return currentChunk()->count - 2;
 }
 
-static void emitReturn()
+static void emitReturn(void)
 {
     // if previous instruction is OP_RETURN, don't emit another one
     if (currentChunk()->count > 0 && currentChunk()->code[currentChunk()->count - 1] == OP_RETURN)
@@ -271,7 +271,7 @@ static void initCompiler(Compiler* compiler, FunctionType type)
     }
 }
 
-static ObjFunction* endCompiler()
+static ObjFunction* endCompiler(void)
 {
     emitReturn();
     ObjFunction* function = current->function;
@@ -287,12 +287,12 @@ static ObjFunction* endCompiler()
     return function;
 }
 
-static void beginScope()
+static void beginScope(void)
 {
     current->scopeDepth++;
 }
 
-static void endScope()
+static void endScope(void)
 {
     current->isInLoop = false;
     current->scopeDepth--;
@@ -307,20 +307,22 @@ static void endScope()
     }
 }
 
-static void       expression();
-static void       statement();
-static void       declaration();
+static void       expression(void);
+static void       statement(void);
+static void       declaration(void);
 static ParseRule* getRule(TokenType type);
 static void       parsePrecedence(Precedence precedence);
 static uint8_t    identifierConstant(Token* name);
 static int        resolveLocal(Compiler* compiler, Token* name);
 static int        resolveUpvalue(Compiler* compiler, Token* name);
-static uint8_t    argumentList();
-static void       markInitialized();
+static uint8_t    argumentList(void);
+static void       markInitialized(void);
 static void       function(FunctionType type);
 
 static void binary(bool canAssign)
 {
+    UNUSED(canAssign);
+
     TokenType  operatorType = parser.previous.type;
     ParseRule* rule         = getRule(operatorType);
     parsePrecedence((Precedence)(rule->precedence + 1));
@@ -381,6 +383,7 @@ static void binary(bool canAssign)
 
 static void call(bool canAssign)
 {
+    UNUSED(canAssign);
     uint8_t argCount = argumentList();
     emitBytes(OP_CALL, argCount);
 }
@@ -399,7 +402,7 @@ static void index_(bool canAssign)
     consume(TOKEN_RIGHT_BRACKET, "Expect ']' after index.");
 
     if (canAssign && match(TOKEN_EQUAL)) {
-        uint8_t name = identifierConstant(&parser.previous);
+        identifierConstant(&parser.previous);
         expression();
         emitByte(OP_SET_INDEX);
     } else {
@@ -472,6 +475,7 @@ static void dot(bool canAssign)
 
 static void literal(bool canAssign)
 {
+    UNUSED(canAssign);
     switch (parser.previous.type) {
     case TOKEN_FALSE:
         emitByte(OP_FALSE);
@@ -489,12 +493,16 @@ static void literal(bool canAssign)
 
 static void grouping(bool canAssign)
 {
+    UNUSED(canAssign);
+
     expression();
     consume(TOKEN_RIGHT_PAREN, "Expect ')' after expression.");
 }
 
 static void number(bool canAssign)
 {
+    UNUSED(canAssign);
+
     if (parser.previous.start[0] == '0' && parser.previous.start[1] == 'x') {
         char* end;
         long  value = strtol(parser.previous.start, &end, 16);
@@ -522,6 +530,8 @@ static void number(bool canAssign)
 
 static void or_(bool canAssign)
 {
+    UNUSED(canAssign);
+
     int elseJump = emitJump(OP_JUMP_IF_FALSE);
     int endJump  = emitJump(OP_JUMP);
 
@@ -534,6 +544,8 @@ static void or_(bool canAssign)
 
 static void and_(bool canAssign)
 {
+    UNUSED(canAssign);
+
     int endJump = emitJump(OP_JUMP_IF_FALSE);
 
     emitByte(OP_POP);
@@ -544,6 +556,8 @@ static void and_(bool canAssign)
 
 static void string(bool canAssign)
 {
+    UNUSED(canAssign);
+
     emitConstant(OBJ_VAL(copyString(parser.previous.start + 1, parser.previous.length - 2)));
 }
 
@@ -631,6 +645,8 @@ static Token syntheticToken(utf8_int8_t* text)
 
 static void super_(bool canAssign)
 {
+    UNUSED(canAssign);
+
     if (currentClass == NULL) {
         error("Can't use 'super' outside of a class.");
     } else if (!currentClass->hasSuperclass) {
@@ -655,6 +671,8 @@ static void super_(bool canAssign)
 
 static void this(bool canAssign)
 {
+    UNUSED(canAssign);
+
     if (currentClass == NULL) {
         error("Can't use 'this' outside of a class.");
         return;
@@ -665,6 +683,8 @@ static void this(bool canAssign)
 
 static void unary(bool canAssign)
 {
+    UNUSED(canAssign);
+
     TokenType operatorType = parser.previous.type;
 
     // Compile the operand.
@@ -685,6 +705,8 @@ static void unary(bool canAssign)
 
 static void table(bool canAssign)
 {
+    UNUSED(canAssign);
+
     uint8_t numElements = 0;
     if (!check(TOKEN_RIGHT_BRACE)) {
         do {
@@ -712,6 +734,8 @@ static void table(bool canAssign)
 
 static void array(bool canAssign)
 {
+    UNUSED(canAssign);
+
     uint8_t numElements = 0;
     if (!check(TOKEN_RIGHT_BRACKET)) {
         do {
@@ -725,6 +749,8 @@ static void array(bool canAssign)
 
 static void anonFunDeclaration(bool canAssign)
 {
+    UNUSED(canAssign);
+
     markInitialized();
     function(TYPE_ANONYMOUS);
 }
@@ -899,7 +925,7 @@ static void addLocal(Token name)
     local->isCaptured = false;
 }
 
-static void declareVariable()
+static void declareVariable(void)
 {
     if (current->scopeDepth == 0)
         return;
@@ -930,7 +956,7 @@ static uint8_t parseVariable(const char* errorMessage)
     return identifierConstant(&parser.previous);
 }
 
-static void markInitialized()
+static void markInitialized(void)
 {
     if (current->scopeDepth == 0)
         return;
@@ -948,7 +974,7 @@ static void defineVariable(uint8_t global)
     emitBytes(OP_DEFINE_GLOBAL, global);
 }
 
-static uint8_t argumentList()
+static uint8_t argumentList(void)
 {
     inParamList      = true;
     uint8_t argCount = 0;
@@ -971,12 +997,12 @@ static ParseRule* getRule(TokenType type)
     return &rules[type];
 }
 
-static void expression()
+static void expression(void)
 {
     parsePrecedence(PREC_ASSIGNMENT);
 }
 
-static void block()
+static void block(void)
 {
     while (!check(TOKEN_RIGHT_BRACE) && !check(TOKEN_EOF)) {
         declaration();
@@ -1025,7 +1051,7 @@ static void function(FunctionType type)
     }
 }
 
-static void classDeclaration()
+static void classDeclaration(void)
 {
     consume(TOKEN_IDENTIFIER, "Expect class name.");
     Token className = parser.previous;
@@ -1097,7 +1123,7 @@ static void classDeclaration()
     currentClass = currentClass->enclosing;
 }
 
-static void funDeclaration()
+static void funDeclaration(void)
 {
     uint8_t global = parseVariable("Expect function name.");
     markInitialized();
@@ -1105,7 +1131,7 @@ static void funDeclaration()
     defineVariable(global);
 }
 
-static void varDeclaration()
+static void varDeclaration(void)
 {
     uint8_t global = parseVariable("Expect variable name.");
 
@@ -1122,14 +1148,14 @@ static void varDeclaration()
     defineVariable(global);
 }
 
-static void expressionStatement()
+static void expressionStatement(void)
 {
     expression();
     consume(TOKEN_SEMICOLON, "Expect ';' after expression.");
     emitByte(OP_POP);
 }
 
-static void switchStatement()
+static void switchStatement(void)
 {
     consume(TOKEN_LEFT_PAREN, "Expect '(' after 'switch'.");
     expression();
@@ -1200,7 +1226,7 @@ static void switchStatement()
     emitByte(OP_POP); // The switch value.
 }
 
-static void breakStatement()
+static void breakStatement(void)
 {
     if (!current->isInLoop)
         error("Break must in a loop.");
@@ -1213,7 +1239,7 @@ static void breakStatement()
     consume(TOKEN_SEMICOLON, "Expect ';' after 'break'");
 }
 
-static void continueStatement()
+static void continueStatement(void)
 {
     if (!current->isInLoop)
         error("Continue must in a loop.");
@@ -1223,7 +1249,7 @@ static void continueStatement()
     consume(TOKEN_SEMICOLON, "Expect ';' after 'continue'");
 }
 
-static void patchBreak()
+static void patchBreak(void)
 {
     while (current->breakNodes != NULL) {
         patchJump(current->breakNodes->jumpPatch);
@@ -1231,7 +1257,7 @@ static void patchBreak()
     }
 }
 
-static void whileStatement()
+static void whileStatement(void)
 {
     int loopStart      = currentChunk()->count;
     current->loopStart = loopStart;
@@ -1252,7 +1278,7 @@ static void whileStatement()
     patchBreak();
 }
 
-static void forStatement()
+static void forStatement(void)
 {
     beginScope();
     consume(TOKEN_LEFT_PAREN, "Expect '(' after 'for'.");
@@ -1304,7 +1330,7 @@ static void forStatement()
     endScope();
 }
 
-static void ifStatement()
+static void ifStatement(void)
 {
     consume(TOKEN_LEFT_PAREN, "Expect '(' after 'if'.");
     expression();
@@ -1323,21 +1349,21 @@ static void ifStatement()
     patchJump(elseJump);
 }
 
-static void printStatement()
+static void printStatement(void)
 {
     expression();
     consume(TOKEN_SEMICOLON, "Expect ';' after value.");
     emitByte(OP_DUMP);
 }
 
-static void importStatement()
+static void importStatement(void)
 {
     expression();
     consume(TOKEN_SEMICOLON, "Expect ';' after value.");
     emitByte(OP_IMPORT);
 }
 
-static void returnStatement()
+static void returnStatement(void)
 {
     if (current->type == TYPE_SCRIPT) {
         error("Can't return from top-level code.");
@@ -1356,7 +1382,7 @@ static void returnStatement()
     }
 }
 
-static void synchronize()
+static void synchronize(void)
 {
     parser.panicMode = false;
 
@@ -1381,7 +1407,7 @@ static void synchronize()
     }
 }
 
-static void declaration()
+static void declaration(void)
 {
     if (match(TOKEN_CLASS)) {
         classDeclaration();
@@ -1397,7 +1423,7 @@ static void declaration()
         synchronize();
 }
 
-static void statement()
+static void statement(void)
 {
     if (match(TOKEN_IMPORT)) {
         importStatement();
@@ -1445,7 +1471,7 @@ ObjFunction* compile(const char* sourcePath, utf8_int8_t* source)
     return parser.hadError ? NULL : function;
 }
 
-void markCompilerRoots()
+void markCompilerRoots(void)
 {
     Compiler* compiler = current;
     while (compiler != NULL) {

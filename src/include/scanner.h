@@ -88,6 +88,6 @@ typedef struct
 } Token;
 
 void  initScanner(utf8_int8_t* source);
-Token scanToken();
+Token scanToken(void);
 
 #endif

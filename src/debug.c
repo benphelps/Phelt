@@ -487,8 +487,8 @@ int moveForward(Chunk* chunk, int offset)
         uint8_t      constant = chunk->code[offset++];
         ObjFunction* function = AS_FUNCTION(chunk->constants.values[constant]);
         for (int j = 0; j < function->upvalueCount; j++) {
-            int isLocal = chunk->code[offset++];
-            int index   = chunk->code[offset++];
+            offset++; // isLocal
+            offset++; // index
         }
         return offset;
     }

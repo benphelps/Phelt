@@ -65,13 +65,13 @@ typedef enum {
 
 extern VM vm;
 
-void            initVM();
-void            freeVM();
+void            initVM(void);
+void            freeVM(void);
 InterpretResult interpret(const char* sourcePath, utf8_int8_t* source);
 void            push(Value value);
-Value           pop();
+Value           pop(void);
 bool            call(ObjClosure* closure, int argCount);
-InterpretResult run(bool reenter);
+InterpretResult run(void);
 void            defineNative(Table* dest, const char* name, NativeFn function);
 
 #endif
