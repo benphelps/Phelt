@@ -1031,6 +1031,7 @@ InterpretResult run(bool reenter)
             :
         {
             printValue(pop());
+            printf("\n");
             DISPATCH();
         }
 
