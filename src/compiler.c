@@ -88,6 +88,7 @@ Chunk*         compilingChunk;
 Compiler*      current        = NULL;
 ClassCompiler* currentClass   = NULL;
 int            anonymousCount = 0;
+bool           inParamList    = false;
 
 static Chunk* currentChunk()
 {
@@ -949,6 +950,7 @@ static void defineVariable(uint8_t global)
 
 static uint8_t argumentList()
 {
+    inParamList      = true;
     uint8_t argCount = 0;
     if (!check(TOKEN_RIGHT_PAREN)) {
         do {
@@ -960,6 +962,7 @@ static uint8_t argumentList()
         } while (match(TOKEN_COMMA));
     }
     consume(TOKEN_RIGHT_PAREN, "Expect ')' after arguments.");
+    inParamList = false;
     return argCount;
 }
 
@@ -1007,7 +1010,9 @@ static void function(FunctionType type)
         block();
     } else {
         expression();
-        consume(TOKEN_SEMICOLON, "Expect ';' after function expression.");
+        if (!inParamList) {
+            consume(TOKEN_SEMICOLON, "Expect ';' after function expression.");
+        }
         emitByte(OP_RETURN);
     }
 
