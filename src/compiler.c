@@ -567,8 +567,8 @@ static void namedVariable(Token name, bool canAssign)
         emitBytes(setOp, (uint8_t)arg);
         return;
     } else if (match(TOKEN_PLUS_EQUAL)) {
-        expression();
         emitBytes(getOp, (uint8_t)arg);
+        expression();
         emitByte(OP_ADD);
         emitBytes(setOp, (uint8_t)arg);
         return;
@@ -579,26 +579,26 @@ static void namedVariable(Token name, bool canAssign)
         emitBytes(setOp, (uint8_t)arg);
         return;
     } else if (match(TOKEN_STAR_EQUAL)) {
-        expression();
         emitBytes(getOp, (uint8_t)arg);
+        expression();
         emitByte(OP_MULTIPLY);
         emitBytes(setOp, (uint8_t)arg);
         return;
     } else if (match(TOKEN_SLASH_EQUAL)) {
-        expression();
         emitBytes(getOp, (uint8_t)arg);
+        expression();
         emitByte(OP_DIVIDE);
         emitBytes(setOp, (uint8_t)arg);
         return;
     } else if (match(TOKEN_SHIFT_RIGHT_EQUAL)) {
-        expression();
         emitBytes(getOp, (uint8_t)arg);
+        expression();
         emitByte(OP_SHIFT_RIGHT);
         emitBytes(setOp, (uint8_t)arg);
         return;
     } else if (match(TOKEN_SHIFT_LEFT_EQUAL)) {
-        expression();
         emitBytes(getOp, (uint8_t)arg);
+        expression();
         emitByte(OP_SHIFT_LEFT);
         emitBytes(setOp, (uint8_t)arg);
         return;
