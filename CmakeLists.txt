@@ -21,6 +21,7 @@ add_executable(lux
     src/native/math.c
     src/native/file.c
     src/native/http.c
+    src/native/array.c
     src/native/native.c
 )
 

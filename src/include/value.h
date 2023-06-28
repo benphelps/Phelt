@@ -119,6 +119,8 @@ typedef struct
 bool     valuesEqual(Value a, Value b);
 void     initValueArray(ValueArray* array);
 void     writeValueArray(ValueArray* array, Value value);
+void     writeValueArrayAt(ValueArray* array, Value value, int index);
+Value    removeValueArrayAt(ValueArray* array, int index);
 void     joinValueArray(ValueArray* array, ValueArray* other);
 void     copyValueArray(ValueArray* old, ValueArray* new, int start, int end);
 void     freeValueArray(ValueArray* array);

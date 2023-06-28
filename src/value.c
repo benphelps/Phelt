@@ -21,6 +21,33 @@ void writeValueArray(ValueArray* array, Value value)
     array->count++;
 }
 
+void writeValueArrayAt(ValueArray* array, Value value, int index)
+{
+    if (array->capacity < array->count + 1) {
+        int oldCapacity = array->capacity;
+        array->capacity = GROW_CAPACITY(oldCapacity);
+        array->values   = GROW_ARRAY(Value, array->values, oldCapacity, array->capacity);
+    }
+
+    for (int i = array->count; i > index; i--) {
+        array->values[i] = array->values[i - 1];
+    }
+
+    array->values[index] = value;
+    array->count++;
+}
+
+Value removeValueArrayAt(ValueArray* array, int index)
+{
+    Value value = array->values[index];
+    for (int i = index; i < array->count - 1; i++) {
+        array->values[i] = array->values[i + 1];
+    }
+
+    array->count--;
+    return value;
+}
+
 void joinValueArray(ValueArray* array, ValueArray* other)
 {
     for (int i = 0; i < other->count; i++) {

@@ -6,6 +6,7 @@
 #include "value.h"
 #include "vm.h"
 
+#include "native/array.h"
 #include "native/file.h"
 #include "native/http.h"
 #include "native/math.h"

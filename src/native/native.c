@@ -111,12 +111,29 @@ NativeFnEntry httpFns[] = {
     { NULL, NULL },
 };
 
+NativeFnEntry arrayFns[] = {
+    { "push", _array_push },
+    { "pop", _array_pop },
+    { "insert", _array_insert },
+    { "remove", _array_remove },
+    { "sort", _array_sort },
+    { "reverse", _array_reverse },
+    { "find", _array_find },
+    { "findLast", _array_findLast },
+    { "map", _array_map },
+    { "filter", _array_filter },
+    { "reduce", _array_reduce },
+    { "flatten", _array_flatten },
+    { NULL, NULL },
+};
+
 // modules
 NativeModuleEntry nativeModules[] = {
     { "system", systemFns },
     { "math", mathFns },
     { "file", fileFns },
     { "http", httpFns },
+    { "array", arrayFns },
     { NULL, NULL },
 };
 
