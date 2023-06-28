@@ -230,10 +230,46 @@ void printObject(Value value)
         printf("%s", AS_CSTRING(value));
         break;
     case OBJ_TABLE:
-        printf("table"); // printTable(&AS_TABLE(value)->table);
+        printf("table");
         break;
     case OBJ_ARRAY:
-        printf("array"); // printValueArray(&AS_ARRAY(value)->array);
+        printf("array");
+        break;
+    case OBJ_UPVALUE:
+        printf("upvalue");
+        break;
+    }
+}
+
+void dumpObject(Value value)
+{
+    switch (OBJ_TYPE(value)) {
+    case OBJ_BOUND_METHOD:
+        printFunction(AS_BOUND_METHOD(value)->method->function);
+        break;
+    case OBJ_CLASS:
+        printf("%s", AS_CLASS(value)->name->chars);
+        break;
+    case OBJ_INSTANCE:
+        printf("%s instance", AS_INSTANCE(value)->klass->name->chars);
+        break;
+    case OBJ_CLOSURE:
+        printFunction(AS_CLOSURE(value)->function);
+        break;
+    case OBJ_FUNCTION:
+        printFunction(AS_FUNCTION(value));
+        break;
+    case OBJ_NATIVE:
+        printf("<native fn>");
+        break;
+    case OBJ_STRING:
+        printf("%s", AS_CSTRING(value));
+        break;
+    case OBJ_TABLE:
+        printTable(&AS_TABLE(value)->table);
+        break;
+    case OBJ_ARRAY:
+        printValueArray(&AS_ARRAY(value)->array);
         break;
     case OBJ_UPVALUE:
         printf("upvalue");

@@ -1030,7 +1030,7 @@ InterpretResult run(bool reenter)
         CASE_CODE(DUMP)
             :
         {
-            printValue(pop());
+            dumpValue(pop());
             printf("\n");
             DISPATCH();
         }

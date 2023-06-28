@@ -124,6 +124,7 @@ void     copyValueArray(ValueArray* old, ValueArray* new, int start, int end);
 void     freeValueArray(ValueArray* array);
 uint32_t hashValue(Value value);
 void     printValue(Value value);
+void     dumpValue(Value value);
 void     printValueArray(ValueArray* array);
 char*    stringValue(Value value);
 

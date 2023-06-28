@@ -132,6 +132,7 @@ ObjTable* newTable();
 ObjArray* newArray();
 
 void  printObject(Value value);
+void  dumpObject(Value value);
 char* functionString(ObjFunction* function);
 char* objectString(Value value);
 int   objectLength(Value value);
