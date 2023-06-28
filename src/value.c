@@ -137,6 +137,31 @@ void printValue(Value value)
 #endif
 }
 
+char* format_double(double val)
+{
+    char* buffer = malloc(sizeof(char) * 64);
+    if (buffer == NULL) {
+        fprintf(stderr, "Memory allocation failed\n");
+        return NULL;
+    }
+
+    sprintf(buffer, "%.10f", val);
+
+    // Trimming from the end
+    char* ptr = &buffer[strlen(buffer) - 1];
+    while (*ptr == '0') {
+        *ptr = '\0';
+        ptr--;
+    }
+
+    // If the last character is '.', also remove it
+    if (*ptr == '.') {
+        *ptr = '\0';
+    }
+
+    return buffer;
+}
+
 char* stringValue(Value value)
 {
 #ifdef NAN_BOXING
@@ -145,9 +170,7 @@ char* stringValue(Value value)
     } else if (IS_NIL(value)) {
         return "nil";
     } else if (IS_NUMBER(value)) {
-        char* str = malloc(sizeof(char) * 50);
-        sprintf(str, "%g", AS_NUMBER(value));
-        return str;
+        return format_double(AS_NUMBER(value));
     } else if (IS_OBJ(value)) {
         return objectString(value);
     } else if (IS_EMPTY(value)) {
