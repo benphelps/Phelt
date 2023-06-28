@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 3.10)
 project(lux)
 
 # set include directory
-include_directories(src/include/native)
 include_directories(src/include)
 
 add_executable(lux

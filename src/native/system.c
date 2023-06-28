@@ -1,7 +1,7 @@
-#include "system.h"
-#include "../object.h"
-#include "../value.h"
-#include "../vm.h"
+#include "native/system.h"
+#include "object.h"
+#include "value.h"
+#include "vm.h"
 
 #include <sys/time.h>
 #include <time.h>

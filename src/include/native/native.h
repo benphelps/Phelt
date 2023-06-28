@@ -1,15 +1,15 @@
 #ifndef LUX_NATIVE_H
 #define LUX_NATIVE_H
 
-#include "../common.h"
-#include "../object.h"
-#include "../value.h"
-#include "../vm.h"
+#include "common.h"
+#include "object.h"
+#include "value.h"
+#include "vm.h"
 
-#include "file.h"
-#include "http.h"
-#include "lux_math.h"
-#include "system.h"
+#include "native/file.h"
+#include "native/http.h"
+#include "native/math.h"
+#include "native/system.h"
 
 typedef struct {
     const char* name;

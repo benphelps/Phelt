@@ -1,4 +1,4 @@
-#include "native.h"
+#include "native/native.h"
 
 NativeModuleEntry* findNativeModule(NativeModuleEntry* modules, const char* name)
 {

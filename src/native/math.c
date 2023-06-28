@@ -1,4 +1,4 @@
-#include "lux_math.h"
+#include "native/math.h"
 #include "vm.h"
 #include <math.h>
 
