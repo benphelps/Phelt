@@ -4,6 +4,11 @@ block comments
 
 // single line comments
 
+// modules
+let math = module("math");
+
+import("all_extra.lux");
+
 // values
 let string = "Hello World";
 let float = 12.35;
