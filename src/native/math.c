@@ -157,6 +157,22 @@ bool _norm(int argCount, Value* args)
     return true;
 }
 
+bool _seed(int argCount, Value* args)
+{
+    lux_checkArgs(1);
+    lux_checkNumber(0);
+    srand((unsigned int)lux_toNumber(0));
+    return true;
+}
+
+bool _rand(int argCount, Value* args)
+{
+    lux_checkArgs(0);
+    double num = (double)rand() / (double)RAND_MAX;
+    lux_pushNumber(-1, num);
+    return true;
+}
+
 void mathCallback(Table* table)
 {
 #define SET_CONST(name, value)                     \

@@ -20,6 +20,8 @@ extern bool _clamp(int argCount, Value* args);
 extern bool _lerp(int argCount, Value* args);
 extern bool _map(int argCount, Value* args);
 extern bool _norm(int argCount, Value* args);
+extern bool _seed(int argCount, Value* args);
+extern bool _rand(int argCount, Value* args);
 extern void mathCallback(Table* table);
 
 #endif

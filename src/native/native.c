@@ -50,6 +50,7 @@ NativeFnEntry globalFns[] = {
 
 NativeFnEntry systemFns[] = {
     { "time", _time },
+    { "mtime", _mtime },
     { "clock", _clock },
     { "sleep", _sleep },
     { "usleep", _usleep },
@@ -75,6 +76,8 @@ NativeFnEntry mathFns[] = {
     { "lerp", _lerp },
     { "map", _map },
     { "norm", _norm },
+    { "seed", _seed },
+    { "rand", _rand },
     { NULL, NULL },
 };
 

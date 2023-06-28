@@ -4,6 +4,7 @@
 #include "native.h"
 
 extern bool _time(int argCount, Value* args);
+extern bool _mtime(int argCount, Value* args);
 extern bool _clock(int argCount, Value* args);
 extern bool _sleep(int argCount, Value* args);
 extern bool _usleep(int argCount, Value* args);

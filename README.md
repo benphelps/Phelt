@@ -259,7 +259,8 @@ Other modules can be loaded with the `module` function, when required.
 let system = module("system");
 
 let formatted = sprint("Hello {}", "World"); // "Hello World"
-let time = system.time(); // ms since epoch
+let time = system.time(); // seconds since epoch
+let mtime = system.mtime(); // milliseconds since epoch
 let clock = system.clock(); // ms since process start
 system.sleep(1); // sleep for 1 second
 system.usleep(100); // sleep for 100 ms
@@ -287,6 +288,9 @@ let clamp = math.clamp(5, 0, 10);
 let lerp = math.lerp(0.5, 0, 10);
 let map = math.map(5, 0, 10, 0, 100);
 let norm = math.norm(5, 0, 10);
+
+math.seed(seed); // seed the random number generator
+let rand = math.rand(); // random float between 0 and 1
 
 // along with the following constants
 let e = math.E;

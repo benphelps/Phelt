@@ -16,21 +16,27 @@ Value getEnv(const char* name)
     return OBJ_VAL(copyString(env, strlen(env)));
 }
 
-double time_in_mill()
-{
-    struct timeval time;
-    gettimeofday(&time, NULL);
-    double elapsed = (time.tv_sec * 1000.0) + (time.tv_usec / 1000.0);
-    return elapsed;
-}
-
 // double time_in_mill(void);
 // let time = system.time()
 bool _time(int argCount, Value* args)
 {
     lux_checkArgs(0);
 
-    lux_pushNumber(-1, time_in_mill());
+    lux_pushNumber(-1, time(NULL));
+    return true;
+}
+
+// double time_in_mill(void);
+// let time = system.time()
+bool _mtime(int argCount, Value* args)
+{
+    lux_checkArgs(0);
+
+    struct timeval time;
+    gettimeofday(&time, NULL);
+    double elapsed = ((double)time.tv_sec * 1000) + ((double)time.tv_usec / 1000);
+
+    lux_pushNumber(-1, elapsed);
     return true;
 }
 
