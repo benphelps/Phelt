@@ -53,7 +53,8 @@ bool tableGet(Table* table, Value key, Value* value)
     if (IS_EMPTY(entry->key))
         return false;
 
-    *value = entry->value;
+    if (value != NULL)
+        *value = entry->value;
     return true;
 }
 
@@ -157,7 +158,7 @@ static void printEntry(Entry* entry)
         return;
     }
 
-    printf("%s => ", AS_STRING(entry->key)->chars);
+    printf("%s => ", stringValue(entry->key));
     printValue(entry->value);
 }
 
@@ -166,9 +167,10 @@ void printTable(Table* table)
     printf("{ ");
     for (int i = 0; i < table->capacity; i++) {
         Entry* entry = &table->entries[i];
+        Entry* next  = &table->entries[i + 1];
         if (!IS_EMPTY(entry->key)) {
             printEntry(entry);
-            if (i < table->capacity - 1)
+            if (!IS_EMPTY(next->key))
                 printf(", ");
         }
     }

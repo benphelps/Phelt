@@ -119,6 +119,9 @@ void printValueArray(ValueArray* array)
     printf("[ ");
     for (int i = 0; i < array->count; i++) {
         printValue(array->values[i]);
+        if (i < array->count - 1) {
+            printf(", ");
+        }
         printf(" ");
     }
     printf("]");
