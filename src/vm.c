@@ -4,6 +4,7 @@
 
 #include "compiler.h"
 #include "debug.h"
+#include "ph_string.h"
 #include "vm.h"
 
 VM vm;
@@ -324,28 +325,6 @@ bool indexValue(Value value, Value index)
     }
     runtimeError("Only strings, tables and arrays can be indexed.");
     return false;
-}
-
-char* substring_utf8(const char* src, int start, int end)
-{
-    char* dst     = (char*)malloc(strlen(src) + 1); // Allocating maximum possible size
-    char* dst_ptr = dst;
-    int   index   = 0;
-
-    utf8_int32_t codepoint;
-    void*        next = (void*)src;
-    while (next) {
-        next = utf8codepoint(next, &codepoint);
-        if (index >= start && index < end) {
-            dst_ptr = utf8catcodepoint(dst_ptr, codepoint, strlen(src) - (dst_ptr - dst));
-        }
-        if (index >= end) {
-            break;
-        }
-        index++;
-    }
-    *dst_ptr = '\0';
-    return dst;
 }
 
 bool valueSlice(Value start, Value end)

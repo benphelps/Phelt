@@ -397,3 +397,19 @@ table.remove(tbl, key);
 table.insert(tbl, key, value);
 table.hasKey(tbl, key);
 ```
+
+## `string`
+
+```js
+let string = module("string");
+
+let new = string.length(str);
+let new = string.upper(str);
+let new = string.lower(str);
+let new = string.split(str, delim);
+let new = string.trim(str, chars);
+let new = string.sub(str, start, end);
+let new = string.find(str, substr);
+let new = string.replace(str, substr, newstr);
+let new = string.reverse(str);
+```

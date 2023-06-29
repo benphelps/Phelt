@@ -139,6 +139,19 @@ NativeFnEntry tableFns[] = {
     { NULL, NULL },
 };
 
+NativeFnEntry stringFns[] = {
+    { "length", string_length },
+    { "sub", string_sub },
+    { "find", string_find },
+    { "replace", string_replace },
+    { "split", string_split },
+    { "trim", string_trim },
+    { "upper", string_upper },
+    { "lower", string_lower },
+    { "reverse", string_reverse },
+    { NULL, NULL },
+};
+
 // modules
 NativeModuleEntry nativeModules[] = {
     { "system", systemFns },
@@ -147,6 +160,7 @@ NativeModuleEntry nativeModules[] = {
     { "http", httpFns },
     { "array", arrayFns },
     { "table", tableFns },
+    { "string", stringFns },
     { NULL, NULL },
 };
 

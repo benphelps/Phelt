@@ -193,6 +193,14 @@ ObjString* copyString(const char* chars, int length)
     return allocateString(heapChars, length, hash);
 }
 
+char* copyStringRaw(const char* chars, int length)
+{
+    char* heapChars = ALLOCATE(char, length + 1);
+    memcpy(heapChars, chars, length);
+    heapChars[length] = '\0';
+    return heapChars;
+}
+
 ObjString* formatString(const char* format, ...)
 {
     char*   buffer = NULL;

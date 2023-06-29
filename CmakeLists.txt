@@ -17,11 +17,13 @@ add_executable(phelt
     src/scanner.c
     src/object.c
     src/table.c
+    src/string.c
     src/native/system.c
     src/native/math.c
     src/native/file.c
     src/native/http.c
     src/native/array.c
+    src/native/string.c
     src/native/table.c
     src/native/native.c
 )
