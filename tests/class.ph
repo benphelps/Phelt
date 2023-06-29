@@ -37,8 +37,8 @@ class Box < Vector {
     center() Vector(this.x + this.w / 2, this.y + this.h / 2);
 
     contains(other) {
-        return other.x >= this.x and other.x <= this.x + this.w and
-               other.y >= this.y and other.y <= this.y + this.h;
+        return other.x >= this.x && other.x <= this.x + this.w &&
+               other.y >= this.y && other.y <= this.y + this.h;
     }
 }
 

@@ -51,8 +51,8 @@ let one = add1(0);
 // operators
 let add = 1 + 2; let sub = 1 - 2;
 let mul = 1 * 2; let div = 1 / 2;
-let mod = 1 % 2; let _or = 1 | 2;
-let xor = 1 ^ 2; let _and = 1 & 2;
+let mod = 1 % 2; let or = 1 | 2;
+let xor = 1 ^ 2; let and = 1 & 2;
 let not = !true;
 
 let eq = 1 == 2; let lt = 1 < 2;
@@ -97,8 +97,8 @@ class Box < Vector {
     }
 
     contains(other) {
-        return other.x >= this.x and other.x <= this.x + this.w and
-               other.y >= this.y and other.y <= this.y + this.h;
+        return other.x >= this.x && other.x <= this.x + this.w &&
+               other.y >= this.y && other.y <= this.y + this.h;
     }
 }
 

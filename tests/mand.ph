@@ -23,7 +23,7 @@ for(let y=0; y<height; y++) {
         let zy = 0;
         let iteration = 0;
 
-        while(zx*zx + zy*zy <= 4 and iteration < maxIteration) {
+        while(zx*zx + zy*zy <= 4 && iteration < maxIteration) {
             let xtemp = zx*zx - zy*zy + cx;
             zy = 2*zx*zy + cy;
             zx = xtemp;

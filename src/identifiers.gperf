@@ -13,7 +13,6 @@
 struct Identifier { utf8_int8_t* name; TokenType token; }
 
 %%
-and,      TOKEN_AND
 break,    TOKEN_BREAK
 case,     TOKEN_CASE
 class,    TOKEN_CLASS
@@ -28,7 +27,6 @@ if,       TOKEN_IF
 import,   TOKEN_IMPORT
 let,      TOKEN_LET
 nil,      TOKEN_NIL
-or,       TOKEN_OR
 return,   TOKEN_RETURN
 super,    TOKEN_SUPER
 switch,   TOKEN_SWITCH
