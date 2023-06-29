@@ -16,6 +16,15 @@ Value getEnv(const char* name)
     return OBJ_VAL(copyString(env, strlen(env)));
 }
 
+bool _exit(int argCount, Value* args)
+{
+    phelt_checkArgs(1);
+    phelt_checkNumber(0);
+
+    exit((int)phelt_toNumber(0));
+    return true;
+}
+
 // double time_in_mill(void);
 // let time = system.time()
 bool _time(int argCount, Value* args)

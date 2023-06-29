@@ -49,6 +49,7 @@ NativeFnEntry globalFns[] = {
 };
 
 NativeFnEntry systemFns[] = {
+    { "exit", _exit },
     { "time", _time },
     { "mtime", _mtime },
     { "clock", _clock },

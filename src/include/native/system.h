@@ -3,6 +3,7 @@
 
 #include "native.h"
 
+extern bool _exit(int argCount, Value* args);
 extern bool _time(int argCount, Value* args);
 extern bool _mtime(int argCount, Value* args);
 extern bool _clock(int argCount, Value* args);
