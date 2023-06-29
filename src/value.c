@@ -124,6 +124,44 @@ void printValueArray(ValueArray* array)
     printf("]");
 }
 
+const char* valueType(Value value)
+{
+#ifdef NAN_BOXING
+    if (IS_BOOL(value)) {
+        return "bool";
+    } else if (IS_NIL(value)) {
+        return "nil";
+    } else if (IS_NUMBER(value)) {
+        return "number";
+    } else if (IS_OBJ(value)) {
+        return objectType(value);
+    } else if (IS_EMPTY(value)) {
+        return "empty";
+    } else if (IS_POINTER(value)) {
+        return "pointer";
+    }
+#else
+    switch (value.type) {
+    case VAL_BOOL:
+        return "bool";
+    case VAL_NIL:
+        return "nil";
+    case VAL_NUMBER:
+        return "number";
+    case VAL_OBJ:
+        return "object";
+    case VAL_EMPTY:
+        return "empty";
+    case VAL_POINTER:
+        return "pointer";
+    default:
+        return "unknown";
+    }
+#endif
+
+    return "unknown";
+}
+
 void printValue(Value value)
 {
 #ifdef NAN_BOXING

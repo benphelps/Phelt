@@ -1,6 +1,16 @@
 #include "native/array.h"
 
-bool _array_push(int argCount, Value* args)
+bool array_length(int argCount, Value* args)
+{
+    phelt_checkArgs(1);
+    phelt_checkArray(0);
+
+    ObjArray* array = phelt_toArray(0);
+    phelt_pushNumber(-1, array->array.count);
+    return true;
+}
+
+bool array_push(int argCount, Value* args)
 {
     phelt_checkArgs(2);
     phelt_checkArray(0);
@@ -10,7 +20,7 @@ bool _array_push(int argCount, Value* args)
     return true;
 }
 
-bool _array_pop(int argCount, Value* args)
+bool array_pop(int argCount, Value* args)
 {
     phelt_checkArgs(1);
     phelt_checkArray(0);
@@ -26,7 +36,7 @@ bool _array_pop(int argCount, Value* args)
     return true;
 }
 
-bool _array_insert(int argCount, Value* args)
+bool array_insert(int argCount, Value* args)
 {
     phelt_checkArgs(3);
     phelt_checkArray(0);
@@ -43,7 +53,7 @@ bool _array_insert(int argCount, Value* args)
     return true;
 }
 
-bool _array_remove(int argCount, Value* args)
+bool array_remove(int argCount, Value* args)
 {
     phelt_checkArgs(2);
     phelt_checkArray(0);
@@ -61,7 +71,7 @@ bool _array_remove(int argCount, Value* args)
     return true;
 }
 
-bool _array_sort(int argCount, Value* args)
+bool array_sort(int argCount, Value* args)
 {
     phelt_checkArgs(2);
     phelt_checkArray(0);
@@ -93,7 +103,7 @@ bool _array_sort(int argCount, Value* args)
     return true;
 }
 
-bool _array_reverse(int argCount, Value* args)
+bool array_reverse(int argCount, Value* args)
 {
     phelt_checkArgs(1);
     phelt_checkArray(0);
@@ -113,7 +123,7 @@ bool _array_reverse(int argCount, Value* args)
     return true;
 }
 
-bool _array_find(int argCount, Value* args)
+bool array_find(int argCount, Value* args)
 {
     phelt_checkArgs(2);
     phelt_checkArray(0);
@@ -136,7 +146,7 @@ bool _array_find(int argCount, Value* args)
     return true;
 }
 
-bool _array_findLast(int argCount, Value* args)
+bool array_findLast(int argCount, Value* args)
 {
     phelt_checkArgs(2);
     phelt_checkArray(0);
@@ -159,7 +169,7 @@ bool _array_findLast(int argCount, Value* args)
     return true;
 }
 
-bool _array_map(int argCount, Value* args)
+bool array_map(int argCount, Value* args)
 {
     phelt_checkArgs(2);
     phelt_checkArray(0);
@@ -184,7 +194,7 @@ bool _array_map(int argCount, Value* args)
     return true;
 }
 
-bool _array_filter(int argCount, Value* args)
+bool array_filter(int argCount, Value* args)
 {
     phelt_checkArgs(2);
     phelt_checkArray(0);
@@ -212,7 +222,7 @@ bool _array_filter(int argCount, Value* args)
     return true;
 }
 
-bool _array_reduce(int argCount, Value* args)
+bool array_reduce(int argCount, Value* args)
 {
     phelt_checkArgs(3);
     phelt_checkArray(0);
@@ -237,7 +247,7 @@ bool _array_reduce(int argCount, Value* args)
 }
 
 // flatten an array of arrays, with optional depth
-bool _array_flatten(int argCount, Value* args)
+bool array_flatten(int argCount, Value* args)
 {
     phelt_checkMinArgs(1);
     phelt_checkArray(0);

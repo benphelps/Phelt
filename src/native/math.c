@@ -2,29 +2,26 @@
 #include "vm.h"
 #include <math.h>
 
-#define DEFINE_MATH_FUNC_SINGLE(FUNC_NAME, TYPE) \
-    bool _##FUNC_NAME(int argCount, Value* args) \
-    {                                            \
-        phelt_checkArgs(1);                        \
-        phelt_checkNumber(0);                      \
-                                                 \
-        TYPE num = (TYPE)phelt_toNumber(0);        \
-        phelt_pushNumber(-1, FUNC_NAME(num));      \
-        return true;                             \
+#define DEFINE_MATH_FUNC_SINGLE(FUNC_NAME, TYPE)     \
+    bool math_##FUNC_NAME(int argCount, Value* args) \
+    {                                                \
+        phelt_checkArgs(1);                          \
+        phelt_checkNumber(0);                        \
+        TYPE num = (TYPE)phelt_toNumber(0);          \
+        phelt_pushNumber(-1, FUNC_NAME(num));        \
+        return true;                                 \
     }
 
-#define DEFINE_MATH_FUNC_DOUBLE(FUNC_NAME, TYPE)   \
-    bool _##FUNC_NAME(int argCount, Value* args)   \
-    {                                              \
+#define DEFINE_MATH_FUNC_DOUBLE(FUNC_NAME, TYPE)     \
+    bool math_##FUNC_NAME(int argCount, Value* args) \
+    {                                                \
         phelt_checkArgs(2);                          \
-                                                   \
         phelt_checkNumber(0);                        \
         phelt_checkNumber(1);                        \
-                                                   \
         TYPE num1 = (TYPE)phelt_toNumber(0);         \
         TYPE num2 = (TYPE)phelt_toNumber(1);         \
         phelt_pushNumber(-1, FUNC_NAME(num1, num2)); \
-        return true;                               \
+        return true;                                 \
     }
 
 DEFINE_MATH_FUNC_SINGLE(ceil, double)
@@ -46,7 +43,7 @@ double deg(double radians)
     return radians * (180.0 / M_PI);
 }
 
-bool _deg(int argCount, Value* args)
+bool math_deg(int argCount, Value* args)
 {
     phelt_checkArgs(1);
     phelt_checkNumber(0);
@@ -61,7 +58,7 @@ double rad(double degrees)
     return degrees * (M_PI / 180.0);
 }
 
-bool _rad(int argCount, Value* args)
+bool math_rad(int argCount, Value* args)
 {
     phelt_checkArgs(1);
     phelt_checkNumber(0);
@@ -82,7 +79,7 @@ double clamp(double value, double min, double max)
     return value;
 }
 
-bool _clamp(int argCount, Value* args)
+bool math_clamp(int argCount, Value* args)
 {
     phelt_checkArgs(3);
     phelt_checkNumber(0);
@@ -101,7 +98,7 @@ double lerp(double a, double b, double t)
     return a + (b - a) * t;
 }
 
-bool _lerp(int argCount, Value* args)
+bool math_lerp(int argCount, Value* args)
 {
     phelt_checkArgs(3);
     phelt_checkNumber(0);
@@ -120,7 +117,7 @@ double map(double value, double start1, double stop1, double start2, double stop
     return start2 + (stop2 - start2) * ((value - start1) / (stop1 - start1));
 }
 
-bool _map(int argCount, Value* args)
+bool math_map(int argCount, Value* args)
 {
     phelt_checkArgs(5);
     phelt_checkNumber(0);
@@ -143,7 +140,7 @@ double norm(double value, double start, double stop)
     return (value - start) / (stop - start);
 }
 
-bool _norm(int argCount, Value* args)
+bool math_norm(int argCount, Value* args)
 {
     phelt_checkArgs(3);
     phelt_checkNumber(0);
@@ -157,7 +154,7 @@ bool _norm(int argCount, Value* args)
     return true;
 }
 
-bool _seed(int argCount, Value* args)
+bool math_seed(int argCount, Value* args)
 {
     phelt_checkArgs(1);
     phelt_checkNumber(0);
@@ -165,7 +162,7 @@ bool _seed(int argCount, Value* args)
     return true;
 }
 
-bool _rand(int argCount, Value* args)
+bool math_rand(int argCount, Value* args)
 {
     phelt_checkArgs(0);
     double num = (double)rand() / (double)RAND_MAX;

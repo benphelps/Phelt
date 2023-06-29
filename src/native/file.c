@@ -3,8 +3,8 @@
 #include <stdio.h>
 
 // FILE * fopen(const char * restrict path, const char * restrict mode);
-// let fp = fopen("file.txt", "w+");
-bool _fopen(int argCount, Value* args)
+// let fp = file.open("file.txt", "w+");
+bool file_open(int argCount, Value* args)
 {
     phelt_checkArgs(2);
     phelt_checkString(0);
@@ -25,7 +25,7 @@ bool _fopen(int argCount, Value* args)
 
 // FILE * tmpfile(void);
 // let fp = file.tmpfile()
-bool _tmpfile(int argCount, Value* args)
+bool file_tmpfile(int argCount, Value* args)
 {
     phelt_checkArgs(0);
 
@@ -41,7 +41,7 @@ bool _tmpfile(int argCount, Value* args)
 
 // int mkstemp(char *template);
 // let fp = file.mkstemps("fileXXXXXX")
-bool _mkstemps(int argCount, Value* args)
+bool file_mkstemps(int argCount, Value* args)
 {
     phelt_checkArgs(1);
     phelt_checkString(0);
@@ -64,8 +64,8 @@ bool _mkstemps(int argCount, Value* args)
 }
 
 // int fclose(FILE * stream);
-// fclose(fp)
-bool _fclose(int argCount, Value* args)
+// file.close(fp)
+bool file_close(int argCount, Value* args)
 {
     phelt_checkArgs(1);
     phelt_checkPointer(0);
@@ -81,8 +81,8 @@ bool _fclose(int argCount, Value* args)
 }
 
 // size_t fwrite(const void * restrict ptr, size_t size, size_t nitems, FILE * restrict stream);
-// bytes_written = fwrite(fp, str)
-bool _fwrite(int argCount, Value* args)
+// bytes_written = file.write(fp, str)
+bool file_write(int argCount, Value* args)
 {
     phelt_checkArgs(2);
     phelt_checkPointer(0);
@@ -102,8 +102,8 @@ bool _fwrite(int argCount, Value* args)
 }
 
 // size_t fread(void * restrict ptr, size_t size, size_t nitems, FILE * restrict stream);
-// let str = file.fread(fp, bytes)
-bool _fread(int argCount, Value* args)
+// let str = file.read(fp, bytes)
+bool file_read(int argCount, Value* args)
 {
     phelt_checkArgs(2);
     phelt_checkPointer(0);
@@ -131,9 +131,9 @@ bool _fread(int argCount, Value* args)
     return true;
 }
 
-// fseek(FILE * stream, long int offset, int whence);
-// let pos = file.fseek(fp, 0, SEEK_END)
-bool _fseek(int argCount, Value* args)
+// seek(FILE * stream, long int offset, int whence);
+// let pos = file.seek(fp, 0, SEEK_END)
+bool file_seek(int argCount, Value* args)
 {
     phelt_checkArgs(3);
     phelt_checkPointer(0);
@@ -154,8 +154,8 @@ bool _fseek(int argCount, Value* args)
 }
 
 // long int ftell(FILE * stream);
-// let pos = file.ftell(fp)
-bool _ftell(int argCount, Value* args)
+// let pos = file.tell(fp)
+bool file_tell(int argCount, Value* args)
 {
     phelt_checkArgs(1);
     phelt_checkPointer(0);
@@ -174,7 +174,7 @@ bool _ftell(int argCount, Value* args)
 
 // void rewind(FILE * stream);
 // file.rewind(fp)
-bool _rewind(int argCount, Value* args)
+bool file_rewind(int argCount, Value* args)
 {
     phelt_checkArgs(1);
     phelt_checkPointer(0);
@@ -186,8 +186,8 @@ bool _rewind(int argCount, Value* args)
 }
 
 // int fflush(FILE * stream);
-// file.fflush(fp)
-bool _fflush(int argCount, Value* args)
+// file.flush(fp)
+bool file_flush(int argCount, Value* args)
 {
     phelt_checkArgs(1);
     phelt_checkPointer(0);
@@ -204,8 +204,8 @@ bool _fflush(int argCount, Value* args)
 }
 
 // int fgetc(FILE * stream);
-// let char = file.fgetc(fp)
-bool _fgetc(int argCount, Value* args)
+// let char = file.getc(fp)
+bool file_getc(int argCount, Value* args)
 {
     phelt_checkArgs(1);
     phelt_checkPointer(0);
@@ -223,8 +223,8 @@ bool _fgetc(int argCount, Value* args)
 }
 
 // int fgets(char * str, int num, FILE * stream);
-// let str = file.fgets(fp, 10)
-bool _fgets(int argCount, Value* args)
+// let str = file.gets(fp, 10)
+bool file_gets(int argCount, Value* args)
 {
     phelt_checkArgs(2);
     phelt_checkPointer(0);
@@ -245,8 +245,8 @@ bool _fgets(int argCount, Value* args)
 }
 
 // int fputc(int character, FILE * stream);
-// file.fputc(fp, 65)
-bool _fputc(int argCount, Value* args)
+// ile.fputc(fp, 65)
+bool file_putc(int argCount, Value* args)
 {
     phelt_checkArgs(2);
     phelt_checkPointer(0);
@@ -265,8 +265,8 @@ bool _fputc(int argCount, Value* args)
 }
 
 // int fputs(const char * str, FILE * stream);
-// file.fputs(fp, "Hello World")
-bool _fputs(int argCount, Value* args)
+// file.puts(fp, "Hello World")
+bool file_puts(int argCount, Value* args)
 {
     phelt_checkArgs(2);
     phelt_checkPointer(0);
@@ -286,7 +286,7 @@ bool _fputs(int argCount, Value* args)
 
 // int remove(const char * filename);
 // file.remove("test.txt")
-bool _remove(int argCount, Value* args)
+bool file_remove(int argCount, Value* args)
 {
     phelt_checkArgs(1);
     phelt_checkString(0);
@@ -304,7 +304,7 @@ bool _remove(int argCount, Value* args)
 
 // int rename(const char * oldname, const char * newname);
 // file.rename("test.txt", "test2.txt")
-bool _rename(int argCount, Value* args)
+bool file_rename(int argCount, Value* args)
 {
     phelt_checkArgs(2);
     phelt_checkString(0);

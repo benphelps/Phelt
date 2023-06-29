@@ -3,12 +3,12 @@
 
 #include "native.h"
 
-extern bool _get(int argCount, Value* args);
-extern bool _post(int argCount, Value* args);
-extern bool _put(int argCount, Value* args);
-extern bool _patch(int argCount, Value* args);
-extern bool _delete(int argCount, Value* args);
-extern bool _head(int argCount, Value* args);
-extern bool _options(int argCount, Value* args);
+extern bool http_get(int argCount, Value* args);
+extern bool http_post(int argCount, Value* args);
+extern bool http_put(int argCount, Value* args);
+extern bool http_patch(int argCount, Value* args);
+extern bool http_delete(int argCount, Value* args);
+extern bool http_head(int argCount, Value* args);
+extern bool http_options(int argCount, Value* args);
 
 #endif

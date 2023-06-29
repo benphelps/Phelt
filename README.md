@@ -245,8 +245,7 @@ These are functions that are always available in the global scope.
 ```js
 print("Hello World"); // no newline
 println("Hello World"); // with newline
-let chars = len("Hello World"); // 11
-let count = len([1, 2, 3]); // 3
+let stype = typeof(value); // "number"
 
 let http = module("http"); // loads the http module
 ```
@@ -338,30 +337,50 @@ let SEEK_CUR = file.SEEK_CUR;
 let SEEK_END = file.SEEK_END;
 
 // open a file
-let fp = fopen("file.txt", "w+");
+let fp = file.open("file.txt", "w+");
 let fp = file.tmpfile();
 let fp = file.mkstemps("fileXXXXXX");
 
 // close a file
-fclose(fp);
+file.close(fp);
 
 // write to a file
-let bytes_written = fwrite(fp, data);
-file.fputc(fp, 65);
-file.fputs(fp, "Hello World");
-file.fflush(fp);
+let bytes_written = file.write(fp, data);
+file.putc(fp, 65);
+file.puts(fp, "Hello World");
+file.flush(fp);
 
 // read from a file
-let data = file.fread(fp, bytes);
-let char = file.fgetc(fp);
-let data = file.fgets(fp, 10);
+let data = file.read(fp, bytes);
+let char = file.getc(fp);
+let data = file.gets(fp, 10);
 
 // traverse a file
-let pos = file.fseek(fp, 0, SEEK_END);
-let pos = file.ftell(fp);
+let pos = file.seek(fp, 0, SEEK_END);
+let pos = file.tell(fp);
 file.rewind(fp);
 
 // file operations
 file.remove("test.txt");
 file.rename("test.txt", "test2.txt");
+```
+
+## `array`
+
+```js
+let array = module("array");
+
+let length = array.length(arr);
+array.push(arr, value);
+let popped = array.pop(arr);
+array.insert(a, idx, value);
+let removed = array.remove(a, idx);
+array.sort(arr, fun(a, b) a > b);
+array.reverse(arr);
+let firstIndex = array.find(arr, idx);
+let lastIndex = array.findLast(arr, idx);
+let mapped = array.map(arr, func);
+let filtered = array.filter(mapped, func);
+let reduced = array.reduce(filtered, func, acc);
+let flattened = array.flatten(arr);
 ```

@@ -268,6 +268,33 @@ char* functionString(ObjFunction* function)
     return name;
 }
 
+const char* objectType(Value value)
+{
+    switch (OBJ_TYPE(value)) {
+    case OBJ_BOUND_METHOD:
+        return "bound";
+    case OBJ_CLASS:
+        return "class";
+    case OBJ_INSTANCE:
+        return "instance";
+    case OBJ_CLOSURE:
+        return "closure";
+    case OBJ_FUNCTION:
+        return "function";
+    case OBJ_NATIVE:
+        return "native";
+    case OBJ_STRING:
+        return "string";
+    case OBJ_TABLE:
+        return "table";
+    case OBJ_ARRAY:
+        return "array";
+    case OBJ_UPVALUE:
+        return "upvalue";
+    }
+    return "unknown";
+}
+
 void printObject(Value value)
 {
     switch (OBJ_TYPE(value)) {

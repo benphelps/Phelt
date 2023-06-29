@@ -7,16 +7,16 @@
 #include <time.h>
 #include <unistd.h>
 
-Value getEnv(const char* name)
+bool system_env(int argCount, Value* args)
 {
-    char* env = getenv(name);
-    if (env == NULL) {
-        return NIL_VAL;
-    }
-    return OBJ_VAL(copyString(env, strlen(env)));
+    phelt_checkArgs(1);
+    phelt_checkString(0);
+    char* env = getenv(phelt_toString(0)->chars);
+    phelt_pushValue(-1, OBJ_VAL(copyString(env, strlen(env))));
+    return true;
 }
 
-bool _exit(int argCount, Value* args)
+bool system_exit(int argCount, Value* args)
 {
     phelt_checkArgs(1);
     phelt_checkNumber(0);
@@ -27,7 +27,7 @@ bool _exit(int argCount, Value* args)
 
 // double time_in_mill(void);
 // let time = system.time()
-bool _time(int argCount, Value* args)
+bool system_time(int argCount, Value* args)
 {
     phelt_checkArgs(0);
 
@@ -37,7 +37,7 @@ bool _time(int argCount, Value* args)
 
 // double time_in_mill(void);
 // let time = system.time()
-bool _mtime(int argCount, Value* args)
+bool system_mtime(int argCount, Value* args)
 {
     phelt_checkArgs(0);
 
@@ -51,7 +51,7 @@ bool _mtime(int argCount, Value* args)
 
 // clock_t clock(void);
 // let clock = system.clock()
-bool _clock(int argCount, Value* args)
+bool system_clock(int argCount, Value* args)
 {
     phelt_checkArgs(0);
 
@@ -61,7 +61,7 @@ bool _clock(int argCount, Value* args)
 
 // int sleep(unsigned int seconds);
 // let sleep = system.sleep(1)
-bool _sleep(int argCount, Value* args)
+bool system_sleep(int argCount, Value* args)
 {
     phelt_checkArgs(1);
     phelt_checkNumber(0);
@@ -73,7 +73,7 @@ bool _sleep(int argCount, Value* args)
 
 // int usleep(useconds_t usec);
 // let usleep = system.usleep(1000)
-bool _usleep(int argCount, Value* args)
+bool system_usleep(int argCount, Value* args)
 {
     phelt_checkArgs(1);
     phelt_checkNumber(0);
@@ -100,7 +100,7 @@ char* replace_placeholder(char* template, char* value)
     return template;
 }
 
-bool _print(int argCount, Value* args)
+bool system_print(int argCount, Value* args)
 {
     if (argCount < 1) {
         phelt_error("No template provided.");
@@ -120,7 +120,7 @@ bool _print(int argCount, Value* args)
     return true;
 }
 
-bool _sprint(int argCount, Value* args)
+bool system_sprint(int argCount, Value* args)
 {
     if (argCount < 1) {
         phelt_error("No template provided.");
@@ -139,14 +139,14 @@ bool _sprint(int argCount, Value* args)
     return true;
 }
 
-bool _println(int argCount, Value* args)
+bool system_println(int argCount, Value* args)
 {
-    _print(argCount, args);
+    system_print(argCount, args);
     printf("\n");
     return true;
 }
 
-bool _len(int argCount, Value* args)
+bool system_len(int argCount, Value* args)
 {
     phelt_checkArgs(1);
     phelt_checkObject(0);
@@ -162,7 +162,14 @@ bool _len(int argCount, Value* args)
     return true;
 }
 
-bool _module(int argCount, Value* args)
+bool system_typeof(int argCount, Value* args)
+{
+    phelt_checkArgs(1);
+    phelt_pushObject(-1, OBJ_VAL(copyString(valueType(args[0]), strlen(valueType(args[0])))));
+    return true;
+}
+
+bool system_module(int argCount, Value* args)
 {
     phelt_checkArgs(1);
     phelt_checkString(0);
@@ -180,24 +187,3 @@ bool _module(int argCount, Value* args)
     phelt_pushObject(-1, table);
     return true;
 }
-
-// bool _call(int argCount, Value* args)
-// {
-//     if (argCount < 1) {
-//         phelt_pushObject(-1, formatString("Expected at least 1 argument, got %d.", argCount));
-//         return false;
-//     }
-
-//     if (!phelt_isObject(0)) {
-//         phelt_pushObject(-1, formatString("Argument must be an object."));
-//         return false;
-//     }
-
-//     ObjClosure* closure = phelt_toClosure(0);
-//     // patch the function to reenter the VM, instead of returning
-//     closure->function->chunk.code[closure->function->chunk.count - 1] = OP_REENTER;
-//     call(closure, argCount - 1);
-//     run(true);
-//     *(vm.stackTop - 1 - argCount) = *(vm.stackTop - 1);
-//     return true;
-// }

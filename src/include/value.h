@@ -116,18 +116,19 @@ typedef struct
     Value* values;
 } ValueArray;
 
-bool     valuesEqual(Value a, Value b);
-void     initValueArray(ValueArray* array);
-void     writeValueArray(ValueArray* array, Value value);
-void     writeValueArrayAt(ValueArray* array, Value value, int index);
-Value    removeValueArrayAt(ValueArray* array, int index);
-void     joinValueArray(ValueArray* array, ValueArray* other);
-void     copyValueArray(ValueArray* old, ValueArray* new, int start, int end);
-void     freeValueArray(ValueArray* array);
-uint32_t hashValue(Value value);
-void     printValue(Value value);
-void     dumpValue(Value value);
-void     printValueArray(ValueArray* array);
-char*    stringValue(Value value);
+bool        valuesEqual(Value a, Value b);
+void        initValueArray(ValueArray* array);
+void        writeValueArray(ValueArray* array, Value value);
+void        writeValueArrayAt(ValueArray* array, Value value, int index);
+Value       removeValueArrayAt(ValueArray* array, int index);
+void        joinValueArray(ValueArray* array, ValueArray* other);
+void        copyValueArray(ValueArray* old, ValueArray* new, int start, int end);
+void        freeValueArray(ValueArray* array);
+uint32_t    hashValue(Value value);
+const char* valueType(Value value);
+void        printValue(Value value);
+void        dumpValue(Value value);
+void        printValueArray(ValueArray* array);
+char*       stringValue(Value value);
 
 #endif

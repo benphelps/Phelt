@@ -131,11 +131,12 @@ ObjUpvalue* newUpvalue(Value* slot);
 ObjTable* newTable(void);
 ObjArray* newArray(void);
 
-void  printObject(Value value);
-void  dumpObject(Value value);
-char* functionString(ObjFunction* function);
-char* objectString(Value value);
-int   objectLength(Value value);
+const char* objectType(Value value);
+void        printObject(Value value);
+void        dumpObject(Value value);
+char*       functionString(ObjFunction* function);
+char*       objectString(Value value);
+int         objectLength(Value value);
 
 static inline bool isObjType(Value value, ObjType type)
 {

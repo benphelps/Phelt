@@ -2,6 +2,8 @@ let array = module("array");
 
 let a = [1, 5, 3, 4, 2];
 
+let length = array.length(a);
+
 array.push(a, 9);
 let popped = array.pop(a);
 

@@ -33,7 +33,7 @@ size_t writefunc(void* ptr, size_t size, size_t nmemb, struct string* s)
     return size * nmemb;
 }
 
-bool _get(int argCount, Value* args)
+bool http_get(int argCount, Value* args)
 {
     phelt_checkArgs(1);
     phelt_checkString(0);
@@ -65,7 +65,7 @@ bool _get(int argCount, Value* args)
     return false;
 }
 
-bool _post(int argCount, Value* args)
+bool http_post(int argCount, Value* args)
 {
     phelt_checkArgs(2);
     phelt_checkString(0);
@@ -99,7 +99,7 @@ bool _post(int argCount, Value* args)
     return false;
 }
 
-bool _put(int argCount, Value* args)
+bool http_put(int argCount, Value* args)
 {
     phelt_checkArgs(2);
     phelt_checkString(0);
@@ -134,7 +134,7 @@ bool _put(int argCount, Value* args)
     return false;
 }
 
-bool _delete(int argCount, Value* args)
+bool http_delete(int argCount, Value* args)
 {
     phelt_checkArgs(2);
     phelt_checkString(0);
@@ -169,7 +169,7 @@ bool _delete(int argCount, Value* args)
     return false;
 }
 
-bool _head(int argCount, Value* args)
+bool http_head(int argCount, Value* args)
 {
     phelt_checkArgs(1);
     phelt_checkString(0);
@@ -202,7 +202,7 @@ bool _head(int argCount, Value* args)
     return false;
 }
 
-bool _options(int argCount, Value* args)
+bool http_options(int argCount, Value* args)
 {
     phelt_checkArgs(1);
     phelt_checkString(0);
@@ -235,7 +235,7 @@ bool _options(int argCount, Value* args)
     return false;
 }
 
-bool _patch(int argCount, Value* args)
+bool http_patch(int argCount, Value* args)
 {
     phelt_checkArgs(2);
     phelt_checkString(0);

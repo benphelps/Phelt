@@ -3,25 +3,25 @@
 
 #include "native.h"
 
-extern bool _ceil(int argCount, Value* args);
-extern bool _floor(int argCount, Value* args);
-extern bool _fabs(int argCount, Value* args);
-extern bool _exp(int argCount, Value* args);
-extern bool _sqrt(int argCount, Value* args);
-extern bool _sin(int argCount, Value* args);
-extern bool _cos(int argCount, Value* args);
-extern bool _tan(int argCount, Value* args);
-extern bool _atan(int argCount, Value* args);
-extern bool _pow(int argCount, Value* args);
-extern bool _atan2(int argCount, Value* args);
-extern bool _deg(int argCount, Value* args);
-extern bool _rad(int argCount, Value* args);
-extern bool _clamp(int argCount, Value* args);
-extern bool _lerp(int argCount, Value* args);
-extern bool _map(int argCount, Value* args);
-extern bool _norm(int argCount, Value* args);
-extern bool _seed(int argCount, Value* args);
-extern bool _rand(int argCount, Value* args);
+extern bool math_ceil(int argCount, Value* args);
+extern bool math_floor(int argCount, Value* args);
+extern bool math_fabs(int argCount, Value* args);
+extern bool math_exp(int argCount, Value* args);
+extern bool math_sqrt(int argCount, Value* args);
+extern bool math_sin(int argCount, Value* args);
+extern bool math_cos(int argCount, Value* args);
+extern bool math_tan(int argCount, Value* args);
+extern bool math_atan(int argCount, Value* args);
+extern bool math_pow(int argCount, Value* args);
+extern bool math_atan2(int argCount, Value* args);
+extern bool math_deg(int argCount, Value* args);
+extern bool math_rad(int argCount, Value* args);
+extern bool math_clamp(int argCount, Value* args);
+extern bool math_lerp(int argCount, Value* args);
+extern bool math_map(int argCount, Value* args);
+extern bool math_norm(int argCount, Value* args);
+extern bool math_seed(int argCount, Value* args);
+extern bool math_rand(int argCount, Value* args);
 extern void mathCallback(Table* table);
 
 #endif
