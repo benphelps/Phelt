@@ -384,3 +384,16 @@ let filtered = array.filter(mapped, func);
 let reduced = array.reduce(filtered, func, acc);
 let flattened = array.flatten(arr);
 ```
+
+## `table`
+
+```js
+let table = module("table");
+
+table.length(tbl);
+table.keys(tbl);
+table.values(tbl);
+table.remove(tbl, key);
+table.insert(tbl, key, value);
+table.hasKey(tbl, key);
+```

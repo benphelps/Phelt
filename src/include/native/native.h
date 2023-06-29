@@ -11,6 +11,7 @@
 #include "native/http.h"
 #include "native/math.h"
 #include "native/system.h"
+#include "native/table.h"
 
 typedef struct {
     const char* name;
@@ -74,78 +75,78 @@ ObjTable*             defineNativeModule(NativeModuleEntry* module);
 #define phelt_checkNumber(pos)                                                         \
     if (!phelt_isNumber(pos)) {                                                        \
         phelt_pushObject(-1, formatString("Argument %d must be a pointer.", pos + 1)); \
-        return false;                                                                \
+        return false;                                                                  \
     }
 
 #define phelt_checkString(pos)                                                        \
     if (!phelt_isString(pos)) {                                                       \
         phelt_pushObject(-1, formatString("Argument %d must be a string.", pos + 1)); \
-        return false;                                                               \
+        return false;                                                                 \
     }
 
 #define phelt_checkPointer(pos)                                                        \
     if (!phelt_isPointer(pos)) {                                                       \
         phelt_pushObject(-1, formatString("Argument %d must be a pointer.", pos + 1)); \
-        return false;                                                                \
+        return false;                                                                  \
     }
 
 #define phelt_checkObject(pos)                                                        \
     if (!phelt_isObject(pos)) {                                                       \
         phelt_pushObject(-1, formatString("Argument %d must be a object.", pos + 1)); \
-        return false;                                                               \
+        return false;                                                                 \
     }
 
 #define phelt_checkBool(pos)                                                           \
     if (!phelt_isBool(pos)) {                                                          \
         phelt_pushObject(-1, formatString("Argument %d must be a boolean.", pos + 1)); \
-        return false;                                                                \
+        return false;                                                                  \
     }
 
 #define phelt_checkNil(pos)                                                        \
     if (!phelt_isNil(pos)) {                                                       \
         phelt_pushObject(-1, formatString("Argument %d must be a nil.", pos + 1)); \
-        return false;                                                            \
+        return false;                                                              \
     }
 
 #define phelt_checkArray(pos)                                                        \
     if (!phelt_isArray(pos)) {                                                       \
         phelt_pushObject(-1, formatString("Argument %d must be a array.", pos + 1)); \
-        return false;                                                              \
+        return false;                                                                \
     }
 
 #define phelt_checkTable(pos)                                                        \
     if (!phelt_isTable(pos)) {                                                       \
         phelt_pushObject(-1, formatString("Argument %d must be a table.", pos + 1)); \
-        return false;                                                              \
+        return false;                                                                \
     }
 
 #define phelt_checkFunction(pos)                                                        \
     if (!phelt_isFunction(pos)) {                                                       \
         phelt_pushObject(-1, formatString("Argument %d must be a function.", pos + 1)); \
-        return false;                                                                 \
+        return false;                                                                   \
     }
 
 #define phelt_checkClosure(pos)                                                        \
     if (!phelt_isClosure(pos)) {                                                       \
         phelt_pushObject(-1, formatString("Argument %d must be a closure.", pos + 1)); \
-        return false;                                                                \
+        return false;                                                                  \
     }
 
 #define phelt_checkArgs(count)                                                                    \
-    if (argCount != count) {                                                                    \
+    if (argCount != count) {                                                                      \
         phelt_pushObject(-1, formatString("Expected %d arguments but got %d.", count, argCount)); \
-        return false;                                                                           \
+        return false;                                                                             \
     }
 
 #define phelt_checkMinArgs(count)                                                                 \
-    if (argCount < count) {                                                                     \
+    if (argCount < count) {                                                                       \
         phelt_pushObject(-1, formatString("Expected %d arguments but got %d.", count, argCount)); \
-        return false;                                                                           \
+        return false;                                                                             \
     }
 
 #define phelt_error(msg, ...) phelt_pushObject(-1, formatString(msg, ##__VA_ARGS__))
 
-#define phelt_callClosure(closure, args)                          \
+#define phelt_callClosure(closure, args)                        \
     do {                                                        \
         Chunk chunk                 = closure->function->chunk; \
         chunk.code[chunk.count - 1] = OP_REENTER;               \

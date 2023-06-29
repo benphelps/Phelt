@@ -129,6 +129,16 @@ NativeFnEntry arrayFns[] = {
     { NULL, NULL },
 };
 
+NativeFnEntry tableFns[] = {
+    { "length", table_length },
+    { "keys", table_keys },
+    { "values", table_values },
+    { "hasKey", table_hasKey },
+    { "remove", table_remove },
+    { "insert", table_insert },
+    { NULL, NULL },
+};
+
 // modules
 NativeModuleEntry nativeModules[] = {
     { "system", systemFns },
@@ -136,6 +146,7 @@ NativeModuleEntry nativeModules[] = {
     { "file", fileFns },
     { "http", httpFns },
     { "array", arrayFns },
+    { "table", tableFns },
     { NULL, NULL },
 };
 
