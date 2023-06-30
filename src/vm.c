@@ -1279,6 +1279,28 @@ InterpretResult run(void)
             DISPATCH();
         }
 
+        CASE_CODE(FORMAT)
+            :
+        {
+            uint16_t argCount   = READ_BYTE();
+            ObjString* template = AS_STRING(peek(argCount));
+
+            char buffer[template->length + TEMPLATE_BUFFER];
+            strcpy(buffer, template->chars);
+
+            for (int i = argCount; i >= 0; i--) {
+                Value arg    = peek(i - 1);
+                char* string = stringValue(arg);
+                replace_placeholder(buffer, string);
+            }
+
+            for (int i = 0; i < argCount + 1; i++)
+                pop();
+
+            push(OBJ_VAL(copyString(buffer, strlen(buffer))));
+            DISPATCH();
+        }
+
         CASE_CODE(IMPORT)
             :
         {

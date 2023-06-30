@@ -332,6 +332,8 @@ int disassembleInstruction(Chunk* chunk, int offset, bool flow)
         return byteInstruction("OP_SET_ARRAY", chunk, offset);
     case OP_JUMP:
         return jumpInstruction("OP_JUMP", 1, chunk, offset);
+    case OP_FORMAT:
+        return byteInstruction("OP_FORMAT", chunk, offset);
     case OP_JUMP_IF_FALSE:
         return jumpInstruction("OP_JUMP_IF_FALSE", 1, chunk, offset);
     case OP_LOOP:
@@ -466,6 +468,8 @@ int moveForward(Chunk* chunk, int offset)
         return offset + 2;
     case OP_JUMP:
         return offset + 3;
+    case OP_FORMAT:
+        return offset + 2;
     case OP_JUMP_IF_FALSE:
         return offset + 3;
     case OP_LOOP:

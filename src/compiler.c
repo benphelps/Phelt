@@ -559,6 +559,15 @@ static void string(bool canAssign)
     UNUSED(canAssign);
 
     emitConstant(OBJ_VAL(copyString(parser.previous.start + 1, parser.previous.length - 2)));
+
+    if (match(TOKEN_PERCENT)) {
+        if (match(TOKEN_LEFT_PAREN)) {
+            uint8_t argCount = argumentList();
+            emitBytes(OP_FORMAT, argCount);
+        } else {
+            error("Expect '(' after string interpolation.");
+        }
+    }
 }
 
 static void namedVariable(Token name, bool canAssign)
