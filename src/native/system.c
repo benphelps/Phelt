@@ -100,6 +100,80 @@ char* replace_placeholder(char* template, char* value)
     return template;
 }
 
+#include <stdlib.h>
+
+void escape(char* str)
+{
+    int write_index = 0;
+    for (int read_index = 0; str[read_index] != '\0'; read_index++) {
+        if (str[read_index] == '\\') {
+            read_index++;
+            switch (str[read_index]) {
+            case 'a':
+                str[write_index++] = '\a';
+                break;
+            case 'b':
+                str[write_index++] = '\b';
+                break;
+            case 'e':
+                str[write_index++] = '\033';
+                break;
+            case 'f':
+                str[write_index++] = '\f';
+                break;
+            case 'n':
+                str[write_index++] = '\n';
+                break;
+            case 'r':
+                str[write_index++] = '\r';
+                break;
+            case 't':
+                str[write_index++] = '\t';
+                break;
+            case 'v':
+                str[write_index++] = '\v';
+                break;
+            case '\\':
+                str[write_index++] = '\\';
+                break;
+            case '"':
+                str[write_index++] = '\"';
+                break;
+            case 'u':
+            case 'U':
+            case 'x': {
+                int  num_digits = (str[read_index] == 'u') ? 4 : (str[read_index] == 'U') ? 8
+                                                                                          : 2;
+                char buffer[num_digits + 1];
+                strncpy(buffer, &str[read_index + 1], num_digits);
+                buffer[num_digits] = '\0';                     // Null terminate the buffer
+                long int code      = strtol(buffer, NULL, 16); // Convert hex to integer
+                write_index += sprintf(&str[write_index], "%lc", (wint_t)code);
+                read_index += num_digits;
+                break;
+            }
+            case '0' ... '7': {
+                // Handle octal escape sequence
+                int  num_digits = 3;
+                char buffer[num_digits + 1];
+                strncpy(buffer, &str[read_index], num_digits);
+                buffer[num_digits] = '\0';                    // Null terminate the buffer
+                long int code      = strtol(buffer, NULL, 8); // Convert octal to integer
+                str[write_index++] = (char)code;
+                read_index += num_digits - 1; // -1 because read_index will be incremented in the for loop
+                break;
+            }
+            default:
+                str[write_index++] = str[read_index];
+                break;
+            }
+        } else {
+            str[write_index++] = str[read_index];
+        }
+    }
+    str[write_index] = '\0'; // Null terminate the string
+}
+
 bool system_print(int argCount, Value* args)
 {
     if (argCount < 1) {
@@ -115,6 +189,7 @@ bool system_print(int argCount, Value* args)
         replace_placeholder(template, value);
     }
 
+    escape(template);
     printf("%s", template);
 
     return true;
