@@ -211,3 +211,18 @@ utf8_int8_t* reverse_utf8(utf8_int8_t* src)
     rev[strlen(src)] = '\0';
     return rev;
 }
+
+char* replace_placeholder(char* template, char* value)
+{
+    char* ptr = strstr(template, "{}");
+    if (ptr != NULL) {
+        char   buffer[TEMPLATE_BUFFER];
+        size_t len = ptr - template;
+        strncpy(buffer, template, len);
+        buffer[len] = '\0';
+        strcat(buffer, value);
+        strcat(buffer, ptr + 2);
+        strcpy(template, buffer);
+    }
+    return template;
+}

@@ -11,6 +11,8 @@
 #define COMPUTED_GOTO
 #define HASH_FUNCTION HASH_MURMUR3 // or HASH_FNV1A
 
+#define TEMPLATE_BUFFER 1024
+
 #include "utf8.h"
 #include <stdarg.h>
 #include <stdbool.h>

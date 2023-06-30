@@ -97,7 +97,7 @@ bool string_split(int argCount, Value* args)
     }
 
     free(tokens);
-    phelt_pushObject(-1, OBJ_VAL(array));
+    phelt_pushObject(-1, array);
     return true;
 }
 
