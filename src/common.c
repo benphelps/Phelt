@@ -31,10 +31,24 @@ utf8_int8_t* readFile(const char* path)
     return buffer;
 }
 
+const char* ensureExtension(const char* path, const char* extension)
+{
+    char* resolvedPath = (char*)malloc(strlen(path) + strlen(extension) + 1);
+    strcpy(resolvedPath, path);
+    char* lastDot = strrchr(resolvedPath, '.');
+    if (lastDot == NULL) {
+        strcat(resolvedPath, extension);
+    } else {
+        strcpy(lastDot, extension);
+    }
+    return resolvedPath;
+}
+
 const char* resolvePath(const char* path)
 {
-    char* cwd          = getcwd(NULL, 0);
-    char* resolvedPath = (char*)malloc(strlen(cwd) + strlen(path) + 2);
+    const char* withExtension = ensureExtension(path, ".ph");
+    char*       cwd           = getcwd(NULL, 0);
+    char*       resolvedPath  = (char*)malloc(strlen(cwd) + strlen(withExtension) + 2);
     strcpy(resolvedPath, cwd);
     strcat(resolvedPath, "/");
     strcat(resolvedPath, path);
@@ -63,10 +77,11 @@ const char* resolveRelativePath(const char* path, const char* currentFile)
     if (filePath == NULL) {
         return resolvePath(path);
     }
-    char* resolvedPath = (char*)malloc(strlen(filePath) + strlen(path) + 2);
+    const char* withExtension = (char*)ensureExtension(path, ".ph");
+    char*       resolvedPath  = (char*)malloc(strlen(filePath) + strlen(withExtension) + 2);
     strcpy(resolvedPath, filePath);
     strcat(resolvedPath, "/");
-    strcat(resolvedPath, path);
+    strcat(resolvedPath, withExtension);
     free((void*)filePath);
     return resolvedPath;
 }
