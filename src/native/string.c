@@ -6,7 +6,7 @@ bool string_length(int argCount, Value* args)
     phelt_checkString(0);
 
     ObjString* string = phelt_toString(0);
-    phelt_pushNumber(-1, string->length);
+    phelt_pushNumber(-1, utf8len(string->chars));
     return true;
 }
 
@@ -45,8 +45,8 @@ bool string_find(int argCount, Value* args)
     phelt_checkString(0);
     phelt_checkString(1);
 
-    char* string = phelt_toCString(0);
-    char* search = phelt_toCString(1);
+    utf8_int8_t* string = phelt_toCString(0);
+    utf8_int8_t* search = phelt_toCString(1);
 
     utf8_int8_t* found = utf8str(string, search);
     if (found == NULL) {
@@ -54,7 +54,7 @@ bool string_find(int argCount, Value* args)
         return true;
     }
 
-    int index = utf8len(found);
+    int index = utf8len(string) - utf8len(found);
     phelt_pushNumber(-1, index);
     return true;
 }

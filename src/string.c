@@ -32,17 +32,17 @@ utf8_int8_t* replace_utf8(utf8_int8_t* original, utf8_int8_t* from, utf8_int8_t*
     int          len_front;
     int          count;
 
-    if (!original || !from)
-        return NULL;
     len_from = strlen(from);
     if (len_from == 0)
         return NULL;
-    if (!to)
-        to = "";
+
     len_to = strlen(to);
+    if (len_to == 0)
+        return NULL;
 
     ins = original;
-    for (count = 0; (tmp = utf8str(ins, from)); ++count) {
+
+    for (count = 0; (tmp = strstr(ins, from)); ++count) {
         ins = tmp + len_from;
     }
 
@@ -52,13 +52,13 @@ utf8_int8_t* replace_utf8(utf8_int8_t* original, utf8_int8_t* from, utf8_int8_t*
         return NULL;
 
     while (count--) {
-        ins       = utf8str(original, from);
+        ins       = strstr(original, from);
         len_front = ins - original;
-        tmp       = utf8ncpy(tmp, original, len_front) + len_front;
-        tmp       = utf8cpy(tmp, to) + len_to;
+        tmp       = strncpy(tmp, original, len_front) + len_front;
+        tmp       = strcpy(tmp, to) + len_to;
         original += len_front + len_from;
     }
-    utf8cpy(tmp, original);
+    strcpy(tmp, original);
     return result;
 }
 
@@ -66,8 +66,8 @@ void split_utf8(utf8_int8_t* src, utf8_int8_t* delim, void*** out_tokens, size_t
 {
     utf8_int8_t* src_ptr   = (utf8_int8_t*)src;
     utf8_int8_t* delim_ptr = (utf8_int8_t*)delim;
-    size_t       src_len   = utf8len(src_ptr);
-    size_t       delim_len = utf8len(delim_ptr);
+    size_t       src_len   = strlen(src_ptr);
+    size_t       delim_len = strlen(delim_ptr);
 
     // Count the number of occurrences of the delimiter in the source string
     size_t       count = 0;

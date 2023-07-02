@@ -286,7 +286,23 @@ bool indexValue(Value value, Value index)
                     runtimeError("String index out of bounds.");
                     return false;
                 }
-                push(OBJ_VAL(copyString(&string->chars[i], 1)));
+
+                int          index = 0;
+                utf8_int32_t codepoint;
+                utf8_int8_t* str = utf8codepoint(string->chars, &codepoint);
+                while (str != NULL) {
+                    if (index == i)
+                        break;
+
+                    str = utf8codepoint(str, &codepoint);
+                    index++;
+                }
+
+                char* output = malloc(5);
+                utf8catcodepoint(output, codepoint, 2);
+
+                push(OBJ_VAL(takeString(output, strlen(output))));
+
                 return true;
             }
             break;
