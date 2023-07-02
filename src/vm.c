@@ -334,17 +334,17 @@ bool valueSlice(Value start, Value end)
     if (IS_OBJ(value)) {
         switch (OBJ_TYPE(value)) {
         case OBJ_STRING: {
-            uint32_t i = (uint32_t)AS_NUMBER(start);
-            uint32_t j = (uint32_t)AS_NUMBER(end);
+            int i = (int)AS_NUMBER(start);
+            int j = (int)AS_NUMBER(end);
 
             ObjString* string     = AS_STRING(value);
-            uint32_t   str_length = utf8len(string->chars);
+            int        str_length = utf8len(string->chars);
 
             if (j < 0)
-                j = (str_length + 1) + j;
+                j = (str_length) + j;
 
             if (i < 0)
-                i = (str_length + 1) + i;
+                i = (str_length) + i;
 
             if (i < 0 || i >= str_length || j < 0 || j >= str_length) {
                 runtimeError("String index out of bounds.");
@@ -352,8 +352,7 @@ bool valueSlice(Value start, Value end)
             }
 
             char* substring = substring_utf8(string->chars, i, j);
-            push(OBJ_VAL(copyString(substring, strlen(substring))));
-            free(substring);
+            push(OBJ_VAL(takeString(substring, strlen(substring))));
             return true;
             break;
         }
