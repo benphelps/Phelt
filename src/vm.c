@@ -624,6 +624,10 @@ InterpretResult run(void)
         {
             if (IS_INSTANCE(peek(0)) && IS_INSTANCE(peek(1))) {
                 INVOKE_DUNDER(vm.eqString);
+            } else if (IS_ARRAY(peek(0)) && IS_ARRAY(peek(1))) {
+                ObjArray* b = AS_ARRAY(pop());
+                ObjArray* a = AS_ARRAY(pop());
+                push(BOOL_VAL(arraysEqual(&a->array, &b->array)));
             } else {
                 Value b = pop();
                 Value a = pop();

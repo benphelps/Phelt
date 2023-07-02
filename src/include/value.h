@@ -124,6 +124,7 @@ Value       removeValueArrayAt(ValueArray* array, int index);
 void        joinValueArray(ValueArray* array, ValueArray* other);
 void        copyValueArray(ValueArray* old, ValueArray* new, int start, int end);
 void        freeValueArray(ValueArray* array);
+bool        arraysEqual(ValueArray* a, ValueArray* b);
 uint32_t    hashValue(Value value);
 const char* valueType(Value value);
 void        printValue(Value value);

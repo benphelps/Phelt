@@ -68,6 +68,21 @@ void freeValueArray(ValueArray* array)
     initValueArray(array);
 }
 
+bool arraysEqual(ValueArray* a, ValueArray* b)
+{
+    if (a->count != b->count) {
+        return false;
+    }
+
+    for (int i = 0; i < a->count; i++) {
+        if (!valuesEqual(a->values[i], b->values[i])) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 static uint32_t hashDouble(double value)
 {
     union BitCast {
