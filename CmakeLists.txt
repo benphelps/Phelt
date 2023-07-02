@@ -25,6 +25,7 @@ add_executable(phelt
     src/native/array.c
     src/native/string.c
     src/native/table.c
+    src/native/debug.c
     src/native/native.c
 )
 

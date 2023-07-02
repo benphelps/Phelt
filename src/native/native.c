@@ -153,6 +153,11 @@ NativeFnEntry stringFns[] = {
     { NULL, NULL },
 };
 
+NativeFnEntry debugFns[] = {
+    { "frame", debug_frame },
+    { NULL, NULL },
+};
+
 // modules
 NativeModuleEntry nativeModules[] = {
     { "system", systemFns },
@@ -162,6 +167,7 @@ NativeModuleEntry nativeModules[] = {
     { "array", arrayFns },
     { "table", tableFns },
     { "string", stringFns },
+    { "debug", debugFns },
     { NULL, NULL },
 };
 

@@ -11,10 +11,11 @@
 
 typedef struct
 {
-    Token current;
-    Token previous;
-    bool  hadError;
-    bool  panicMode;
+    Token       current;
+    Token       previous;
+    bool        hadError;
+    bool        panicMode;
+    const char* source;
 } Parser;
 
 typedef enum {
@@ -317,7 +318,7 @@ static int        resolveLocal(Compiler* compiler, Token* name);
 static int        resolveUpvalue(Compiler* compiler, Token* name);
 static uint8_t    argumentList(void);
 static void       markInitialized(void);
-static void       function(FunctionType type);
+static void       function(FunctionType type, int line);
 
 static void binary(bool canAssign)
 {
@@ -761,7 +762,7 @@ static void anonFunDeclaration(bool canAssign)
     UNUSED(canAssign);
 
     markInitialized();
-    function(TYPE_ANONYMOUS);
+    function(TYPE_ANONYMOUS, parser.previous.line);
 }
 
 ParseRule rules[] = {
@@ -1020,7 +1021,7 @@ static void block(void)
     consume(TOKEN_RIGHT_BRACE, "Expect '}' after block.");
 }
 
-static void function(FunctionType type)
+static void function(FunctionType type, int line)
 {
     Compiler compiler;
     initCompiler(&compiler, type);
@@ -1052,6 +1053,8 @@ static void function(FunctionType type)
     }
 
     ObjFunction* function = endCompiler();
+    function->source      = parser.source;
+    function->line        = line;
     emitBytes(OP_CLOSURE, makeConstant(OBJ_VAL(function)));
 
     for (int i = 0; i < function->upvalueCount; i++) {
@@ -1104,7 +1107,7 @@ static void classDeclaration(void)
                 type = TYPE_INITIALIZER;
             }
 
-            function(type);
+            function(type, parser.previous.line);
             emitBytes(OP_METHOD, constant);
         } else if (match(TOKEN_LET)) {
             uint8_t property = parseVariable("Expect property name.");
@@ -1136,7 +1139,7 @@ static void funDeclaration(void)
 {
     uint8_t global = parseVariable("Expect function name.");
     markInitialized();
-    function(TYPE_FUNCTION);
+    function(TYPE_FUNCTION, parser.previous.line);
     defineVariable(global);
 }
 
@@ -1469,6 +1472,7 @@ ObjFunction* compile(const char* sourcePath, utf8_int8_t* source)
 
     parser.hadError  = false;
     parser.panicMode = false;
+    parser.source    = sourcePath;
 
     advance();
     while (!match(TOKEN_EOF)) {

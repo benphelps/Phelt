@@ -66,6 +66,7 @@ typedef struct {
     Obj         obj;
     int         arity;
     int         upvalueCount;
+    int         line;
     Chunk       chunk;
     ObjString*  name;
     const char* source;
