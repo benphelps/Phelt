@@ -212,6 +212,18 @@ utf8_int8_t* reverse_utf8(utf8_int8_t* src)
     return rev;
 }
 
+utf8_int8_t* repeat_utf8(utf8_int8_t* src, size_t count)
+{
+    size_t       len = strlen(src);
+    utf8_int8_t* rep = malloc(len * count + 1);
+
+    for (size_t i = 0; i < count; i++) {
+        strcat(rep, src);
+    }
+
+    return rep;
+}
+
 char* replace_placeholder(char* template, char* value)
 {
     char* ptr = strstr(template, "{}");

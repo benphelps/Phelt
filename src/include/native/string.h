@@ -14,5 +14,6 @@ extern bool string_trim(int argCount, Value* args);
 extern bool string_upper(int argCount, Value* args);
 extern bool string_lower(int argCount, Value* args);
 extern bool string_reverse(int argCount, Value* args);
+extern bool string_repeat(int argCount, Value* args);
 
 #endif

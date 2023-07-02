@@ -149,3 +149,17 @@ bool string_reverse(int argCount, Value* args)
     phelt_pushString(-1, takeString(rev, strlen(rev)));
     return true;
 }
+
+bool string_repeat(int argCount, Value* args)
+{
+    phelt_checkArgs(2);
+    phelt_checkString(0);
+    phelt_checkNumber(1);
+
+    char* string = phelt_toCString(0);
+    int   times  = (int)phelt_toNumber(1);
+
+    char* repeated = repeat_utf8(string, times);
+    phelt_pushString(-1, takeString(repeated, strlen(repeated)));
+    return true;
+}

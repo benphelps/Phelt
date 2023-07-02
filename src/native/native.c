@@ -149,6 +149,7 @@ NativeFnEntry stringFns[] = {
     { "upper", string_upper },
     { "lower", string_lower },
     { "reverse", string_reverse },
+    { "repeat", string_repeat },
     { NULL, NULL },
 };
 
