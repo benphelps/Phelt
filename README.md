@@ -412,4 +412,24 @@ let new = string.sub(str, start, end);
 let new = string.find(str, substr);
 let new = string.replace(str, substr, newstr);
 let new = string.reverse(str);
+let new = string.repeat(str, count);
+```
+
+## `debug`
+
+```js
+let debug = module("debug");
+
+fun test() {
+    let self = debug.frame(0);
+    let caller = debug.frame(1);
+
+    println(
+        "I am fn `{}` defined on line, I take {} arguments, {} called from line {} in {}",
+        self.function.name, self.function.line, self.function.arity,
+        caller.line, caller.source
+    );
+}
+
+test();
 ```
