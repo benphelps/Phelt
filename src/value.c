@@ -75,7 +75,11 @@ bool arraysEqual(ValueArray* a, ValueArray* b)
     }
 
     for (int i = 0; i < a->count; i++) {
-        if (!valuesEqual(a->values[i], b->values[i])) {
+        if (IS_ARRAY(a->values[i]) && IS_ARRAY(b->values[i])) {
+            if (!arraysEqual(&AS_ARRAY(a->values[i])->array, &AS_ARRAY(b->values[i])->array)) {
+                return false;
+            }
+        } else if (!valuesEqual(a->values[i], b->values[i])) {
             return false;
         }
     }
@@ -133,7 +137,7 @@ void printValueArray(ValueArray* array)
 {
     printf("[ ");
     for (int i = 0; i < array->count; i++) {
-        printValue(array->values[i]);
+        dumpValue(array->values[i]);
         if (i < array->count - 1) {
             printf(", ");
         }
