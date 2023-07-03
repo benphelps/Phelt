@@ -8,7 +8,7 @@ Phelt is a small and versatile scripting language. It's based on Lox, as describ
     -   Strings & identifiers, literals, function names, class names, etc
     -   It should just work everywhere, including indexing, slicing, etc.
 -   Variables
-    -   Strings, Numbers (floats, integers, hex, binary, octal), Booleans, Nil
+    -   Strings (immutable), Numbers (floats, integers, hex, binary, octal), Booleans, Nil
     -   Arrays, Tables (dictionaries, maps, etc., whatever you want to call them)
         -   Keys can be any type
         -   Values can be any type
