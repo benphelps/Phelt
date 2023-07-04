@@ -23,18 +23,10 @@ void writeValueArray(ValueArray* array, Value value)
 
 void writeValueArrayAt(ValueArray* array, Value value, int index)
 {
-    if (array->capacity < array->count + 1) {
-        int oldCapacity = array->capacity;
-        array->capacity = GROW_CAPACITY(oldCapacity);
-        array->values   = GROW_ARRAY(Value, array->values, oldCapacity, array->capacity);
+    if (index >= array->count || index < 0) {
+        return;
     }
-
-    for (int i = array->count; i > index; i--) {
-        array->values[i] = array->values[i - 1];
-    }
-
     array->values[index] = value;
-    array->count++;
 }
 
 Value removeValueArrayAt(ValueArray* array, int index)
