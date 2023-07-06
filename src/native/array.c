@@ -42,8 +42,8 @@ bool array_insert(int argCount, Value* args)
     phelt_checkArray(0);
     phelt_checkNumber(1);
 
-    ObjArray* array = phelt_toArray(0);
-    int       index = (int)phelt_toNumber(1);
+    ObjArray*    array = phelt_toArray(0);
+    unsigned int index = (unsigned int)phelt_toNumber(1);
     if (index < 0 || index > array->array.count) {
         phelt_error("Index out of bounds.");
         return false;
@@ -59,8 +59,8 @@ bool array_remove(int argCount, Value* args)
     phelt_checkArray(0);
     phelt_checkNumber(1);
 
-    ObjArray* array = phelt_toArray(0);
-    int       index = (int)phelt_toNumber(1);
+    ObjArray*    array = phelt_toArray(0);
+    unsigned int index = (unsigned int)phelt_toNumber(1);
     if (index < 0 || index >= array->array.count) {
         phelt_error("Index out of bounds.");
         return false;
@@ -84,8 +84,8 @@ bool array_sort(int argCount, Value* args)
         return true;
     }
 
-    for (int i = 0; i < array->array.count - 1; i++) {
-        for (int j = i + 1; j < array->array.count; j++) {
+    for (unsigned int i = 0; i < array->array.count - 1; i++) {
+        for (unsigned int j = i + 1; j < array->array.count; j++) {
             push(array->array.values[i]);
             push(array->array.values[j]);
             phelt_callClosure(func, 2);
@@ -114,7 +114,7 @@ bool array_reverse(int argCount, Value* args)
         return true;
     }
 
-    for (int i = 0; i < array->array.count / 2; i++) {
+    for (unsigned int i = 0; i < array->array.count / 2; i++) {
         Value temp                                      = array->array.values[i];
         array->array.values[i]                          = array->array.values[array->array.count - i - 1];
         array->array.values[array->array.count - i - 1] = temp;
@@ -135,7 +135,7 @@ bool array_find(int argCount, Value* args)
         return true;
     }
 
-    for (int i = 0; i < array->array.count; i++) {
+    for (unsigned int i = 0; i < array->array.count; i++) {
         if (valuesEqual(array->array.values[i], phelt_value(1))) {
             phelt_pushNumber(-1, i);
             return true;
@@ -158,7 +158,7 @@ bool array_findLast(int argCount, Value* args)
         return true;
     }
 
-    for (int i = array->array.count - 1; i >= 0; i--) {
+    for (unsigned int i = array->array.count - 1; i >= 0; i--) {
         if (valuesEqual(array->array.values[i], phelt_value(1))) {
             phelt_pushNumber(-1, i);
             return true;
@@ -183,7 +183,7 @@ bool array_map(int argCount, Value* args)
     mapped->array.count    = array->array.count;
     mapped->array.values   = ALLOCATE(Value, array->array.capacity);
 
-    for (int i = 0; i < array->array.count; i++) {
+    for (unsigned int i = 0; i < array->array.count; i++) {
         push(array->array.values[i]);
         phelt_callClosure(func, 1);
         pop();                           // pop value
@@ -208,7 +208,7 @@ bool array_filter(int argCount, Value* args)
     filtered->array.count    = 0;
     filtered->array.values   = ALLOCATE(Value, array->array.capacity);
 
-    for (int i = 0; i <= array->array.count; i++) {
+    for (unsigned int i = 0; i <= array->array.count; i++) {
         push(array->array.values[i]);
         phelt_callClosure(func, 1);
         pop();                        // pop value
@@ -233,7 +233,7 @@ bool array_reduce(int argCount, Value* args)
     ObjClosure* func  = phelt_toClosure(1);
     Value       acc   = phelt_value(2);
 
-    for (int i = 0; i <= array->array.count; i++) {
+    for (unsigned int i = 0; i <= array->array.count; i++) {
         push(acc);                    // push acc
         push(array->array.values[i]); // push value
         phelt_callClosure(func, 2);
@@ -271,10 +271,10 @@ bool array_flatten(int argCount, Value* args)
         current->array.values   = ALLOCATE(Value, array->array.capacity);
         hadSubArrays            = false;
 
-        for (int i = 0; i < array->array.count; i++) {
+        for (unsigned int i = 0; i < array->array.count; i++) {
             if (IS_ARRAY(array->array.values[i])) {
                 ObjArray* subArray = AS_ARRAY(array->array.values[i]);
-                for (int j = 0; j < subArray->array.count; j++) {
+                for (unsigned int j = 0; j < subArray->array.count; j++) {
                     writeValueArray(&current->array, subArray->array.values[j]);
                 }
                 hadSubArrays = true;

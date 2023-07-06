@@ -111,18 +111,18 @@ typedef struct
 
 typedef struct
 {
-    int    capacity;
-    int    count;
-    Value* values;
+    unsigned int capacity;
+    unsigned int count;
+    Value*       values;
 } ValueArray;
 
 bool        valuesEqual(Value a, Value b);
 void        initValueArray(ValueArray* array);
 void        writeValueArray(ValueArray* array, Value value);
-void        writeValueArrayAt(ValueArray* array, Value value, int index);
-Value       removeValueArrayAt(ValueArray* array, int index);
+void        writeValueArrayAt(ValueArray* array, Value value, unsigned int index);
+Value       removeValueArrayAt(ValueArray* array, unsigned int index);
 void        joinValueArray(ValueArray* array, ValueArray* other);
-void        copyValueArray(ValueArray* old, ValueArray* new, int start, int end);
+void        copyValueArray(ValueArray* old, ValueArray* new, unsigned int start, unsigned int end);
 void        freeValueArray(ValueArray* array);
 bool        arraysEqual(ValueArray* a, ValueArray* b);
 uint32_t    hashValue(Value value);

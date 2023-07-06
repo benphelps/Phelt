@@ -4,8 +4,8 @@
             "type": "lldb",
             "request": "launch",
             "name": "Launch",
-            "program": "${workspaceRoot}/build/lux",
-            "args": ["tests/all.lux"],
+            "program": "${workspaceRoot}/build/phelt",
+            "args": ["phelt/hashab.ph"],
             "cwd": "${workspaceRoot}"
         }
     ]

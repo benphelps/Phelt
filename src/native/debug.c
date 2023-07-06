@@ -45,12 +45,12 @@ bool debug_frame(int argCount, Value* args)
     tableSet(
         &funTable->table,
         OBJ_VAL(copyString("name", 4)),
-        OBJ_VAL(name));
+        name);
 
     tableSet(
         &funTable->table,
         OBJ_VAL(copyString("arity", 5)),
-        function->arity);
+        NUMBER_VAL(function->arity));
 
     tableSet(
         &table->table,

@@ -12,24 +12,24 @@ void initValueArray(ValueArray* array)
 void writeValueArray(ValueArray* array, Value value)
 {
     if (array->capacity < array->count + 1) {
-        int oldCapacity = array->capacity;
-        array->capacity = GROW_CAPACITY(oldCapacity);
-        array->values   = GROW_ARRAY(Value, array->values, oldCapacity, array->capacity);
+        unsigned int oldCapacity = array->capacity;
+        array->capacity          = GROW_CAPACITY(oldCapacity);
+        array->values            = GROW_ARRAY(Value, array->values, oldCapacity, array->capacity);
     }
 
     array->values[array->count] = value;
     array->count++;
 }
 
-void writeValueArrayAt(ValueArray* array, Value value, int index)
+void writeValueArrayAt(ValueArray* array, Value value, unsigned int index)
 {
     if (array->capacity < array->count + 1) {
-        int oldCapacity = array->capacity;
-        array->capacity = GROW_CAPACITY(oldCapacity);
-        array->values   = GROW_ARRAY(Value, array->values, oldCapacity, array->capacity);
+        unsigned int oldCapacity = array->capacity;
+        array->capacity          = GROW_CAPACITY(oldCapacity);
+        array->values            = GROW_ARRAY(Value, array->values, oldCapacity, array->capacity);
     }
 
-    for (int i = array->count; i > index; i--) {
+    for (unsigned int i = array->count; i > index; i--) {
         array->values[i] = array->values[i - 1];
     }
 
@@ -37,10 +37,10 @@ void writeValueArrayAt(ValueArray* array, Value value, int index)
     array->count++;
 }
 
-Value removeValueArrayAt(ValueArray* array, int index)
+Value removeValueArrayAt(ValueArray* array, unsigned int index)
 {
     Value value = array->values[index];
-    for (int i = index; i < array->count - 1; i++) {
+    for (unsigned int i = index; i < array->count - 1; i++) {
         array->values[i] = array->values[i + 1];
     }
 
@@ -50,14 +50,14 @@ Value removeValueArrayAt(ValueArray* array, int index)
 
 void joinValueArray(ValueArray* array, ValueArray* other)
 {
-    for (int i = 0; i < other->count; i++) {
+    for (unsigned int i = 0; i < other->count; i++) {
         writeValueArray(array, other->values[i]);
     }
 }
 
-void copyValueArray(ValueArray* old, ValueArray* new, int start, int end)
+void copyValueArray(ValueArray* old, ValueArray* new, unsigned int start, unsigned int end)
 {
-    for (int i = start; i <= end; i++) {
+    for (unsigned int i = start; i <= end; i++) {
         writeValueArray(new, old->values[i]);
     }
 }
@@ -74,7 +74,7 @@ bool arraysEqual(ValueArray* a, ValueArray* b)
         return false;
     }
 
-    for (int i = 0; i < a->count; i++) {
+    for (unsigned int i = 0; i < a->count; i++) {
         if (IS_ARRAY(a->values[i]) && IS_ARRAY(b->values[i])) {
             if (!arraysEqual(&AS_ARRAY(a->values[i])->array, &AS_ARRAY(b->values[i])->array)) {
                 return false;
@@ -136,7 +136,7 @@ uint32_t hashValue(Value value)
 void printValueArray(ValueArray* array)
 {
     printf("[ ");
-    for (int i = 0; i < array->count; i++) {
+    for (unsigned int i = 0; i < array->count; i++) {
         dumpValue(array->values[i]);
         if (i < array->count - 1) {
             printf(", ");
@@ -266,27 +266,13 @@ void dumpValue(Value value)
 
 char* format_double(double val)
 {
-    char* buffer = malloc(sizeof(char) * 64);
-    if (buffer == NULL) {
-        fprintf(stderr, "Memory allocation failed\n");
+    char* str = (char*)malloc(50 * sizeof(char));
+    if (str == NULL) {
+        fprintf(stderr, "Malloc failed!\n");
         return NULL;
     }
-
-    sprintf(buffer, "%.10f", val);
-
-    // Trimming from the end
-    char* ptr = &buffer[strlen(buffer) - 1];
-    while (*ptr == '0') {
-        *ptr = '\0';
-        ptr--;
-    }
-
-    // If the last character is '.', also remove it
-    if (*ptr == '.') {
-        *ptr = '\0';
-    }
-
-    return buffer;
+    sprintf(str, "%.14g", val);
+    return str;
 }
 
 char* stringValue(Value value)

@@ -17,7 +17,7 @@ bool table_keys(int argCount, Value* args)
 
     ObjTable* table = phelt_toTable(0);
     ObjArray* array = newArray();
-    for (int i = 0; i < table->table.capacity; i++) {
+    for (unsigned int i = 0; i < table->table.capacity; i++) {
         Entry* entry = &table->table.entries[i];
         if (!IS_EMPTY(entry->key)) {
             writeValueArray(&array->array, entry->key);
@@ -34,7 +34,7 @@ bool table_values(int argCount, Value* args)
 
     ObjTable* table = phelt_toTable(0);
     ObjArray* array = newArray();
-    for (int i = 0; i < table->table.capacity; i++) {
+    for (unsigned int i = 0; i < table->table.capacity; i++) {
         Entry* entry = &table->table.entries[i];
         if (!IS_EMPTY(entry->key)) {
             writeValueArray(&array->array, entry->value);

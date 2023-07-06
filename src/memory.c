@@ -138,7 +138,7 @@ void markValue(Value value)
 
 static void markArray(ValueArray* array)
 {
-    for (int i = 0; i < array->count; i++) {
+    for (unsigned int i = 0; i < array->count; i++) {
         markValue(array->values[i]);
     }
 }

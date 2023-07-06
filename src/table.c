@@ -58,16 +58,16 @@ bool tableGet(Table* table, Value key, Value* value)
     return true;
 }
 
-static void adjustCapacity(Table* table, int capacity)
+static void adjustCapacity(Table* table, unsigned int capacity)
 {
     Entry* entries = ALLOCATE(Entry, capacity);
-    for (int i = 0; i < capacity; i++) {
+    for (unsigned int i = 0; i < capacity; i++) {
         entries[i].key   = EMPTY_VAL;
         entries[i].value = NIL_VAL;
     }
 
     table->count = 0;
-    for (int i = 0; i < table->capacity; i++) {
+    for (unsigned int i = 0; i < table->capacity; i++) {
         Entry* entry = &table->entries[i];
         if (IS_EMPTY(entry->key))
             continue;
@@ -118,7 +118,7 @@ bool tableDelete(Table* table, Value key)
 
 void tableAddAll(Table* from, Table* to)
 {
-    for (int i = 0; i < from->capacity; i++) {
+    for (unsigned int i = 0; i < from->capacity; i++) {
         Entry* entry = &from->entries[i];
         if (!IS_EMPTY(entry->key)) {
             tableSet(to, entry->key, entry->value);
@@ -165,7 +165,7 @@ static void printEntry(Entry* entry)
 void printTable(Table* table)
 {
     printf("{ ");
-    for (int i = 0; i < table->capacity; i++) {
+    for (unsigned int i = 0; i < table->capacity; i++) {
         Entry* entry = &table->entries[i];
         Entry* next  = &table->entries[i + 1];
         if (!IS_EMPTY(entry->key)) {
@@ -179,7 +179,7 @@ void printTable(Table* table)
 
 void tableRemoveWhite(Table* table)
 {
-    for (int i = 0; i < table->capacity; i++) {
+    for (unsigned int i = 0; i < table->capacity; i++) {
         Entry* entry = &table->entries[i];
         if (IS_EMPTY(entry->key)) {
             tableDelete(table, entry->key);
@@ -189,7 +189,7 @@ void tableRemoveWhite(Table* table)
 
 void markTable(Table* table)
 {
-    for (int i = 0; i < table->capacity; i++) {
+    for (unsigned int i = 0; i < table->capacity; i++) {
         Entry* entry = &table->entries[i];
         markValue(entry->key);
         markValue(entry->value);

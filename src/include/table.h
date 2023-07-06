@@ -12,9 +12,9 @@ typedef struct
 
 typedef struct
 {
-    int    count;
-    int    capacity;
-    Entry* entries;
+    unsigned int count;
+    unsigned int capacity;
+    Entry*       entries;
 } Table;
 
 void       initTable(Table* table);
