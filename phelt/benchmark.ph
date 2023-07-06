@@ -1,3 +1,5 @@
+let system = module("system");
+
 class Zoo {
   init() {
     this.aarvark  = 1;
