@@ -5,7 +5,7 @@
             "request": "launch",
             "name": "Launch",
             "program": "${workspaceRoot}/build/phelt",
-            "args": ["phelt/hashab.ph"],
+            "args": ["phelt/test.ph"],
             "cwd": "${workspaceRoot}"
         }
     ]
