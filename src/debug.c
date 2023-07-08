@@ -263,10 +263,13 @@ int disassembleInstruction(Chunk* chunk, int offset, bool flow)
         }
     }
 
-    if (offset > 0 && chunk->lines[offset] == chunk->lines[offset - 1]) {
+    int line = AS_NUMBER(chunk->lines.values[offset]);
+    int prev = AS_NUMBER(chunk->lines.values[offset - 1]);
+
+    if (offset > 0 && line == prev) {
         printf("   | ");
     } else {
-        printf("%4d ", chunk->lines[offset]);
+        printf("%4d ", line);
     }
 
     switch (instruction) {

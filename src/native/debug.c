@@ -31,7 +31,7 @@ bool debug_frame(int argCount, Value* args)
     tableSet(
         &table->table,
         OBJ_VAL(copyString("line", 4)),
-        NUMBER_VAL(function->chunk.lines[frame->ip - function->chunk.code - 1]));
+        function->chunk.lines.values[frame->ip - function->chunk.code - 1]);
 
     ObjTable* funTable = newTable();
 

@@ -6,5 +6,6 @@
 
 void disassembleChunk(Chunk* chunk, const char* name, bool flow);
 int  disassembleInstruction(Chunk* chunk, int offset, bool flow);
+int  moveForward(Chunk* chunk, int offset);
 
 #endif

@@ -30,7 +30,7 @@ void runtimeError(const char* format, ...)
         ObjFunction* function    = frame->closure->function;
         size_t       instruction = frame->ip - function->chunk.code - 1;
         fprintf(stderr, "[line %d] in ",
-            function->chunk.lines[instruction]);
+            (int)AS_NUMBER(function->chunk.lines.values[instruction]));
         if (function->name == NULL) {
             fprintf(stderr, "%s\n", basename((char*)function->source));
         } else {

@@ -1,13 +1,10 @@
 #include "compiler.h"
 
 #include "common.h"
+#include "debug.h"
 #include "memory.h"
 #include "object.h"
 #include "scanner.h"
-
-#ifdef DEBUG_PRINT_CODE
-#include "debug.h"
-#endif
 
 typedef struct
 {
@@ -1477,6 +1474,148 @@ static void statement(void)
     }
 }
 
+static void optimizeBinaryConst(Chunk* chunk, int* index)
+{
+    Value*   constants = chunk->constants.values;
+    uint8_t* code      = chunk->code;
+
+    uint16_t arg1 = (code[*index + 1] << 8) | code[*index + 2];
+    uint16_t arg2 = (code[*index + 4] << 8) | code[*index + 5];
+
+#define BINARY_OP(op)                                 \
+    {                                                 \
+        double b        = AS_NUMBER(constants[arg2]); \
+        double a        = AS_NUMBER(constants[arg1]); \
+        constants[arg1] = NUMBER_VAL(a op b);         \
+    }
+
+#define BINARY_OP_INT(op)                                  \
+    {                                                      \
+        int b           = (int)AS_NUMBER(constants[arg2]); \
+        int a           = (int)AS_NUMBER(constants[arg1]); \
+        constants[arg1] = NUMBER_VAL(a op b);              \
+    }
+
+#define BINARY_OP_BOOL(op)                            \
+    {                                                 \
+        double b        = AS_NUMBER(constants[arg2]); \
+        double a        = AS_NUMBER(constants[arg1]); \
+        constants[arg1] = BOOL_VAL(a op b);           \
+    }
+
+    switch (chunk->code[*index + 6]) {
+    case OP_ADD:
+        BINARY_OP(+);
+        break;
+    case OP_MULTIPLY:
+        BINARY_OP(*);
+        break;
+    case OP_DIVIDE:
+        BINARY_OP(/);
+        break;
+    case OP_SUBTRACT:
+        BINARY_OP(-);
+        break;
+    case OP_MODULO:
+        BINARY_OP_INT(%);
+        break;
+    case OP_BITWISE_AND:
+        BINARY_OP_INT(&);
+        break;
+    case OP_BITWISE_OR:
+        BINARY_OP_INT(|);
+        break;
+    case OP_BITWISE_XOR:
+        BINARY_OP_INT(^);
+        break;
+    case OP_SHIFT_LEFT:
+        BINARY_OP_INT(<<);
+        break;
+    case OP_SHIFT_RIGHT:
+        BINARY_OP_INT(>>);
+        break;
+    case OP_LESS:
+        BINARY_OP_BOOL(<);
+        break;
+    case OP_GREATER:
+        BINARY_OP_BOOL(>);
+        break;
+    default:
+        break;
+    }
+
+    remiteBytes(chunk, *index + 3, 4);
+}
+
+void optimizeChunk(Chunk* chunk)
+{
+    Value*   constants = chunk->constants.values;
+    uint8_t* code      = chunk->code;
+
+    int passes = 0;
+    int folds  = 0;
+
+    for (int i = 0; i < chunk->count;) {
+        uint8_t instruction = code[i];
+        int     movement    = moveForward(chunk, i);
+        // printf("OpCode Index: %d\n", i);
+        // printf("Passes: %d\n", passes);
+        // disassembleChunk(chunk, "<script>", false);
+
+        switch (instruction) {
+        case OP_CONSTANT: {
+            if (movement < chunk->count) {
+                uint8_t nextInstruction = code[i + 3];
+                if (nextInstruction == OP_CONSTANT) {
+                    uint8_t  operation = code[i + 6];
+                    uint16_t arg1      = (code[i + 1] << 8) | code[i + 2];
+                    uint16_t arg2      = (code[i + 4] << 8) | code[i + 5];
+
+                    switch (operation) {
+                    case OP_ADD:
+                    case OP_MULTIPLY:
+                    case OP_DIVIDE:
+                    case OP_SUBTRACT:
+                    case OP_MODULO:
+                    case OP_BITWISE_AND:
+                    case OP_BITWISE_OR:
+                    case OP_BITWISE_XOR:
+                    case OP_SHIFT_LEFT:
+                    case OP_SHIFT_RIGHT:
+                    case OP_LESS:
+                    case OP_GREATER:
+                        if (IS_NUMBER(constants[arg1]) && IS_NUMBER(constants[arg2])) {
+                            optimizeBinaryConst(chunk, &i);
+                            folds++;
+                        }
+                        break;
+                    default:
+                        i = movement;
+                        break;
+                    }
+                } else {
+                    i = movement;
+                }
+            } else {
+                // printf("OP_CONSTANT out of range\n");
+            }
+            break;
+        }
+        default:
+            i = movement;
+            break;
+        }
+
+        passes++;
+        // printf("\n");
+    }
+
+    UNUSED(passes);
+    UNUSED(folds);
+    // printf("Optimization Passes: %d\n", passes);
+    // printf("Constant Folds: %d\n", folds);
+}
+
 ObjFunction* compile(const char* sourcePath, utf8_int8_t* source)
 {
     initScanner(source);
@@ -1493,7 +1632,8 @@ ObjFunction* compile(const char* sourcePath, utf8_int8_t* source)
     }
 
     ObjFunction* function = endCompiler();
-    function->source      = sourcePath;
+    optimizeChunk(&function->chunk);
+    function->source = sourcePath;
     return parser.hadError ? NULL : function;
 }
 
