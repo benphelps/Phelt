@@ -173,11 +173,9 @@ bool math_rand(int argCount, Value* args)
 void mathCallback(Table* table)
 {
 #define SET_CONST(name, value)                     \
-    push(OBJ_VAL(copyString(name, strlen(name)))); \
     push(NUMBER_VAL(value));                       \
-    tableSet(table, vm.stack[0], vm.stack[1]);     \
-    pop();                                         \
-    pop();
+    push(OBJ_VAL(copyString(name, strlen(name)))); \
+    tableSet(table, pop(), pop());
 
     SET_CONST("E", M_E);
     SET_CONST("LOG2E", M_LOG2E);

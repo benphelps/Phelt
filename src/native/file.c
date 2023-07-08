@@ -325,18 +325,14 @@ bool file_rename(int argCount, Value* args)
 void fileCallback(Table* table)
 {
 #define SET_CONST(name, value)                     \
-    push(OBJ_VAL(copyString(name, strlen(name)))); \
     push(NUMBER_VAL(value));                       \
-    tableSet(table, vm.stack[0], vm.stack[1]);     \
-    pop();                                         \
-    pop();
+    push(OBJ_VAL(copyString(name, strlen(name)))); \
+    tableSet(table, pop(), pop());
 
 #define SET_CONST_PTR(name, value)                 \
-    push(OBJ_VAL(copyString(name, strlen(name)))); \
     push(POINTER_VAL(value));                      \
-    tableSet(table, vm.stack[0], vm.stack[1]);     \
-    pop();                                         \
-    pop();
+    push(OBJ_VAL(copyString(name, strlen(name)))); \
+    tableSet(table, pop(), pop());
 
     SET_CONST_PTR("stdin", (uintptr_t)stdin);
     SET_CONST_PTR("stdout", (uintptr_t)stdout);
