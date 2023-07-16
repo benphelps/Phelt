@@ -4,9 +4,14 @@ Phelt is a small and versatile scripting language. It's based on Lox, as describ
 
 # Features
 
+-   Bytecode Optimizations
+    -   Constant folding (compile time arithmetic)
+    -   Local & Global access fusion (consecutive local or global access instructions are merged into a single instruction)
+    -   `CALL` instructions that immediately throw away the result are converted to `CALL_BLIND`
+    -   Consecutive `POP`s are merged into a single `POP_N` with the count as the operand
 -   UTF-8 support
     -   Strings & identifiers, literals, function names, class names, etc
-    -   It should just work everywhere, including indexing, slicing, etc.
+    -   It should "just work" everywhere, including indexing and slicing operations
 -   Variables
     -   Strings (immutable), Numbers (floats, integers, hex, binary, octal), Booleans, Nil
     -   Arrays, Tables (dictionaries, maps, etc., whatever you want to call them)
@@ -16,7 +21,7 @@ Phelt is a small and versatile scripting language. It's based on Lox, as describ
 -   Control flow
     -   if / else if / else
     -   while, for
-    -   switch
+    -   switch (non-fallthrough)
 -   Functions
     -   Named functions, Anonymous functions
     -   Inline single expression functions
@@ -31,7 +36,7 @@ Phelt is a small and versatile scripting language. It's based on Lox, as describ
     -   The standard library is written in C, and is compiled into the `phelt` executable.
         -   A lua-esque set of macros for manipulating the stack, allows for easy implementation of functions in C
     -   It is a work in progress, might be buggy
-    -   Currently includes `system`, `math`, `http` and `file` modules
+    -   Currently includes `system`, `math`, `http`, `file`, `array`, `table` and `debug` modules
     -   On-demand loading of modules, using `module(name)` function
         -   Keeps namespace clean, allows for mapping modules to your own names
 -   Imports
@@ -213,7 +218,7 @@ Currently supported dunder methods:
 
 -   `__str` — called when printed, or otherwise converted to a string
 -   `__add`, `__sub`, `__mul`, `__div` — called when using `+`, `-`, `*`, `/` operators
--   `__gt`, `__lt`, `__eq`, `__not` — called when using `>`, `<`, `==`, `!` operators, other comparison operators are implemented in terms of these
+-   `__gt`, `__lt`, `__eq`, `__gte`, `__lte`, `__ne`, `__not` — called when using `>`, `<`, `==`, `>=`, `<=`, `!=`, `!` operators
 -   `__and`, `__or`, `__xor`, `__mod` — called when using `&`, `|`, `^`, `%` operators
 -   `__rshift`, `__lshift` — called when using `>>`, `<<` operators
 
@@ -245,7 +250,7 @@ These are functions that are always available in the global scope.
 ```js
 print("Hello World"); // no newline
 println("Hello World"); // with newline
-let stype = typeof(value); // "number"
+let stype = typeof value; // "number"
 
 let http = module("http"); // loads the http module
 ```
