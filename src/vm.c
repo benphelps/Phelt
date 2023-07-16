@@ -1,4 +1,5 @@
 #include <libgen.h>
+#include <math.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -87,10 +88,16 @@ void initVM(void)
     vm.divString    = copyString("__div", 5);
     vm.gtString     = NULL;
     vm.gtString     = copyString("__gt", 4);
+    vm.gteString    = NULL;
+    vm.gteString    = copyString("__gte", 4);
     vm.ltString     = NULL;
     vm.ltString     = copyString("__lt", 4);
+    vm.lteString    = NULL;
+    vm.lteString    = copyString("__lte", 4);
     vm.eqString     = NULL;
     vm.eqString     = copyString("__eq", 4);
+    vm.neqString    = NULL;
+    vm.neqString    = copyString("__neq", 4);
     vm.andString    = NULL;
     vm.andString    = copyString("__and", 5);
     vm.orString     = NULL;
@@ -120,8 +127,11 @@ void freeVM(void)
     vm.mulString    = NULL;
     vm.divString    = NULL;
     vm.gtString     = NULL;
+    vm.gteString    = NULL;
     vm.ltString     = NULL;
+    vm.lteString    = NULL;
     vm.eqString     = NULL;
+    vm.neqString    = NULL;
     vm.andString    = NULL;
     vm.orString     = NULL;
     vm.xorString    = NULL;
@@ -429,6 +439,8 @@ InterpretResult run(void)
 #define DROP() (--vm.stackTop)
 #define PEEK() (*(vm.stackTop - 1))
 #define PEEK2() (*(vm.stackTop - 2))
+#define PEEK3() (*(vm.stackTop - 3))
+#define PEEK4() (*(vm.stackTop - 4))
 #define READ_BYTE() (*ip++)
 #define READ_SHORT() (ip += 2, (uint16_t)((ip[-2] << 8) | ip[-1]))
 
@@ -587,6 +599,23 @@ InterpretResult run(void)
             DISPATCH();
         }
 
+        CASE_CODE(NOT_EQUAL)
+            :
+        {
+            if (IS_INSTANCE(PEEK()) && IS_INSTANCE(PEEK2())) {
+                INVOKE_DUNDER(vm.neqString);
+            } else if (IS_ARRAY(PEEK()) && IS_ARRAY(PEEK2())) {
+                ObjArray* b = AS_ARRAY(POP());
+                ObjArray* a = AS_ARRAY(POP());
+                PUSH(BOOL_VAL(!arraysEqual(&a->array, &b->array)));
+            } else {
+                Value b = POP();
+                Value a = POP();
+                PUSH(BOOL_VAL(!valuesEqual(a, b)));
+            }
+            DISPATCH();
+        }
+
         CASE_CODE(EQUAL)
             :
         {
@@ -615,6 +644,17 @@ InterpretResult run(void)
             DISPATCH();
         }
 
+        CASE_CODE(GREATER_EQUAL)
+            :
+        {
+            if (IS_INSTANCE(PEEK()) && IS_INSTANCE(PEEK2())) {
+                INVOKE_DUNDER(vm.gteString);
+            } else {
+                BINARY_OP(BOOL_VAL, >=);
+            }
+            DISPATCH();
+        }
+
         CASE_CODE(LESS)
             :
         {
@@ -622,6 +662,17 @@ InterpretResult run(void)
                 INVOKE_DUNDER(vm.ltString);
             } else {
                 BINARY_OP(BOOL_VAL, <);
+            }
+            DISPATCH();
+        }
+
+        CASE_CODE(LESS_EQUAL)
+            :
+        {
+            if (IS_INSTANCE(PEEK()) && IS_INSTANCE(PEEK2())) {
+                INVOKE_DUNDER(vm.lteString);
+            } else {
+                BINARY_OP(BOOL_VAL, <=);
             }
             DISPATCH();
         }
@@ -813,6 +864,14 @@ InterpretResult run(void)
             DISPATCH();
         }
 
+        CASE_CODE(POP_N)
+            :
+        {
+            uint8_t n = READ_BYTE();
+            vm.stackTop -= n;
+            DISPATCH();
+        }
+
         CASE_CODE(DUP)
             :
         {
@@ -828,11 +887,83 @@ InterpretResult run(void)
             DISPATCH();
         }
 
+        CASE_CODE(GET_LOCAL_2)
+            :
+        {
+            uint16_t slotA = READ_SHORT();
+            uint16_t slotB = READ_SHORT();
+            PUSH(stackStart[slotA]);
+            PUSH(stackStart[slotB]);
+            DISPATCH();
+        }
+
+        CASE_CODE(GET_LOCAL_3)
+            :
+        {
+            uint16_t slotA = READ_SHORT();
+            uint16_t slotB = READ_SHORT();
+            uint16_t slotC = READ_SHORT();
+            PUSH(stackStart[slotA]);
+            PUSH(stackStart[slotB]);
+            PUSH(stackStart[slotC]);
+            DISPATCH();
+        }
+
+        CASE_CODE(GET_LOCAL_4)
+            :
+        {
+            uint16_t slotA = READ_SHORT();
+            uint16_t slotB = READ_SHORT();
+            uint16_t slotC = READ_SHORT();
+            uint16_t slotD = READ_SHORT();
+            PUSH(stackStart[slotA]);
+            PUSH(stackStart[slotB]);
+            PUSH(stackStart[slotC]);
+            PUSH(stackStart[slotD]);
+            DISPATCH();
+        }
+
         CASE_CODE(SET_LOCAL)
             :
         {
             uint16_t slot    = READ_SHORT();
             stackStart[slot] = PEEK();
+            DISPATCH();
+        }
+
+        CASE_CODE(SET_LOCAL_2)
+            :
+        {
+            uint16_t slotA    = READ_SHORT();
+            uint16_t slotB    = READ_SHORT();
+            stackStart[slotA] = PEEK();
+            stackStart[slotB] = PEEK2();
+            DISPATCH();
+        }
+
+        CASE_CODE(SET_LOCAL_3)
+            :
+        {
+            uint16_t slotA    = READ_SHORT();
+            uint16_t slotB    = READ_SHORT();
+            uint16_t slotC    = READ_SHORT();
+            stackStart[slotA] = PEEK();
+            stackStart[slotB] = PEEK2();
+            stackStart[slotC] = PEEK3();
+            DISPATCH();
+        }
+
+        CASE_CODE(SET_LOCAL_4)
+            :
+        {
+            uint16_t slotA    = READ_SHORT();
+            uint16_t slotB    = READ_SHORT();
+            uint16_t slotC    = READ_SHORT();
+            uint16_t slotD    = READ_SHORT();
+            stackStart[slotA] = PEEK();
+            stackStart[slotB] = PEEK2();
+            stackStart[slotC] = PEEK3();
+            stackStart[slotD] = PEEK4();
             DISPATCH();
         }
 
@@ -847,6 +978,102 @@ InterpretResult run(void)
                 return INTERPRET_RUNTIME_ERROR;
             }
             PUSH(value);
+            DISPATCH();
+        }
+
+        CASE_CODE(GET_GLOBAL_2)
+            :
+        {
+            Value nameA = READ_CONSTANT();
+            Value valueA;
+            if (!tableGet(&vm.globals, nameA, &valueA)) {
+                STORE_FRAME();
+                runtimeError("Undefined variable '%s'.", stringValue(nameA));
+                return INTERPRET_RUNTIME_ERROR;
+            }
+
+            Value nameB = READ_CONSTANT();
+            Value valueB;
+            if (!tableGet(&vm.globals, nameB, &valueB)) {
+                STORE_FRAME();
+                runtimeError("Undefined variable '%s'.", stringValue(nameB));
+                return INTERPRET_RUNTIME_ERROR;
+            }
+            PUSH(valueA);
+            PUSH(valueB);
+            DISPATCH();
+        }
+
+        CASE_CODE(GET_GLOBAL_3)
+            :
+        {
+            Value nameA = READ_CONSTANT();
+            Value valueA;
+            if (!tableGet(&vm.globals, nameA, &valueA)) {
+                STORE_FRAME();
+                runtimeError("Undefined variable '%s'.", stringValue(nameA));
+                return INTERPRET_RUNTIME_ERROR;
+            }
+
+            Value nameB = READ_CONSTANT();
+            Value valueB;
+            if (!tableGet(&vm.globals, nameB, &valueB)) {
+                STORE_FRAME();
+                runtimeError("Undefined variable '%s'.", stringValue(nameB));
+                return INTERPRET_RUNTIME_ERROR;
+            }
+
+            Value nameC = READ_CONSTANT();
+            Value valueC;
+            if (!tableGet(&vm.globals, nameC, &valueC)) {
+                STORE_FRAME();
+                runtimeError("Undefined variable '%s'.", stringValue(nameC));
+                return INTERPRET_RUNTIME_ERROR;
+            }
+            PUSH(valueA);
+            PUSH(valueB);
+            PUSH(valueC);
+            DISPATCH();
+        }
+
+        CASE_CODE(GET_GLOBAL_4)
+            :
+        {
+            Value nameA = READ_CONSTANT();
+            Value valueA;
+            if (!tableGet(&vm.globals, nameA, &valueA)) {
+                STORE_FRAME();
+                runtimeError("Undefined variable '%s'.", stringValue(nameA));
+                return INTERPRET_RUNTIME_ERROR;
+            }
+
+            Value nameB = READ_CONSTANT();
+            Value valueB;
+            if (!tableGet(&vm.globals, nameB, &valueB)) {
+                STORE_FRAME();
+                runtimeError("Undefined variable '%s'.", stringValue(nameB));
+                return INTERPRET_RUNTIME_ERROR;
+            }
+
+            Value nameC = READ_CONSTANT();
+            Value valueC;
+            if (!tableGet(&vm.globals, nameC, &valueC)) {
+                STORE_FRAME();
+                runtimeError("Undefined variable '%s'.", stringValue(nameC));
+                return INTERPRET_RUNTIME_ERROR;
+            }
+
+            Value nameD = READ_CONSTANT();
+            Value valueD;
+            if (!tableGet(&vm.globals, nameD, &valueD)) {
+                STORE_FRAME();
+                runtimeError("Undefined variable '%s'.", stringValue(nameD));
+                return INTERPRET_RUNTIME_ERROR;
+            }
+            PUSH(valueA);
+            PUSH(valueB);
+            PUSH(valueC);
+            PUSH(valueD);
             DISPATCH();
         }
 
@@ -1006,6 +1233,21 @@ InterpretResult run(void)
             }
 
             LOAD_FRAME();
+            DISPATCH();
+        }
+
+        CASE_CODE(CALL_BLIND)
+            :
+        {
+            int argCount = READ_SHORT();
+            STORE_FRAME();
+
+            if (!callValue(peek(argCount), argCount)) {
+                return INTERPRET_RUNTIME_ERROR;
+            }
+
+            LOAD_FRAME();
+            POP(); // CALL_BLIND is just CALL with a POP after
             DISPATCH();
         }
 
@@ -1398,6 +1640,17 @@ InterpretResult run(void)
 #undef READ_CONSTANT
 #undef READ_STRING
 #undef BINARY_OP
+#undef BINARY_OP_INT
+#undef INVOKE_DUNDER
+#undef PUSH
+#undef POP
+#undef PEEK
+#undef PEEK2
+#undef PEEK3
+#undef PEEK4
+#undef DROP
+#undef STORE_FRAME
+#undef LOAD_FRAME
 }
 
 InterpretResult interpret(const char* sourcePath, utf8_int8_t* source)

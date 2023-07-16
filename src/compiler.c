@@ -189,8 +189,7 @@ static void emitLoop(int loopStart)
     if (offset > UINT16_MAX)
         error("Loop body too large.");
 
-    emitByte((offset >> 8) & 0xff);
-    emitByte(offset & 0xff);
+    emitShort((uint16_t)offset);
 }
 
 static int emitJump(uint8_t instruction)
@@ -338,7 +337,7 @@ static void binary(bool canAssign)
 
     switch (operatorType) {
     case TOKEN_BANG_EQUAL:
-        emitBytes(OP_EQUAL, OP_NOT);
+        emitByte(OP_NOT_EQUAL);
         break;
     case TOKEN_EQUAL_EQUAL:
         emitByte(OP_EQUAL);
@@ -347,13 +346,13 @@ static void binary(bool canAssign)
         emitByte(OP_GREATER);
         break;
     case TOKEN_GREATER_EQUAL:
-        emitBytes(OP_LESS, OP_NOT);
+        emitByte(OP_GREATER_EQUAL);
         break;
     case TOKEN_LESS:
         emitByte(OP_LESS);
         break;
     case TOKEN_LESS_EQUAL:
-        emitBytes(OP_GREATER, OP_NOT);
+        emitByte(OP_LESS_EQUAL);
         break;
     case TOKEN_PLUS:
         emitByte(OP_ADD);
@@ -1555,55 +1554,388 @@ void optimizeChunk(Chunk* chunk)
     int passes = 0;
     int folds  = 0;
 
+    // calculate the number of jumps
+    int jumpCount = 0;
     for (int i = 0; i < chunk->count;) {
         uint8_t instruction = code[i];
         int     movement    = moveForward(chunk, i);
-        // printf("OpCode Index: %d\n", i);
-        // printf("Passes: %d\n", passes);
-        // disassembleChunk(chunk, "<script>", false);
+        switch (instruction) {
+        case OP_JUMP:
+        case OP_JUMP_IF_FALSE:
+        case OP_LOOP:
+            jumpCount++;
+        default:
+            i = movement;
+            break;
+        }
+    }
+
+    // array of jump instruction offsets
+    int jumps[jumpCount];
+    memset(jumps, 0, sizeof(jumps));
+
+    // store jump offsets and targets
+    int jumpIndex = 0;
+    for (int j = 0; j < chunk->count;) {
+        uint8_t instruction = code[j];
+        int     movement    = moveForward(chunk, j);
+        switch (instruction) {
+        case OP_JUMP:
+        case OP_JUMP_IF_FALSE:
+        case OP_LOOP:
+            jumps[jumpIndex++] = j;
+        default:
+            j = movement;
+            break;
+        }
+    }
+
+    for (int i = 0; i < chunk->count;) {
+        uint8_t instruction       = code[i];
+        int     movement          = moveForward(chunk, i);
+        int     currentAdjustment = 0;
 
         switch (instruction) {
         case OP_CONSTANT: {
-            if (movement < chunk->count) {
-                uint8_t nextInstruction = code[i + 3];
-                if (nextInstruction == OP_CONSTANT) {
-                    uint8_t  operation = code[i + 6];
-                    uint16_t arg1      = (code[i + 1] << 8) | code[i + 2];
-                    uint16_t arg2      = (code[i + 4] << 8) | code[i + 5];
+            uint8_t nextInstruction = code[i + 3];
+            if (nextInstruction == OP_CONSTANT) {
+                uint8_t  operation = code[i + 6];
+                uint16_t arg1      = (code[i + 1] << 8) | code[i + 2];
+                uint16_t arg2      = (code[i + 4] << 8) | code[i + 5];
 
-                    switch (operation) {
-                    case OP_ADD:
-                    case OP_MULTIPLY:
-                    case OP_DIVIDE:
-                    case OP_SUBTRACT:
-                    case OP_MODULO:
-                    case OP_BITWISE_AND:
-                    case OP_BITWISE_OR:
-                    case OP_BITWISE_XOR:
-                    case OP_SHIFT_LEFT:
-                    case OP_SHIFT_RIGHT:
-                    case OP_LESS:
-                    case OP_GREATER:
-                        if (IS_NUMBER(constants[arg1]) && IS_NUMBER(constants[arg2])) {
-                            optimizeBinaryConst(chunk, &i);
-                            folds++;
-                        }
-                        break;
-                    default:
-                        i = movement;
-                        break;
+                switch (operation) {
+                case OP_ADD:
+                case OP_MULTIPLY:
+                case OP_DIVIDE:
+                case OP_SUBTRACT:
+                case OP_MODULO:
+                case OP_BITWISE_AND:
+                case OP_BITWISE_OR:
+                case OP_BITWISE_XOR:
+                case OP_SHIFT_LEFT:
+                case OP_SHIFT_RIGHT:
+                case OP_LESS:
+                case OP_GREATER:
+                    if (IS_NUMBER(constants[arg1]) && IS_NUMBER(constants[arg2])) {
+                        optimizeBinaryConst(chunk, &i);
+                        folds++;
+                        currentAdjustment += 4;
                     }
+                    break;
+                default:
+                    i = movement;
+                    break;
+                }
+            } else {
+                i = movement;
+            }
+            break;
+        }
+        case OP_GET_GLOBAL: {
+            uint8_t nextInstruction = code[i + 3];
+            if (nextInstruction == OP_GET_GLOBAL) {
+                uint16_t arg1 = (code[i + 1] << 8) | code[i + 2];
+                uint16_t arg2 = (code[i + 4] << 8) | code[i + 5];
+
+                code[i]     = OP_GET_GLOBAL_2;
+                code[i + 1] = arg1 >> 8;
+                code[i + 2] = arg1 & 0xff;
+                code[i + 3] = arg2 >> 8;
+                code[i + 4] = arg2 & 0xff;
+                remiteBytes(chunk, i + 5, 1);
+                folds++;
+                currentAdjustment += 1;
+            } else {
+                i = movement;
+            }
+            break;
+        }
+        case OP_GET_GLOBAL_2: {
+            uint8_t nextInstruction = code[i + 5];
+            if (nextInstruction == OP_GET_GLOBAL) {
+                uint16_t arg1 = (code[i + 1] << 8) | code[i + 2];
+                uint16_t arg2 = (code[i + 3] << 8) | code[i + 4];
+                uint16_t arg3 = (code[i + 6] << 8) | code[i + 7];
+
+                code[i]     = OP_GET_GLOBAL_3;
+                code[i + 1] = arg1 >> 8;
+                code[i + 2] = arg1 & 0xff;
+                code[i + 3] = arg2 >> 8;
+                code[i + 4] = arg2 & 0xff;
+                code[i + 5] = arg3 >> 8;
+                code[i + 6] = arg3 & 0xff;
+                remiteBytes(chunk, i + 7, 1);
+                folds++;
+                currentAdjustment += 1;
+            } else {
+                i = movement;
+            }
+            break;
+        }
+        case OP_GET_GLOBAL_3: {
+            uint8_t nextInstruction = code[i + 7];
+            if (nextInstruction == OP_GET_GLOBAL) {
+                uint16_t arg1 = (code[i + 1] << 8) | code[i + 2];
+                uint16_t arg2 = (code[i + 3] << 8) | code[i + 4];
+                uint16_t arg3 = (code[i + 5] << 8) | code[i + 6];
+                uint16_t arg4 = (code[i + 8] << 8) | code[i + 9];
+
+                code[i]     = OP_GET_GLOBAL_4;
+                code[i + 1] = arg1 >> 8;
+                code[i + 2] = arg1 & 0xff;
+                code[i + 3] = arg2 >> 8;
+                code[i + 4] = arg2 & 0xff;
+                code[i + 5] = arg3 >> 8;
+                code[i + 6] = arg3 & 0xff;
+                code[i + 7] = arg4 >> 8;
+                code[i + 8] = arg4 & 0xff;
+                remiteBytes(chunk, i + 9, 1);
+                folds++;
+                currentAdjustment += 1;
+            } else {
+                i = movement;
+            }
+            break;
+        }
+        case OP_GET_LOCAL: {
+            uint8_t nextInstruction = code[i + 3];
+            if (nextInstruction == OP_GET_LOCAL) {
+                uint16_t arg1 = (code[i + 1] << 8) | code[i + 2];
+                uint16_t arg2 = (code[i + 4] << 8) | code[i + 5];
+
+                code[i]     = OP_GET_LOCAL_2;
+                code[i + 1] = arg1 >> 8;
+                code[i + 2] = arg1 & 0xff;
+                code[i + 3] = arg2 >> 8;
+                code[i + 4] = arg2 & 0xff;
+                remiteBytes(chunk, i + 5, 1);
+                folds++;
+                currentAdjustment += 1;
+            } else {
+                i = movement;
+            }
+            break;
+        }
+        case OP_GET_LOCAL_2: {
+            uint8_t nextInstruction = code[i + 5];
+            if (nextInstruction == OP_GET_LOCAL) {
+                uint16_t arg1 = (code[i + 1] << 8) | code[i + 2];
+                uint16_t arg2 = (code[i + 3] << 8) | code[i + 4];
+                uint16_t arg3 = (code[i + 6] << 8) | code[i + 7];
+
+                code[i]     = OP_GET_LOCAL_3;
+                code[i + 1] = arg1 >> 8;
+                code[i + 2] = arg1 & 0xff;
+                code[i + 3] = arg2 >> 8;
+                code[i + 4] = arg2 & 0xff;
+                code[i + 5] = arg3 >> 8;
+                code[i + 6] = arg3 & 0xff;
+                remiteBytes(chunk, i + 7, 1);
+                folds++;
+                currentAdjustment += 1;
+            } else {
+                i = movement;
+            }
+            break;
+        }
+        case OP_GET_LOCAL_3: {
+            uint8_t nextInstruction = code[i + 7];
+            if (nextInstruction == OP_GET_LOCAL) {
+                uint16_t arg1 = (code[i + 1] << 8) | code[i + 2];
+                uint16_t arg2 = (code[i + 3] << 8) | code[i + 4];
+                uint16_t arg3 = (code[i + 5] << 8) | code[i + 6];
+                uint16_t arg4 = (code[i + 8] << 8) | code[i + 9];
+
+                code[i]     = OP_GET_LOCAL_4;
+                code[i + 1] = arg1 >> 8;
+                code[i + 2] = arg1 & 0xff;
+                code[i + 3] = arg2 >> 8;
+                code[i + 4] = arg2 & 0xff;
+                code[i + 5] = arg3 >> 8;
+                code[i + 6] = arg3 & 0xff;
+                code[i + 7] = arg4 >> 8;
+                code[i + 8] = arg4 & 0xff;
+                remiteBytes(chunk, i + 9, 1);
+                folds++;
+                currentAdjustment += 1;
+            } else {
+                i = movement;
+            }
+            break;
+        }
+
+        case OP_SET_LOCAL: {
+            uint8_t nextInstruction = code[i + 3];
+            if (nextInstruction == OP_SET_LOCAL) {
+                uint16_t arg1 = (code[i + 1] << 8) | code[i + 2];
+                uint16_t arg2 = (code[i + 4] << 8) | code[i + 5];
+
+                code[i]     = OP_SET_LOCAL_2;
+                code[i + 1] = arg1 >> 8;
+                code[i + 2] = arg1 & 0xff;
+                code[i + 3] = arg2 >> 8;
+                code[i + 4] = arg2 & 0xff;
+                remiteBytes(chunk, i + 5, 1);
+                folds++;
+                currentAdjustment += 1;
+            } else {
+                i = movement;
+            }
+            break;
+        }
+        case OP_SET_LOCAL_2: {
+            uint8_t nextInstruction = code[i + 5];
+            if (nextInstruction == OP_SET_LOCAL) {
+                uint16_t arg1 = (code[i + 1] << 8) | code[i + 2];
+                uint16_t arg2 = (code[i + 3] << 8) | code[i + 4];
+                uint16_t arg3 = (code[i + 6] << 8) | code[i + 7];
+
+                code[i]     = OP_SET_LOCAL_3;
+                code[i + 1] = arg1 >> 8;
+                code[i + 2] = arg1 & 0xff;
+                code[i + 3] = arg2 >> 8;
+                code[i + 4] = arg2 & 0xff;
+                code[i + 5] = arg3 >> 8;
+                code[i + 6] = arg3 & 0xff;
+                remiteBytes(chunk, i + 7, 1);
+                folds++;
+                currentAdjustment += 1;
+            } else {
+                i = movement;
+            }
+            break;
+        }
+        case OP_SET_LOCAL_3: {
+            uint8_t nextInstruction = code[i + 7];
+            if (nextInstruction == OP_SET_LOCAL) {
+                uint16_t arg1 = (code[i + 1] << 8) | code[i + 2];
+                uint16_t arg2 = (code[i + 3] << 8) | code[i + 4];
+                uint16_t arg3 = (code[i + 5] << 8) | code[i + 6];
+                uint16_t arg4 = (code[i + 8] << 8) | code[i + 9];
+
+                code[i]     = OP_SET_LOCAL_4;
+                code[i + 1] = arg1 >> 8;
+                code[i + 2] = arg1 & 0xff;
+                code[i + 3] = arg2 >> 8;
+                code[i + 4] = arg2 & 0xff;
+                code[i + 5] = arg3 >> 8;
+                code[i + 6] = arg3 & 0xff;
+                code[i + 7] = arg4 >> 8;
+                code[i + 8] = arg4 & 0xff;
+                remiteBytes(chunk, i + 9, 1);
+                folds++;
+                currentAdjustment += 1;
+            } else {
+                i = movement;
+            }
+            break;
+        }
+
+        case OP_POP: {
+            uint8_t nextInstruction = code[i + 1];
+            if (nextInstruction == OP_POP) {
+                bool isJumpTarget = false;
+
+                for (int* offset = jumps; offset < jumps + jumpCount; offset++) {
+                    uint8_t  instruction       = code[*offset];
+                    uint16_t target            = (uint16_t)(code[*offset + 1] << 8) | code[*offset + 2];
+                    uint8_t  dir               = instruction == OP_JUMP || instruction == OP_JUMP_IF_FALSE ? 1 : -1;
+                    int      targetIndex       = *offset + 3 + dir * (target);
+                    uint8_t  targetInstruction = code[targetIndex];
+                    if ((i + 1) == targetIndex && (targetInstruction == OP_POP_N || targetInstruction == OP_POP)) {
+                        isJumpTarget = true;
+                    }
+                }
+
+                if (!isJumpTarget) {
+                    code[i]     = OP_POP_N;
+                    code[i + 1] = 2;
                 } else {
                     i = movement;
                 }
             } else {
-                // printf("OP_CONSTANT out of range\n");
+                i = movement;
             }
             break;
         }
+
+        case OP_POP_N: {
+            uint8_t nextInstruction = code[i + 2];
+
+            if (nextInstruction == OP_POP) {
+                bool isJumpTarget = false;
+
+                for (int* offset = jumps; offset < jumps + jumpCount; offset++) {
+                    uint8_t  instruction       = code[*offset];
+                    uint16_t target            = (uint16_t)(code[*offset + 1] << 8) | code[*offset + 2];
+                    uint8_t  dir               = instruction == OP_JUMP || instruction == OP_JUMP_IF_FALSE ? 1 : -1;
+                    int      targetIndex       = *offset + 3 + dir * (target);
+                    uint8_t  targetInstruction = code[targetIndex];
+                    if ((i + 1) == targetIndex && (targetInstruction == OP_POP_N || targetInstruction == OP_POP)) {
+                        isJumpTarget = true;
+                    }
+                }
+
+                if (!isJumpTarget) {
+                    uint8_t count = code[i + 1];
+                    code[i + 1]   = count + 1;
+                    remiteBytes(chunk, i + 2, 1);
+                    currentAdjustment += 1;
+                } else {
+                    i = movement;
+                }
+            } else {
+                i = movement;
+            }
+
+            break;
+        }
+
+        case OP_CALL: {
+            uint8_t nextInstruction = code[i + 3];
+
+            if (nextInstruction == OP_POP) {
+                code[i] = OP_CALL_BLIND;
+                remiteBytes(chunk, i + 3, 1);
+                currentAdjustment += 1;
+            } else {
+                i = movement;
+            }
+        }
+
         default:
             i = movement;
             break;
+        }
+
+        if (currentAdjustment > 0) {
+            // fix jump offsets post-fold
+            for (int* offset = jumps; offset < jumps + jumpCount; offset++) {
+                if (*offset >= i) {
+                    *offset = *offset - currentAdjustment;
+                }
+            }
+
+            // fix jump targets post-fold
+            for (int* offset = jumps; offset < jumps + jumpCount; offset++) {
+                uint8_t  instruction = code[*offset];
+                uint16_t target      = (uint16_t)(code[*offset + 1] << 8) | code[*offset + 2];
+                if (instruction == OP_JUMP || instruction == OP_JUMP_IF_FALSE) {
+                    int targetIndex = *offset + (target - currentAdjustment) + 3;
+                    if (i <= targetIndex && (*offset <= i)) {
+                        target -= currentAdjustment;
+                        code[*offset + 1] = target >> 8;
+                        code[*offset + 2] = target & 0xff;
+                    }
+                } else if (instruction == OP_LOOP) {
+                    int targetIndex = *offset + -(target - currentAdjustment) + 3;
+                    if (i >= targetIndex && (i <= *offset)) {
+                        target -= currentAdjustment;
+                        code[*offset + 1] = target >> 8;
+                        code[*offset + 2] = target & 0xff;
+                    }
+                }
+            }
         }
 
         passes++;
@@ -1632,7 +1964,10 @@ ObjFunction* compile(const char* sourcePath, utf8_int8_t* source)
     }
 
     ObjFunction* function = endCompiler();
+#ifdef CHUNK_OPTIMIZATION
     optimizeChunk(&function->chunk);
+#endif
+    // exit(1);
     function->source = sourcePath;
     return parser.hadError ? NULL : function;
 }

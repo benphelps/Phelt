@@ -5,10 +5,27 @@ int in_loop = 0;
 int loop_ends[254];
 int loop_starts[254];
 
+int in_false_jump = 0;
+int false_jumps[254];
+
+int in_jump = 0;
+int jumps[254];
+
+int loop_depth = 0;
+
 int moveForward(Chunk* chunk, int offset);
 
 void disassembleChunk(Chunk* chunk, const char* name, bool flow)
 {
+    in_loop       = 0;
+    in_false_jump = 0;
+    in_jump       = 0;
+    loop_depth    = 0;
+    memset(loop_ends, 0, sizeof(loop_ends));
+    memset(loop_starts, 0, sizeof(loop_starts));
+    memset(false_jumps, 0, sizeof(false_jumps));
+    memset(jumps, 0, sizeof(jumps));
+
     printf("== %s ==\n", name);
 
     for (int offset = 0; offset < chunk->count;) {
@@ -40,6 +57,38 @@ static int constantInstruction(const char* name, Chunk* chunk, int offset)
     return offset + 3;
 }
 
+static int constantInstructionCompound(const char* name, Chunk* chunk, int offset, int length)
+{
+    printf("%-16s ", name);
+
+    for (int i = 0; i < length; i++) {
+        uint16_t constant = (uint16_t)(chunk->code[offset + 1 + (i * 2)] << 8);
+        constant |= chunk->code[offset + 2 + (i * 2)];
+        printf("%4d '", constant);
+        printValue(chunk->constants.values[constant]);
+        printf("'");
+    }
+
+    printf("\n");
+
+    return offset + 1 + (length * 2);
+}
+
+static int shortInstructionCompound(const char* name, Chunk* chunk, int offset, int length)
+{
+    printf("%-16s ", name);
+
+    for (int i = 0; i < length; i++) {
+        uint16_t slot = (uint16_t)(chunk->code[offset + 1 + (i * 2)] << 8);
+        slot |= chunk->code[offset + 2 + (i * 2)];
+        printf("%4d ", slot);
+    }
+
+    printf("\n");
+
+    return offset + 1 + (length * 2);
+}
+
 static int invokeInstruction(const char* name, Chunk* chunk, int offset)
 {
     uint16_t constant = (uint16_t)(chunk->code[offset + 1] << 8);
@@ -58,12 +107,12 @@ static int simpleInstruction(const char* name, int offset)
     return offset + 1;
 }
 
-// static int byteInstruction(const char* name, Chunk* chunk, int offset)
-// {
-//     uint8_t slot = chunk->code[offset + 1];
-//     printf("%-16s %4d\n", name, slot);
-//     return offset + 2;
-// }
+static int byteInstruction(const char* name, Chunk* chunk, int offset)
+{
+    uint8_t slot = chunk->code[offset + 1];
+    printf("%-16s %4d\n", name, slot);
+    return offset + 2;
+}
 
 static int shortInstruction(const char* name, Chunk* chunk, int offset)
 {
@@ -80,14 +129,6 @@ static int jumpInstruction(const char* name, int sign, Chunk* chunk, int offset)
     printf("%-16s %4d -> %d\n", name, offset, offset + 3 + sign * jump);
     return offset + 3;
 }
-
-int in_false_jump = 0;
-int false_jumps[254];
-
-int in_jump = 0;
-int jumps[254];
-
-int loop_depth = 0;
 
 int disassembleInstruction(Chunk* chunk, int offset, bool flow)
 {
@@ -234,9 +275,9 @@ int disassembleInstruction(Chunk* chunk, int offset, bool flow)
             if (loop_starts[i] == offset) {
                 loop_depth++;
                 if (loop_depth > 1) {
-                    printf("├╼");
+                    printf("├─");
                 } else {
-                    printf("┌╼");
+                    printf("┌─");
                 }
                 loop_edge = true;
             }
@@ -283,8 +324,14 @@ int disassembleInstruction(Chunk* chunk, int offset, bool flow)
         return simpleInstruction("OP_FALSE", offset);
     case OP_EQUAL:
         return simpleInstruction("OP_EQUAL", offset);
+    case OP_NOT_EQUAL:
+        return simpleInstruction("OP_NOT_EQUAL", offset);
+    case OP_GREATER_EQUAL:
+        return simpleInstruction("OP_GREATER_EQUAL", offset);
     case OP_GREATER:
         return simpleInstruction("OP_GREATER", offset);
+    case OP_LESS_EQUAL:
+        return simpleInstruction("OP_LESS_EQUAL", offset);
     case OP_LESS:
         return simpleInstruction("OP_LESS", offset);
     case OP_ADD:
@@ -317,14 +364,34 @@ int disassembleInstruction(Chunk* chunk, int offset, bool flow)
         return simpleInstruction("OP_DECREMENT", offset);
     case OP_POP:
         return simpleInstruction("OP_POP", offset);
+    case OP_POP_N:
+        return byteInstruction("OP_POP_N", chunk, offset);
     case OP_DUP:
         return simpleInstruction("OP_DUP", offset);
     case OP_GET_LOCAL:
         return shortInstruction("OP_GET_LOCAL", chunk, offset);
+    case OP_GET_LOCAL_2:
+        return shortInstructionCompound("OP_GET_LOCAL_2", chunk, offset, 2);
+    case OP_GET_LOCAL_3:
+        return shortInstructionCompound("OP_GET_LOCAL_3", chunk, offset, 3);
+    case OP_GET_LOCAL_4:
+        return shortInstructionCompound("OP_GET_LOCAL_4", chunk, offset, 4);
     case OP_SET_LOCAL:
         return shortInstruction("OP_SET_LOCAL", chunk, offset);
+    case OP_SET_LOCAL_2:
+        return shortInstructionCompound("OP_SET_LOCAL_2", chunk, offset, 2);
+    case OP_SET_LOCAL_3:
+        return shortInstructionCompound("OP_SET_LOCAL_3", chunk, offset, 3);
+    case OP_SET_LOCAL_4:
+        return shortInstructionCompound("OP_SET_LOCAL_4", chunk, offset, 4);
     case OP_GET_GLOBAL:
         return constantInstruction("OP_GET_GLOBAL", chunk, offset);
+    case OP_GET_GLOBAL_2:
+        return constantInstructionCompound("OP_GET_GLOBAL_2", chunk, offset, 2);
+    case OP_GET_GLOBAL_3:
+        return constantInstructionCompound("OP_GET_GLOBAL_3", chunk, offset, 3);
+    case OP_GET_GLOBAL_4:
+        return constantInstructionCompound("OP_GET_GLOBAL_4", chunk, offset, 4);
     case OP_DEFINE_GLOBAL:
         return constantInstruction("OP_DEFINE_GLOBAL", chunk, offset);
     case OP_SET_GLOBAL:
@@ -355,6 +422,8 @@ int disassembleInstruction(Chunk* chunk, int offset, bool flow)
         return simpleInstruction("OP_DUMP", offset);
     case OP_CALL:
         return shortInstruction("OP_CALL", chunk, offset);
+    case OP_CALL_BLIND:
+        return shortInstruction("OP_CALL_BLIND", chunk, offset);
     case OP_INDEX:
         return simpleInstruction("OP_INDEX", offset);
     case OP_SET_INDEX:
@@ -419,7 +488,13 @@ int moveForward(Chunk* chunk, int offset)
         return offset + 1;
     case OP_EQUAL:
         return offset + 1;
+    case OP_NOT_EQUAL:
+        return offset + 1;
+    case OP_GREATER_EQUAL:
+        return offset + 1;
     case OP_GREATER:
+        return offset + 1;
+    case OP_LESS_EQUAL:
         return offset + 1;
     case OP_LESS:
         return offset + 1;
@@ -457,10 +532,28 @@ int moveForward(Chunk* chunk, int offset)
         return offset + 1;
     case OP_GET_LOCAL:
         return offset + 3;
+    case OP_GET_LOCAL_2:
+        return offset + 5;
+    case OP_GET_LOCAL_3:
+        return offset + 7;
+    case OP_GET_LOCAL_4:
+        return offset + 9;
     case OP_SET_LOCAL:
         return offset + 3;
+    case OP_SET_LOCAL_2:
+        return offset + 5;
+    case OP_SET_LOCAL_3:
+        return offset + 7;
+    case OP_SET_LOCAL_4:
+        return offset + 9;
     case OP_GET_GLOBAL:
         return offset + 3;
+    case OP_GET_GLOBAL_2:
+        return offset + 5;
+    case OP_GET_GLOBAL_3:
+        return offset + 7;
+    case OP_GET_GLOBAL_4:
+        return offset + 9;
     case OP_DEFINE_GLOBAL:
         return offset + 3;
     case OP_SET_GLOBAL:
@@ -490,6 +583,8 @@ int moveForward(Chunk* chunk, int offset)
     case OP_DUMP:
         return offset + 1;
     case OP_CALL:
+        return offset + 3;
+    case OP_CALL_BLIND:
         return offset + 3;
     case OP_INDEX:
         return offset + 1;

@@ -37,8 +37,11 @@ typedef struct
     ObjString* mulString;
     ObjString* divString;
     ObjString* gtString;
+    ObjString* gteString;
     ObjString* ltString;
+    ObjString* lteString;
     ObjString* eqString;
+    ObjString* neqString;
     ObjString* andString;
     ObjString* orString;
     ObjString* xorString;
