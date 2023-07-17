@@ -113,6 +113,7 @@ bool tableDelete(Table* table, Value key)
     // Place a tombstone in the entry.
     entry->key   = EMPTY_VAL;
     entry->value = BOOL_VAL(true);
+    table->count--;
     return true;
 }
 
