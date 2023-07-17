@@ -1891,17 +1891,16 @@ void optimizeChunk(Chunk* chunk)
             break;
         }
 
-        case OP_CALL: {
-            uint8_t nextInstruction = code[i + 3];
-
-            if (nextInstruction == OP_POP) {
-                code[i] = OP_CALL_BLIND;
-                remiteBytes(chunk, i + 3, 1);
-                currentAdjustment += 1;
-            } else {
-                i = movement;
-            }
-        }
+            // case OP_CALL: {
+            //     uint8_t nextInstruction = code[i + 3];
+            //     if (nextInstruction == OP_POP) {
+            //         code[i] = OP_CALL_BLIND;
+            //         remiteBytes(chunk, i + 3, 1);
+            //         currentAdjustment += 1;
+            //     } else {
+            //         i = movement;
+            //     }
+            // }
 
         default:
             i = movement;
