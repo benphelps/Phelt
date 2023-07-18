@@ -14,6 +14,9 @@ Phelt is a small and versatile scripting language. It's based on Lox, as describ
     -   It should "just work" everywhere, including indexing and slicing operations
 -   Variables
     -   Strings (immutable), Numbers (floats, integers, hex, binary, octal), Booleans, Nil
+        -   Single, double, triple quoted strings. Triple quoted strings act as heredocs, and can span multiple lines, and require no escaping.
+        -   All numbers are internally represented as doubles, cast to integers when required.
+        -   Equality is direct, no type coercion, `0` does not equal `false`.
     -   Arrays, Tables (dictionaries, maps, etc., whatever you want to call them)
         -   Keys can be any type
         -   Values can be any type
@@ -36,12 +39,14 @@ Phelt is a small and versatile scripting language. It's based on Lox, as describ
     -   The standard library is written in C, and is compiled into the `phelt` executable.
         -   A lua-esque set of macros for manipulating the stack, allows for easy implementation of functions in C
     -   It is a work in progress, might be buggy
-    -   Currently includes `system`, `math`, `http`, `file`, `array`, `table` and `debug` modules
+    -   Currently includes `system`, `math`, `http`, `file`, `array`, `table`, `json` and `debug` modules
     -   On-demand loading of modules, using `module(name)` function
         -   Keeps namespace clean, allows for mapping modules to your own names
 -   Imports
     -   Imports are done using the `import` keyword
     -   Imports share the same namespace as the file they are imported into
+-   Visual Studio Code Extension
+    -   Syntax highlighting extension is available here: [phelt - language](https://github.com/benphelps/phelt-language)
 
 # Compiling
 
@@ -250,7 +255,7 @@ These are functions that are always available in the global scope.
 ```js
 print("Hello World"); // no newline
 println("Hello World"); // with newline
-let stype = typeof value; // "number"
+let stype = typeof(value); // "number"
 
 let http = module("http"); // loads the http module
 ```
@@ -418,6 +423,15 @@ let new = string.find(str, substr);
 let new = string.replace(str, substr, newstr);
 let new = string.reverse(str);
 let new = string.repeat(str, count);
+```
+
+## `json`
+
+```js
+let json = module("json");
+
+let object = json.decode(input [, isSimplifiedJSON]);
+let string = json.encode(object);
 ```
 
 ## `debug`
