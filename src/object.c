@@ -265,10 +265,10 @@ void printObject(Value value)
         printf("%s", AS_CSTRING(value));
         break;
     case OBJ_TABLE:
-        printf("table");
+        printTable(&AS_TABLE(value)->table);
         break;
     case OBJ_ARRAY:
-        printf("array");
+        printValueArray(&AS_ARRAY(value)->array);
         break;
     case OBJ_UPVALUE:
         printf("upvalue");
