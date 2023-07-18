@@ -246,12 +246,9 @@ static Token heredoc()
         return errorToken("Unterminated string.");
 
     advance();
-
     Token token = makeToken(TOKEN_STRING);
     advance();
-
     advance();
-
     return token;
 }
 
