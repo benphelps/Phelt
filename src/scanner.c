@@ -69,6 +69,17 @@ utf8_int32_t peekNext()
     return codepoint;
 }
 
+utf8_int32_t peekNextNext()
+{
+    if (isAtEnd())
+        return '\0';
+
+    utf8_int32_t peek      = 0;
+    utf8_int32_t codepoint = 0;
+    utf8codepoint(utf8codepoint(utf8codepoint(scanner.current, &peek), &peek), &codepoint);
+    return codepoint;
+}
+
 utf8_int32_t advance()
 {
     utf8_int32_t codepoint = 0;
@@ -221,6 +232,29 @@ static Token string()
     return makeToken(TOKEN_STRING);
 }
 
+// """heredoc"""
+static Token heredoc()
+{
+    scanner.start += 2;
+    while (!(peek() == '"' && peekNext() == '"' && peekNextNext() == '"') && !isAtEnd()) {
+        if (peek() == '\n')
+            scanner.line++;
+        advance();
+    }
+
+    if (isAtEnd())
+        return errorToken("Unterminated string.");
+
+    advance();
+
+    Token token = makeToken(TOKEN_STRING);
+    advance();
+
+    advance();
+
+    return token;
+}
+
 static Token stringSingle()
 {
     while (peek() != '\'' && !isAtEnd()) {
@@ -318,7 +352,15 @@ Token scanToken()
         else
             return makeToken(TOKEN_GREATER);
     case '"':
-        return string();
+        if (match('"')) {
+            if (match('"')) {
+                return heredoc();
+            } else {
+                return string();
+            }
+        } else {
+            return string();
+        }
     case '\'':
         return stringSingle();
     }
