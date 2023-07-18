@@ -221,6 +221,21 @@ static Token string()
     return makeToken(TOKEN_STRING);
 }
 
+static Token stringSingle()
+{
+    while (peek() != '\'' && !isAtEnd()) {
+        if (peek() == '\n')
+            scanner.line++;
+        advance();
+    }
+
+    if (isAtEnd())
+        return errorToken("Unterminated string.");
+
+    advance();
+    return makeToken(TOKEN_STRING);
+}
+
 Token scanToken()
 {
     skipWhitespace();
@@ -304,6 +319,8 @@ Token scanToken()
             return makeToken(TOKEN_GREATER);
     case '"':
         return string();
+    case '\'':
+        return stringSingle();
     }
 
     return errorToken("Unexpected character.");
