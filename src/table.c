@@ -168,10 +168,9 @@ void printTable(Table* table)
     printf("{ ");
     for (unsigned int i = 0; i < table->capacity; i++) {
         Entry* entry = &table->entries[i];
-        Entry* next  = &table->entries[i + 1];
         if (!IS_EMPTY(entry->key)) {
             printEntry(entry);
-            if (!IS_EMPTY(next->key))
+            if (i < table->capacity - 1)
                 printf(", ");
         }
     }
