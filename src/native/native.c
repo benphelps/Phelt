@@ -154,7 +154,8 @@ NativeFnEntry stringFns[] = {
 };
 
 NativeFnEntry jsonFns[] = {
-    { "parse", _json_parse },
+    { "decode", json_decode },
+    { "encode", json_encode },
     { NULL, NULL },
 };
 
