@@ -10,6 +10,7 @@
 #include "native/debug.h"
 #include "native/file.h"
 #include "native/http.h"
+#include "native/json.h"
 #include "native/math.h"
 #include "native/string.h"
 #include "native/system.h"

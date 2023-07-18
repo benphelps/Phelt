@@ -153,6 +153,11 @@ NativeFnEntry stringFns[] = {
     { NULL, NULL },
 };
 
+NativeFnEntry jsonFns[] = {
+    { "parse", _json_parse },
+    { NULL, NULL },
+};
+
 NativeFnEntry debugFns[] = {
     { "frame", debug_frame },
     { NULL, NULL },
@@ -168,6 +173,7 @@ NativeModuleEntry nativeModules[] = {
     { "table", tableFns },
     { "string", stringFns },
     { "debug", debugFns },
+    { "json", jsonFns },
     { NULL, NULL },
 };
 

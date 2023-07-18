@@ -29,6 +29,7 @@ add_executable(phelt
     src/native/table.c
     src/native/debug.c
     src/native/native.c
+    src/native/json.c
 )
 
 target_link_libraries(phelt curl)
