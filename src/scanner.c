@@ -51,6 +51,11 @@ static bool isAtEnd()
     return *scanner.current == '\0';
 }
 
+utf8_int32_t previous()
+{
+    return *(scanner.current - 1);
+}
+
 utf8_int32_t peek()
 {
     utf8_int32_t codepoint = 0;
@@ -235,6 +240,9 @@ static Token string()
 // """heredoc"""
 static Token heredoc()
 {
+    advance();
+    advance();
+
     scanner.start += 2;
     while (!(peek() == '"' && peekNext() == '"' && peekNextNext() == '"') && !isAtEnd()) {
         if (peek() == '\n')
@@ -247,6 +255,7 @@ static Token heredoc()
 
     advance();
     Token token = makeToken(TOKEN_STRING);
+
     advance();
     advance();
     return token;
@@ -349,12 +358,8 @@ Token scanToken()
         else
             return makeToken(TOKEN_GREATER);
     case '"':
-        if (match('"')) {
-            if (match('"')) {
-                return heredoc();
-            } else {
-                return string();
-            }
+        if (peek() == '"' && peekNext() == '"') {
+            return heredoc();
         } else {
             return string();
         }
