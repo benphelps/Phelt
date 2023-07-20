@@ -1154,19 +1154,35 @@ static void funDeclaration(void)
 
 static void varDeclaration(void)
 {
-    uint16_t global = parseVariable("Expect variable name.");
+    uint16_t* globals     = ALLOCATE(uint16_t, 0);
+    uint16_t  globalCount = 0;
+
+    do {
+        globals                = GROW_ARRAY(uint16_t, globals, globalCount, globalCount + 1);
+        globals[globalCount++] = parseVariable("Expect variable name.");
+    } while (match(TOKEN_COMMA));
 
     if (match(TOKEN_EQUAL)) {
-        expression();
+        int expressionIndex = 0;
+        do {
+            if (expressionIndex > globalCount - 1) {
+                error("Too many expressions in variable declaration.");
+            }
+
+            expression();
+            defineVariable(globals[expressionIndex++]);
+        } while (match(TOKEN_COMMA));
+
+        if (expressionIndex < globalCount) {
+            error("Too few expressions in variable declaration.");
+        }
     } else {
-        emitByte(OP_NIL);
+        for (int i = 0; i < globalCount; i++) {
+            emitByte(OP_NIL);
+        }
     }
 
-    if (parser.previous.type != TOKEN_SEMICOLON) {
-        consume(TOKEN_SEMICOLON, "Expect ';' after variable declaration.");
-    }
-
-    defineVariable(global);
+    consume(TOKEN_SEMICOLON, "Expect ';' after variable declaration.");
 }
 
 static void expressionStatement(void)
