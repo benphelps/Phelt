@@ -291,12 +291,13 @@ let tan = math.tan(0);
 let atan = math.atan(0);
 let pow = math.pow(2, 3);
 let atan2 = math.atan2(1, 1);
-let deg = math.deg(0.7853981633974483);
-let rad = math.rad(45);
-let clamp = math.clamp(5, 0, 10);
-let lerp = math.lerp(0.5, 0, 10);
-let map = math.map(5, 0, 10, 0, 100);
-let norm = math.norm(5, 0, 10);
+let deg = math.deg(rad);
+let rad = math.rad(deg);
+let clamp = math.clamp(value, min, max);
+let lerp = math.lerp(start, end, pos);
+let map = math.map(value, startA, startB, endA, endB);
+let norm = math.norm(value, start, stop);
+let round = math.round(value, precision);
 
 math.seed(seed); // seed the random number generator
 let rand = math.rand(); // random float between 0 and 1

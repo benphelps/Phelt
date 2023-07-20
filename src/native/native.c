@@ -79,6 +79,7 @@ NativeFnEntry mathFns[] = {
     { "norm", math_norm },
     { "seed", math_seed },
     { "rand", math_rand },
+    { "round", math_round },
     { NULL, NULL },
 };
 

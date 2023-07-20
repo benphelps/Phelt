@@ -154,6 +154,29 @@ bool math_norm(int argCount, Value* args)
     return true;
 }
 
+double _round(double value, int decimals)
+{
+    double factor = pow(10, decimals);
+    return round(value * factor) / factor;
+}
+
+bool math_round(int argCount, Value* args)
+{
+    int decimals = 0;
+    phelt_checkMinArgs(1);
+    phelt_checkNumber(0);
+
+    if (argCount == 2) {
+        phelt_checkNumber(1);
+        decimals = (int)phelt_toNumber(1);
+    }
+
+    double value   = phelt_toNumber(0);
+    double rounded = _round(value, decimals);
+    phelt_pushNumber(-1, rounded);
+    return true;
+}
+
 bool math_seed(int argCount, Value* args)
 {
     phelt_checkArgs(1);

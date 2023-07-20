@@ -22,6 +22,7 @@ extern bool math_map(int argCount, Value* args);
 extern bool math_norm(int argCount, Value* args);
 extern bool math_seed(int argCount, Value* args);
 extern bool math_rand(int argCount, Value* args);
+extern bool math_round(int argCount, Value* args);
 extern void mathCallback(Table* table);
 
 #endif
