@@ -1162,6 +1162,8 @@ static void varDeclaration(void)
         globals[globalCount++] = parseVariable("Expect variable name.");
     } while (match(TOKEN_COMMA));
 
+    inParamList = true;
+
     if (match(TOKEN_EQUAL)) {
         int expressionIndex = 0;
         do {
@@ -1181,6 +1183,8 @@ static void varDeclaration(void)
             emitByte(OP_NIL);
         }
     }
+
+    inParamList = false;
 
     consume(TOKEN_SEMICOLON, "Expect ';' after variable declaration.");
 }
