@@ -112,6 +112,15 @@ let array = [1, 2, 3] + [4, 5, 6];
 let table = { a: 1, b: 2, c: 3 } + { d: 4, e: 5, f: 6 };
 ```
 
+## Multiple Assignment
+
+The number of variables on the left must match the number of values on the right, 
+
+```js
+let a, b, c = 1, 2, 3;
+let x, y, z;
+```
+
 ## Control Flow
 
 ```js
