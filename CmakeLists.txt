@@ -32,5 +32,5 @@ add_executable(phelt
     src/native/json.c
 )
 
-target_link_libraries(phelt curl)
+target_link_libraries(phelt curl readline)
 target_compile_options(phelt PRIVATE -Wall -Wextra -Wpedantic -Werror -Wno-gnu-label-as-value -Wno-gnu-zero-variadic-macro-arguments -Wno-gnu-case-range)

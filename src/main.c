@@ -2,19 +2,17 @@
 #include "common.h"
 #include "debug.h"
 #include "vm.h"
+#include <readline/history.h>
+#include <readline/readline.h>
 
 static void repl(void)
 {
-    utf8_int8_t line[1024];
-    for (;;) {
-        printf("> ");
-
-        if (!fgets(line, sizeof(line), stdin)) {
-            printf("\n");
-            break;
-        }
-
+    utf8_int8_t* line;
+    while ((line = readline("> ")) != NULL) {
         interpret("repl", line);
+        if (*line)
+            add_history(line);
+        free(line);
     }
 }
 
