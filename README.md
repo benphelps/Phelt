@@ -23,7 +23,7 @@ Phelt is a small and versatile scripting language. It's based on Lox, as describ
     -   Slices & negative indices for types where it makes sense (eg. `[2..-2]`)
 -   Control flow
     -   if / else if / else
-    -   while, for
+    -   while, do while, for
     -   switch (non-fallthrough)
 -   Functions
     -   Named functions, Anonymous functions
@@ -136,6 +136,10 @@ while (true) {
     print("true");
     break;
 }
+
+do {
+    print("once");
+} while (false);
 
 for (let i = 0; i < 10; i = i + 1) {
     print(i);

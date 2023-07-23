@@ -37,12 +37,12 @@
 #line 13 "identifiers.gperf"
 struct Identifier { utf8_int8_t* name; TokenType token; };
 
-#define TOTAL_KEYWORDS 22
+#define TOTAL_KEYWORDS 21
 #define MIN_WORD_LENGTH 2
 #define MAX_WORD_LENGTH 8
 #define MIN_HASH_VALUE 2
-#define MAX_HASH_VALUE 28
-/* maximum key range = 27, duplicates = 0 */
+#define MAX_HASH_VALUE 25
+/* maximum key range = 24, duplicates = 0 */
 
 #ifdef __GNUC__
 __inline
@@ -56,32 +56,32 @@ hash (register const char *str, register size_t len)
 {
   static const unsigned char asso_values[] =
     {
-      29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-      29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-      29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-      29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-      29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-      29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-      29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-      29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-      29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-      29, 29, 29, 29, 29, 29, 29, 20, 29, 29,
-      29,  5,  0, 29, 15, 25, 29, 29, 10, 10,
-      20, 10, 29, 29,  5, 29, 29,  0, 29,  0,
-      29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-      29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-      29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-      29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-      29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-      29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-      29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-      29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-      29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-      29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-      29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-      29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-      29, 29, 29, 29, 29, 29, 29, 29, 29, 29,
-      29, 29, 29, 29, 29, 29
+      26, 26, 26, 26, 26, 26, 26, 26, 26, 26,
+      26, 26, 26, 26, 26, 26, 26, 26, 26, 26,
+      26, 26, 26, 26, 26, 26, 26, 26, 26, 26,
+      26, 26, 26, 26, 26, 26, 26, 26, 26, 26,
+      26, 26, 26, 26, 26, 26, 26, 26, 26, 26,
+      26, 26, 26, 26, 26, 26, 26, 26, 26, 26,
+      26, 26, 26, 26, 26, 26, 26, 26, 26, 26,
+      26, 26, 26, 26, 26, 26, 26, 26, 26, 26,
+      26, 26, 26, 26, 26, 26, 26, 26, 26, 26,
+      26, 26, 26, 26, 26, 26, 26, 20, 26, 26,
+      26, 15,  0, 26, 15, 20, 26, 26, 10,  5,
+      26,  5, 26, 26,  5, 26, 26,  0, 26,  0,
+      26, 26, 26, 26, 26, 26, 26, 26, 26, 26,
+      26, 26, 26, 26, 26, 26, 26, 26, 26, 26,
+      26, 26, 26, 26, 26, 26, 26, 26, 26, 26,
+      26, 26, 26, 26, 26, 26, 26, 26, 26, 26,
+      26, 26, 26, 26, 26, 26, 26, 26, 26, 26,
+      26, 26, 26, 26, 26, 26, 26, 26, 26, 26,
+      26, 26, 26, 26, 26, 26, 26, 26, 26, 26,
+      26, 26, 26, 26, 26, 26, 26, 26, 26, 26,
+      26, 26, 26, 26, 26, 26, 26, 26, 26, 26,
+      26, 26, 26, 26, 26, 26, 26, 26, 26, 26,
+      26, 26, 26, 26, 26, 26, 26, 26, 26, 26,
+      26, 26, 26, 26, 26, 26, 26, 26, 26, 26,
+      26, 26, 26, 26, 26, 26, 26, 26, 26, 26,
+      26, 26, 26, 26, 26, 26
     };
   return len + asso_values[(unsigned char)str[1]];
 }
@@ -98,47 +98,44 @@ checkIdentifier (register const char *str, register size_t len)
       {"fun",      TOKEN_FUN},
 #line 22 "identifiers.gperf"
       {"dump",     TOKEN_DUMP},
-#line 33 "identifiers.gperf"
-      {"super",    TOKEN_SUPER},
-#line 34 "identifiers.gperf"
-      {"switch",   TOKEN_SWITCH},
-#line 31 "identifiers.gperf"
-      {"or",       TOKEN_OR},
-#line 29 "identifiers.gperf"
-      {"let",      TOKEN_LET},
-#line 36 "identifiers.gperf"
-      {"true",     TOKEN_TRUE},
-#line 17 "identifiers.gperf"
-      {"break",    TOKEN_BREAK},
 #line 32 "identifiers.gperf"
-      {"return",   TOKEN_RETURN},
+      {"super",    TOKEN_SUPER},
+#line 33 "identifiers.gperf"
+      {"switch",   TOKEN_SWITCH},
 #line 21 "identifiers.gperf"
-      {"default",  TOKEN_DEFAULT},
+      {"do",       TOKEN_DO},
 #line 25 "identifiers.gperf"
       {"for",      TOKEN_FOR},
-#line 23 "identifiers.gperf"
-      {"else",     TOKEN_ELSE},
-#line 19 "identifiers.gperf"
-      {"class",    TOKEN_CLASS},
+#line 35 "identifiers.gperf"
+      {"true",     TOKEN_TRUE},
+#line 16 "identifiers.gperf"
+      {"break",    TOKEN_BREAK},
 #line 28 "identifiers.gperf"
       {"import",   TOKEN_IMPORT},
       {""},
-#line 20 "identifiers.gperf"
+#line 19 "identifiers.gperf"
       {"continue", TOKEN_CONTINUE},
-#line 35 "identifiers.gperf"
-      {"this",     TOKEN_THIS},
-#line 37 "identifiers.gperf"
-      {"while",    TOKEN_WHILE},
-      {""}, {""},
-#line 16 "identifiers.gperf"
-      {"and",      TOKEN_AND},
+#line 23 "identifiers.gperf"
+      {"else",     TOKEN_ELSE},
 #line 18 "identifiers.gperf"
+      {"class",    TOKEN_CLASS},
+      {""}, {""},
+#line 29 "identifiers.gperf"
+      {"let",      TOKEN_LET},
+#line 34 "identifiers.gperf"
+      {"this",     TOKEN_THIS},
+#line 36 "identifiers.gperf"
+      {"while",    TOKEN_WHILE},
+#line 31 "identifiers.gperf"
+      {"return",   TOKEN_RETURN},
+#line 20 "identifiers.gperf"
+      {"default",  TOKEN_DEFAULT},
+#line 30 "identifiers.gperf"
+      {"nil",      TOKEN_NIL},
+#line 17 "identifiers.gperf"
       {"case",     TOKEN_CASE},
 #line 24 "identifiers.gperf"
-      {"false",    TOKEN_FALSE},
-      {""}, {""},
-#line 30 "identifiers.gperf"
-      {"nil",      TOKEN_NIL}
+      {"false",    TOKEN_FALSE}
     };
 
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
@@ -155,5 +152,5 @@ checkIdentifier (register const char *str, register size_t len)
     }
   return 0;
 }
-#line 38 "identifiers.gperf"
+#line 37 "identifiers.gperf"
 

@@ -1319,6 +1319,29 @@ static void whileStatement(void)
     patchBreak();
 }
 
+static void doWhileStatement(void)
+{
+    int loopStart      = currentChunk()->count;
+    current->loopStart = loopStart;
+    current->isInLoop  = true;
+    statement();
+
+    consume(TOKEN_WHILE, "Expect 'while' after loop body.");
+    consume(TOKEN_LEFT_PAREN, "Expect '(' after 'while'.");
+    expression();
+    consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
+    consume(TOKEN_SEMICOLON, "Expect ';' after condition.");
+
+    int exitJump = emitJump(OP_JUMP_IF_FALSE);
+    emitByte(OP_POP);
+    emitLoop(loopStart);
+    patchJump(exitJump);
+    emitByte(OP_POP);
+
+    // patch break jump
+    patchBreak();
+}
+
 static void forStatement(void)
 {
     beginScope();
@@ -1476,6 +1499,8 @@ static void statement(void)
         returnStatement();
     } else if (match(TOKEN_WHILE)) {
         whileStatement();
+    } else if (match(TOKEN_DO)) {
+        doWhileStatement();
     } else if (match(TOKEN_FOR)) {
         forStatement();
     } else if (match(TOKEN_CONTINUE)) {

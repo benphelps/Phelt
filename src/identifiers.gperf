@@ -18,6 +18,7 @@ case,     TOKEN_CASE
 class,    TOKEN_CLASS
 continue, TOKEN_CONTINUE
 default,  TOKEN_DEFAULT
+do,       TOKEN_DO
 dump,     TOKEN_DUMP
 else,     TOKEN_ELSE
 false,    TOKEN_FALSE
