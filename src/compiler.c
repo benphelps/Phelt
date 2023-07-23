@@ -681,7 +681,7 @@ static void super_(bool canAssign)
         uint16_t argCount = argumentList();
         namedVariable(syntheticToken("super"), false);
         emitOpShort(OP_SUPER_INVOKE, name);
-        emitByte(argCount);
+        emitShort(argCount);
     } else {
         namedVariable(syntheticToken("super"), false);
         emitOpShort(OP_GET_SUPER, name);
