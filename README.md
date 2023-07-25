@@ -31,7 +31,7 @@ Phelt is a small and versatile scripting language. It's based on Lox, as describ
     -   Closures
 -   Classes
     -   Constructors, Inheritance
-    -   Defined properties (not yet constants)
+    -   Implicit and explicit properties
     -   Dunder methods (e.g. `__str`, `__add`, `__sub`, `__eq`, etc.)
 -   Mostly reentrant
     -   The VM is mostly reentrant, you can invoke Phelt functions from C, this is how `__str` is implemented for example.
