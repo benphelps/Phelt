@@ -385,14 +385,6 @@ static void defineMethod(ObjString* name)
     pop();
 }
 
-static void defineProperty(ObjString* name)
-{
-    Value     field = peek(0);
-    ObjClass* klass = AS_CLASS(peek(1));
-    tableSet(&klass->fields, OBJ_VAL(name), field);
-    pop();
-}
-
 __attribute__((always_inline)) inline static bool isFalsey(Value value)
 {
     return IS_NIL(value) || (IS_BOOL(value) && !AS_BOOL(value));
@@ -1168,6 +1160,20 @@ InterpretResult run(void)
                 break;
             }
 
+            case OBJ_CLASS: {
+                if (IS_CLASS(PEEK())) {
+                    ObjClass* klass = AS_CLASS(PEEK());
+                    printf("name: %s\n", klass->name->chars);
+                    tableSet(&klass->fields, READ_CONSTANT(), PEEK2());
+                    POP();
+                } else {
+                    ObjClass* klass = AS_CLASS(PEEK2());
+                    tableSet(&klass->fields, READ_CONSTANT(), PEEK());
+                    POP();
+                }
+                break;
+            }
+
             default:
                 STORE_FRAME();
                 runtimeError("Only instances and tables have fields.");
@@ -1538,16 +1544,17 @@ InterpretResult run(void)
         CASE_CODE(INHERIT)
             :
         {
-            Value superclass = PEEK2();
-
-            if (!IS_CLASS(superclass)) {
+            if (!IS_CLASS(PEEK2())) {
                 STORE_FRAME();
                 runtimeError("Superclass must be a class.");
                 return INTERPRET_RUNTIME_ERROR;
             }
 
-            ObjClass* subclass = AS_CLASS(PEEK());
-            tableAddAll(&AS_CLASS(superclass)->methods, &subclass->methods);
+            ObjClass* subClass   = AS_CLASS(PEEK());
+            ObjClass* superClass = AS_CLASS(PEEK2());
+
+            tableAddAll(&superClass->methods, &subClass->methods);
+            tableAddAll(&superClass->fields, &subClass->fields);
             POP(); // Subclass.
             DISPATCH();
         }
@@ -1556,13 +1563,6 @@ InterpretResult run(void)
             :
         {
             defineMethod(READ_STRING());
-            DISPATCH();
-        }
-
-        CASE_CODE(PROPERTY)
-            :
-        {
-            defineProperty(READ_STRING());
             DISPATCH();
         }
 

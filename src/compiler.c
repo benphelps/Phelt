@@ -1119,7 +1119,8 @@ static void classDeclaration(void)
             function(type, parser.previous.line);
             emitOpShort(OP_METHOD, constant);
         } else if (match(TOKEN_LET)) {
-            uint16_t property = parseVariable("Expect property name.");
+            consume(TOKEN_IDENTIFIER, "Expect property name after 'let'.");
+            uint16_t property = identifierConstant(&parser.previous);
 
             if (match(TOKEN_EQUAL)) {
                 expression();
@@ -1128,7 +1129,7 @@ static void classDeclaration(void)
             }
 
             consume(TOKEN_SEMICOLON, "Expect ';' after property declaration.");
-            emitOpShort(OP_PROPERTY, property);
+            emitOpShort(OP_SET_PROPERTY, property);
         } else {
             error("Expect method or property declarations.");
         }

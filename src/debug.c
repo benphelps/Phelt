@@ -461,8 +461,6 @@ int disassembleInstruction(Chunk* chunk, int offset, bool flow)
         return simpleInstruction("OP_INHERIT", offset);
     case OP_METHOD:
         return constantInstruction("OP_METHOD", chunk, offset);
-    case OP_PROPERTY:
-        return constantInstruction("OP_PROPERTY", chunk, offset);
     case OP_IMPORT:
         return simpleInstruction("OP_IMPORT", offset);
     case OP_SLICE:
@@ -615,8 +613,6 @@ int moveForward(Chunk* chunk, int offset)
     case OP_INHERIT:
         return offset + 1;
     case OP_METHOD:
-        return offset + 3;
-    case OP_PROPERTY:
         return offset + 3;
     case OP_IMPORT:
         return offset + 1;
