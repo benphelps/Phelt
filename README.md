@@ -230,6 +230,18 @@ employee.greet(); // Hello, my name is John
                   // My employee id is 123
 ```
 
+## Properties
+
+```js
+class Base {
+    let explicitProperty = "explicit";
+
+    method() {
+        this.implicitProperty = "implicit";
+    }
+}
+```
+
 ## Dunder Methods
 
 Currently supported dunder methods:
